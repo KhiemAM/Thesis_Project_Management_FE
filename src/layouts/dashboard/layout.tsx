@@ -21,7 +21,7 @@ import { MenuButton } from '../components/menu-button'
 import { HeaderSection } from '../core/header-section'
 import { LayoutSection } from '../core/layout-section'
 import { AccountPopover } from '../components/account-popover'
-import { SettingsPopover } from '../components/SettingsPopover'
+import { SettingsDrawer } from '../components/settings-drawer'
 import { LanguagePopover } from '../components/language-popover'
 import { NotificationsPopover } from '../components/notifications-popover'
 
@@ -87,7 +87,7 @@ export function DashboardLayout({
           <NotificationsPopover data={_notifications} />
 
           {/** @slot Settings popover */}
-          <SettingsPopover />
+          <SettingsDrawer />
 
           {/** @slot Account drawer */}
           <AccountPopover data={_account} />

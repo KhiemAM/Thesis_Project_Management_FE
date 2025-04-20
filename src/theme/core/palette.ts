@@ -101,7 +101,7 @@ export const background = {
   light: createPaletteChannel({
     paper: '#FFFFFF',
     default: grey[100],
-    neutral: grey[200],
+    neutral: grey[200]
   }),
 };
 

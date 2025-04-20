@@ -1,42 +1,42 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react'
 
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Pagination from '@mui/material/Pagination';
-import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Pagination from '@mui/material/Pagination'
+import Typography from '@mui/material/Typography'
 
-import { _products } from 'src/_mock';
-import { DashboardContent } from 'src/layouts/dashboard';
+import { _products } from 'src/_mock'
+import { DashboardContent } from 'src/layouts/dashboard'
 
-import { ProductItem } from '../product-item';
-import { ProductSort } from '../product-sort';
-import { CartIcon } from '../product-cart-widget';
-import { ProductFilters } from '../product-filters';
+import { ProductItem } from '../product-item'
+import { ProductSort } from '../product-sort'
+import { CartIcon } from '../product-cart-widget'
+import { ProductFilters } from '../product-filters'
 
-import type { FiltersProps } from '../product-filters';
+import type { FiltersProps } from '../product-filters'
 
 // ----------------------------------------------------------------------
 
 const GENDER_OPTIONS = [
   { value: 'men', label: 'Men' },
   { value: 'women', label: 'Women' },
-  { value: 'kids', label: 'Kids' },
-];
+  { value: 'kids', label: 'Kids' }
+]
 
 const CATEGORY_OPTIONS = [
   { value: 'all', label: 'All' },
   { value: 'shose', label: 'Shose' },
   { value: 'apparel', label: 'Apparel' },
-  { value: 'accessories', label: 'Accessories' },
-];
+  { value: 'accessories', label: 'Accessories' }
+]
 
-const RATING_OPTIONS = ['up4Star', 'up3Star', 'up2Star', 'up1Star'];
+const RATING_OPTIONS = ['up4Star', 'up3Star', 'up2Star', 'up1Star']
 
 const PRICE_OPTIONS = [
   { value: 'below', label: 'Below $25' },
   { value: 'between', label: 'Between $25 - $75' },
-  { value: 'above', label: 'Above $75' },
-];
+  { value: 'above', label: 'Above $75' }
+]
 
 const COLOR_OPTIONS = [
   '#00AB55',
@@ -46,43 +46,43 @@ const COLOR_OPTIONS = [
   '#FF4842',
   '#1890FF',
   '#94D82D',
-  '#FFC107',
-];
+  '#FFC107'
+]
 
 const defaultFilters = {
   price: '',
   gender: [GENDER_OPTIONS[0].value],
   colors: [COLOR_OPTIONS[4]],
   rating: RATING_OPTIONS[0],
-  category: CATEGORY_OPTIONS[0].value,
-};
+  category: CATEGORY_OPTIONS[0].value
+}
 
 export function ProductsView() {
-  const [sortBy, setSortBy] = useState('featured');
+  const [sortBy, setSortBy] = useState('featured')
 
-  const [openFilter, setOpenFilter] = useState(false);
+  const [openFilter, setOpenFilter] = useState(false)
 
-  const [filters, setFilters] = useState<FiltersProps>(defaultFilters);
+  const [filters, setFilters] = useState<FiltersProps>(defaultFilters)
 
   const handleOpenFilter = useCallback(() => {
-    setOpenFilter(true);
-  }, []);
+    setOpenFilter(true)
+  }, [])
 
   const handleCloseFilter = useCallback(() => {
-    setOpenFilter(false);
-  }, []);
+    setOpenFilter(false)
+  }, [])
 
   const handleSort = useCallback((newSort: string) => {
-    setSortBy(newSort);
-  }, []);
+    setSortBy(newSort)
+  }, [])
 
   const handleSetFilters = useCallback((updateState: Partial<FiltersProps>) => {
-    setFilters((prevValue) => ({ ...prevValue, ...updateState }));
-  }, []);
+    setFilters((prevValue) => ({ ...prevValue, ...updateState }))
+  }, [])
 
   const canReset = Object.keys(filters).some(
     (key) => filters[key as keyof FiltersProps] !== defaultFilters[key as keyof FiltersProps]
-  );
+  )
 
   return (
     <DashboardContent>
@@ -97,7 +97,7 @@ export function ProductsView() {
           display: 'flex',
           alignItems: 'center',
           flexWrap: 'wrap-reverse',
-          justifyContent: 'flex-end',
+          justifyContent: 'flex-end'
         }}
       >
         <Box
@@ -105,7 +105,7 @@ export function ProductsView() {
             my: 1,
             gap: 1,
             flexShrink: 0,
-            display: 'flex',
+            display: 'flex'
           }}
         >
           <ProductFilters
@@ -121,7 +121,7 @@ export function ProductsView() {
               categories: CATEGORY_OPTIONS,
               ratings: RATING_OPTIONS,
               price: PRICE_OPTIONS,
-              colors: COLOR_OPTIONS,
+              colors: COLOR_OPTIONS
             }}
           />
 
@@ -132,7 +132,7 @@ export function ProductsView() {
               { value: 'featured', label: 'Featured' },
               { value: 'newest', label: 'Newest' },
               { value: 'priceDesc', label: 'Price: High-Low' },
-              { value: 'priceAsc', label: 'Price: Low-High' },
+              { value: 'priceAsc', label: 'Price: Low-High' }
             ]}
           />
         </Box>
@@ -148,5 +148,5 @@ export function ProductsView() {
 
       <Pagination count={10} color="primary" sx={{ mt: 8, mx: 'auto' }} />
     </DashboardContent>
-  );
+  )
 }

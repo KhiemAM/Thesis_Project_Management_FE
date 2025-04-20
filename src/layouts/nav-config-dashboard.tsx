@@ -19,6 +19,11 @@ export const navData = [
     icon: icon('ic-analytics')
   },
   {
+    title: 'Tiến độ',
+    path: '/progress',
+    icon: icon('tabler-progress-check')
+  },
+  {
     title: 'User',
     path: '/user',
     icon: icon('ic-user')

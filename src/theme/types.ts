@@ -3,10 +3,10 @@ import type {
   ColorSystemOptions,
   CssVarsThemeOptions,
   SupportedColorScheme,
-  ThemeOptions as MuiThemeOptions,
-} from '@mui/material/styles';
+  ThemeOptions as MuiThemeOptions
+} from '@mui/material/styles'
 
-import type { CustomShadows } from './core/custom-shadows';
+import type { CustomShadows } from './core/custom-shadows'
 
 // ----------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ import type { CustomShadows } from './core/custom-shadows';
  * @see https://github.com/mui/material-ui/blob/master/packages/mui-material/src/styles/createTheme.ts
  */
 
-export type ThemeColorScheme = SupportedColorScheme;
+export type ThemeColorScheme = SupportedColorScheme
 export type ThemeCssVariables = Pick<
   CssVarsThemeOptions,
   'colorSchemeSelector' | 'disableCssColorScheme' | 'cssVarPrefix' | 'shouldSkipGeneratingVar'
@@ -32,4 +32,11 @@ export type ThemeOptions = Omit<MuiThemeOptions, 'components'> &
   Pick<CssVarsThemeOptions, 'defaultColorScheme' | 'components'> & {
     colorSchemes?: Partial<Record<ThemeColorScheme, ColorSchemeOptionsExtended>>;
     cssVariables?: ThemeCssVariables;
+    trello?: {
+      appBarHeight: string;
+      boardBarHeight: string;
+      boardContentHeight: string;
+      columnHeaderHeight: string;
+      columnFooterHeight: string;
+    };
   };
