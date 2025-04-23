@@ -27,7 +27,7 @@ export const baseTheme: ThemeOptions = {
     columnHeaderHeight: COLUMN_HEADER_HEIGHT,
     columnFooterHeight: COLUMN_FOOTER_HEIGHT
   },
-  defaultColorScheme: 'light',
+  defaultColorScheme: 'dark',
   colorSchemes: {
     light: {
       palette: palette.light,
