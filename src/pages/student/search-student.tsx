@@ -1,15 +1,15 @@
 import { CONFIG } from 'src/config-global'
 
-import { UserView } from 'src/sections/user/view'
+import { SearchStudentView } from 'src/sections/student/search-student/view'
 
 // ----------------------------------------------------------------------
 
 export default function Page() {
   return (
     <>
-      <title>{`Users - ${CONFIG.appName}`}</title>
+      <title>{`Search Student - ${CONFIG.appName}`}</title>
 
-      <UserView />
+      <SearchStudentView />
     </>
   )
 }
