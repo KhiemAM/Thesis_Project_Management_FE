@@ -1,6 +1,6 @@
 import { CONFIG } from 'src/config-global'
 
-import { SearchStudentView } from 'src/sections/student/search-student/view'
+import { InviteStudentView } from 'src/sections/student/invite-student/view'
 
 // ----------------------------------------------------------------------
 
@@ -9,7 +9,7 @@ export default function Page() {
     <>
       <title>{`Invite Student - ${CONFIG.appName}`}</title>
 
-      <SearchStudentView />
+      <InviteStudentView />
     </>
   )
 }

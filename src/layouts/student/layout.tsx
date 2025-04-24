@@ -3,6 +3,7 @@ import type { Breakpoint } from '@mui/material/styles'
 import { merge } from 'es-toolkit'
 import { useBoolean } from 'minimal-shared/hooks'
 
+import Box from '@mui/material/Box'
 import Alert from '@mui/material/Alert'
 import { useTheme } from '@mui/material/styles'
 
@@ -14,6 +15,7 @@ import { MenuButton } from '../components/menu-button'
 import { HeaderSection } from '../core/header-section'
 import { LayoutSection } from '../core/layout-section'
 import { navData, navBottomData } from '../nav-config-student'
+import { SettingsDrawer } from '../components/settings-drawer'
 
 import type { MainSectionProps } from '../core/main-section'
 import type { HeaderSectionProps } from '../core/header-section'
@@ -64,6 +66,12 @@ export function StudentLayout({
           />
           <NavMobile navData={navData} navBottomData={navBottomData} open={open} onClose={onClose} />
         </>
+      ),
+      rightArea: (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 0.75 } }}>
+          {/** @slot Settings popover */}
+          <SettingsDrawer />
+        </Box>
       )
     }
 

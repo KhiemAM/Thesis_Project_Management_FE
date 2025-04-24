@@ -23,6 +23,7 @@ export const Page404 = lazy(() => import('src/pages/page-not-found'))
 // ----------------------Student------------------------------------------------
 export const DashboardStudentPage = lazy(() => import('src/pages/student/dashboard-student'))
 export const SearchStudentPage = lazy(() => import('src/pages/student/search-student'))
+export const InviteStudentPage = lazy(() => import('src/pages/student/invite-student'))
 
 const renderFallback = () => (
   <Box
@@ -56,7 +57,8 @@ export const routesSection: RouteObject[] = [
     ),
     children: [
       { index: true, element: <DashboardStudentPage /> },
-      { path: 'search', element: <SearchStudentPage /> }
+      { path: 'search', element: <SearchStudentPage /> },
+      { path: 'invite', element: <InviteStudentPage /> }
     ]
   },
   {
