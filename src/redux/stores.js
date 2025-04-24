@@ -8,7 +8,7 @@ import { activeBoardReducer } from './activeBoard/activeBoardSlice'
 const rootPersistConfig = {
   key: 'root',
   storage,
-  whitelist: []
+  whitelist: ['user']
 }
 
 const reducers = combineReducers({
