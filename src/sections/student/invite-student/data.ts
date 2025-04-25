@@ -2,65 +2,72 @@ export interface UserData {
   id: string;
   username: string;
   displayName: string;
-  bio: string;
-  isVerified: boolean;
-  followers: string;
   profileImage: string;
+  type: string;
 }
 
 export const userSuggestions: UserData[] = [
   {
     id: '1',
-    username: 'meichannnnn',
-    displayName: 'Hà Trang',
-    bio: 'Thử xài app mới xem như thế nào (⁠•⁠‿⁠•⁠) ✧ Infj-a 🪽',
-    isVerified: true,
-    followers: '223K',
+    username: '2001210783',
+    displayName: 'Huỳnh Quang Khiêm',
     profileImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'inviter'
   },
   {
     id: '2',
-    username: 'mocthi.o',
-    displayName: 'mocthi.o',
-    bio: '小红书 đang lình tình thích gì đăng này',
-    isVerified: false,
-    followers: '9,058',
+    username: '2001210783',
+    displayName: 'Hà Trang',
     profileImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'inviter'
   },
   {
     id: '3',
-    username: 'meenawati_rj25',
-    displayName: 'KITTU MINA 💃',
-    bio: '❤️ Smarty 👋 🤗\n👍 ZeRo Attitude❌\n👉 LoVe (Mom+Dad) 👨‍👩‍👧 ❤️ ...',
-    isVerified: false,
-    followers: '65.6K',
+    username: '2001210783',
+    displayName: 'Hà Trang',
     profileImage: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'inviter'
   },
   {
-    id: '3',
-    username: 'meenawati_rj25',
-    displayName: 'KITTU MINA 💃',
-    bio: '❤️ Smarty 👋 🤗\n👍 ZeRo Attitude❌\n👉 LoVe (Mom+Dad) 👨‍👩‍👧 ❤️ ...',
-    isVerified: false,
-    followers: '65.6K',
+    id: '4',
+    username: '2001210783',
+    displayName: 'Hà Trang',
     profileImage: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'inviter'
   },
   {
-    id: '3',
-    username: 'meenawati_rj25',
-    displayName: 'KITTU MINA 💃',
-    bio: '❤️ Smarty 👋 🤗\n👍 ZeRo Attitude❌\n👉 LoVe (Mom+Dad) 👨‍👩‍👧 ❤️ ...',
-    isVerified: false,
-    followers: '65.6K',
+    id: '5',
+    username: '2001210783',
+    displayName: 'Hà Trang',
     profileImage: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'inviter'
   },
   {
-    id: '3',
-    username: 'meenawati_rj25',
-    displayName: 'KITTU MINA 💃',
-    bio: '❤️ Smarty 👋 🤗\n👍 ZeRo Attitude❌\n👉 LoVe (Mom+Dad) 👨‍👩‍👧 ❤️ ...',
-    isVerified: false,
-    followers: '65.6K',
+    id: '6',
+    username: '2001210783',
+    displayName: 'Hà Trang',
     profileImage: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'inviter'
   },
-];
+  {
+    id: '7',
+    username: '2001210783',
+    displayName: 'Huỳnh Quang Khiêm',
+    profileImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'invited'
+  },
+  {
+    id: '8',
+    username: '2001210783',
+    displayName: 'Huỳnh Quang Khiêm',
+    profileImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'invited'
+  },
+  {
+    id: '9',
+    username: '2001210783',
+    displayName: 'Huỳnh Quang Khiêm',
+    profileImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'invited'
+  }
+]

@@ -10,12 +10,15 @@ export const injectStore = mainStore => {
 }
 
 const authorizedAxiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL_API_ADMIN
+  baseURL: import.meta.env.VITE_APP_BASE_URL_API,
+  headers: {
+    'ngrok-skip-browser-warning': '69420'
+  }
 })
 
 authorizedAxiosInstance.defaults.timeout = 1000 * 60 * 10
 
-authorizedAxiosInstance.defaults.withCredentials = true
+// authorizedAxiosInstance.defaults.withCredentials = true
 
 authorizedAxiosInstance.interceptors.request.use((config) =>
   // interceptorLoadingElement(true)
@@ -26,7 +29,7 @@ authorizedAxiosInstance.interceptors.request.use((config) =>
 let refreshTokenPromise = null
 
 authorizedAxiosInstance.interceptors.response.use((response) =>
-  // interceptorLoadingElement(false)
+// interceptorLoadingElement(false)
   response
 , (error) => {
   // interceptorLoadingElement(false)
@@ -35,24 +38,24 @@ authorizedAxiosInstance.interceptors.response.use((response) =>
     // axiosReduxStore.dispatch(logoutUserAPI(false))
   }
 
-  const originalRequests = error.config
-  if (error.response?.status === 410 && !originalRequests._retry) {
-    originalRequests._retry = true
+  // const originalRequests = error.config
+  // if (error.response?.status === 410 && !originalRequests._retry) {
+  //   originalRequests._retry = true
 
-    // if (!refreshTokenPromise) {
-    //   refreshTokenPromise = refreshTokenAPI()
-    //     .then(data => data?.accessToken)
-    //     .catch((error) => {
-    //       axiosReduxStore.dispatch(logoutUserAPI(false))
-    //       return Promise.reject(error)
-    //     })
-    //     .finally(() => {
-    //       refreshTokenPromise = null
-    //     })
-    // }
+  //   if (!refreshTokenPromise) {
+  //     refreshTokenPromise = refreshTokenAPI()
+  //       .then(data => data?.accessToken)
+  //       .catch((error) => {
+  //         axiosReduxStore.dispatch(logoutUserAPI(false))
+  //         return Promise.reject(error)
+  //       })
+  //       .finally(() => {
+  //         refreshTokenPromise = null
+  //       })
+  //   }
 
-    // return refreshTokenPromise.then((accessToken) => authorizedAxiosInstance(originalRequests))
-  }
+  //   return refreshTokenPromise.then((accessToken) => authorizedAxiosInstance(originalRequests))
+  // }
 
   let errorMessage = error?.message
   if (error.response?.data?.message) {

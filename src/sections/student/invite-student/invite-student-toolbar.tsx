@@ -1,11 +1,15 @@
-import Tooltip from '@mui/material/Tooltip';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
+import { useState, useCallback } from 'react'
 
-import { Iconify } from 'src/components/iconify';
+import Tooltip from '@mui/material/Tooltip'
+import Toolbar from '@mui/material/Toolbar'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import InputAdornment from '@mui/material/InputAdornment'
+
+import { Iconify } from 'src/components/iconify'
+
+import { ProductSort } from 'src/sections/product/product-sort'
 
 // ----------------------------------------------------------------------
 
@@ -16,6 +20,12 @@ type UserTableToolbarProps = {
 };
 
 export function InviteStudentToolbar({ numSelected, filterName, onFilterName }: UserTableToolbarProps) {
+  const [sortBy, setSortBy] = useState('featured')
+
+  const handleSort = useCallback((newSort: string) => {
+    setSortBy(newSort)
+  }, [])
+
   return (
     <Toolbar
       sx={{
@@ -25,8 +35,8 @@ export function InviteStudentToolbar({ numSelected, filterName, onFilterName }: 
         p: (theme) => theme.spacing(0, 1, 0, 3),
         ...(numSelected > 0 && {
           color: 'primary.main',
-          bgcolor: 'primary.lighter',
-        }),
+          bgcolor: 'primary.lighter'
+        })
       }}
     >
       {numSelected > 0 ? (
@@ -55,12 +65,17 @@ export function InviteStudentToolbar({ numSelected, filterName, onFilterName }: 
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <Iconify icon="ic:round-filter-list" />
-          </IconButton>
-        </Tooltip>
+        <ProductSort
+          sortBy={sortBy}
+          onSort={handleSort}
+          options={[
+            { value: 'featured', label: 'Featured' },
+            { value: 'newest', label: 'Newest' },
+            { value: 'priceDesc', label: 'Price: High-Low' },
+            { value: 'priceAsc', label: 'Price: Low-High' }
+          ]}
+        />
       )}
     </Toolbar>
-  );
+  )
 }

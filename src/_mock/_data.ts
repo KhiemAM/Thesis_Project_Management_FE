@@ -30,7 +30,7 @@ export const _users = [...Array(24)].map((_, index) => ({
   status: index % 4 ? 'active' : 'banned',
   role:
     [
-      'Leader',
+      '12DHTH03',
       'Hr Manager',
       'UI Designer',
       'UX Designer',

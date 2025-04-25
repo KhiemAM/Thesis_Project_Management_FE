@@ -31,7 +31,7 @@ export const _times = (index: number) =>
 
 export const _fullName = (index: number) =>
   [
-    'Billy Stoltenberg',
+    '2001210783',
     'Eloise Ebert',
     'Teresa Luettgen',
     'Salvador Mayert',
@@ -65,7 +65,7 @@ export const _price = (index: number) =>
 
 export const _company = (index: number) =>
   [
-    'Medhurst, Moore and Franey',
+    'Huỳnh Quang Khiêm',
     'Hahn, Homenick and Lind',
     'Larkin LLC',
     'Stamm, Larson and Mertz',

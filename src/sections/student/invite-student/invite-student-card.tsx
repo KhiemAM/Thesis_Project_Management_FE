@@ -1,4 +1,3 @@
-// import { Check } from 'lucide-react'
 import React, { useState } from 'react'
 
 import {
@@ -16,25 +15,33 @@ interface UserProfileCardProps {
 }
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({ user }) => {
-  const [isFollowing, setIsFollowing] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [isAccepted, setIsAccepted] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const theme = useTheme()
 
-  const handleFollow = () => {
-    setIsFollowing(!isFollowing)
+  const handleAccept = () => {
+    setIsAccepted(true)
+  }
+
+  const handleReject = () => {
+    setIsVisible(false)
+  }
+
+  if (!isVisible) {
+    return null
   }
 
   return (
     <Box
       sx={{
         display: 'flex',
-        padding: '16px',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-        '&:hover': {
-          backgroundColor: theme.palette.action.hover
-        }
+        alignItems: 'center',
+        padding: 3,
+        border: '1px solid',
+        borderColor: theme.vars.palette.divider,
+        borderRadius: '16px',
+        mb: 3
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -57,104 +64,79 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ user }) => {
           mb: 0.5
         }}>
           <Typography
-            variant="h4"
-            component="h2"
+            variant="h5"
             sx={{
-              fontWeight: 800,
-              display: 'flex',
-              alignItems: 'center',
-              mr: 1,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              transition: 'color 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
               '&:hover': {
-                color: theme.palette.primary.main
+                color: theme.vars.palette.primary.main
               }
             }}
           >
             {user.username}
-            {user.isVerified && (
-              <Box
-                component="span"
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  ml: 0.5,
-                  backgroundColor: theme.palette.primary.main,
-                  borderRadius: '50%',
-                  width: 16,
-                  height: 16,
-                  transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  transform: isHovered ? 'scale(1.1)' : 'scale(1)'
-                }}
-              >
-                {/* <Check size={12} color="white" /> */}
-              </Box>
-            )}
           </Typography>
         </Box>
         <Typography
-          variant="body2"
-          sx={{
-            mb: 0.5,
-            color: theme.palette.text.secondary,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
+          variant="subtitle2"
         >
           {user.displayName}
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            mb: 0.5,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            lineHeight: 1.4
-          }}
-        >
-          {user.bio}
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            color: theme.palette.text.secondary,
-            fontWeight: 500
-          }}
-        >
-          {user.followers} followers
-        </Typography>
       </Box>
-      <Box sx={{ ml: 2, display: 'flex', alignItems: 'flex-start' }}>
-        <Button
-          variant={isFollowing ? 'outlined' : 'contained'}
-          onClick={handleFollow}
-          sx={{
-            minWidth: '100px',
-            fontWeight: 700,
-            backgroundColor: isFollowing ? 'transparent' : undefined,
-            color: isFollowing ? theme.palette.text.primary : undefined,
-            borderColor: isFollowing ? theme.palette.text.primary : undefined,
-            '&:hover': {
-              backgroundColor: isFollowing
-                ? theme.palette.error.main + '15'
-                : theme.palette.primary.dark,
-              borderColor: isFollowing ? theme.palette.error.main : undefined,
-              color: isFollowing ? theme.palette.error.main : undefined
-            },
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
-          }}
-        >
-          {isFollowing ? (isHovered ? 'Unfollow' : 'Following') : 'Follow'}
-        </Button>
+      <Box sx={{ ml: 2, display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+        {user.type === 'inviter' ? (
+          <><Button
+            variant={isAccepted ? 'outlined' : 'contained'}
+            onClick={handleAccept}
+            disabled={isAccepted}
+            sx={{
+              minWidth: '100px',
+              fontWeight: 700,
+              backgroundColor: isAccepted ? 'transparent' : undefined,
+              color: isAccepted ? theme.palette.text.primary : undefined,
+              borderColor: isAccepted ? theme.palette.text.primary : undefined,
+              '&:hover': {
+                backgroundColor: isAccepted
+                  ? theme.palette.action.hover
+                  : theme.palette.primary.dark
+              },
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+          >
+            {isAccepted ? 'Đã xác nhận' : 'Xác nhận'}
+          </Button><Button
+            variant="outlined"
+            onClick={handleReject}
+            sx={{
+              minWidth: '100px',
+              fontWeight: 700,
+              borderColor: theme.palette.error.main,
+              color: theme.palette.error.main,
+              '&:hover': {
+                backgroundColor: theme.palette.error.main + '15',
+                borderColor: theme.palette.error.main
+              },
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+          >
+              Từ chối
+          </Button></>
+        ) : (
+          <Button
+            variant="outlined"
+            onClick={handleReject}
+            sx={{
+              minWidth: '100px',
+              fontWeight: 700,
+              borderColor: theme.palette.error.main,
+              color: theme.palette.error.main,
+              '&:hover': {
+                backgroundColor: theme.palette.error.main + '15',
+                borderColor: theme.palette.error.main
+              },
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+          >
+            Hủy
+          </Button>
+        )}
       </Box>
     </Box>
   )

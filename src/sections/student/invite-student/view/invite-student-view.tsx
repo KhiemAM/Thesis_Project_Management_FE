@@ -51,12 +51,14 @@ export function InviteStudentView() {
         />
 
         <Scrollbar>
-          <Typography variant="h5">
+          <Typography variant="h5" sx={{ ml: 3 }}>
             Danh sách lời mời
           </Typography>
-          {userSuggestions.map((user) => (
-            <UserProfileCard key={user.id} user={user} />
-          ))}
+          <Box sx={{ p: 3 }}>
+            {userSuggestions.map((user) => (
+              <UserProfileCard key={user.id} user={user} />
+            ))}
+          </Box>
         </Scrollbar>
       </Card>
     </DashboardContent>

@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
+// import { useDispatch } from 'react-redux'
 
 import Box from '@mui/material/Box'
 import Link from '@mui/material/Link'
@@ -7,7 +8,6 @@ import Divider from '@mui/material/Divider'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import InputAdornment from '@mui/material/InputAdornment'
 
 import { useRouter } from 'src/routes/hooks'
 
@@ -17,20 +17,22 @@ import { Iconify } from 'src/components/iconify'
 
 // ----------------------------------------------------------------------
 
-export function SignInView() {
+export function RegisterView() {
   const router = useRouter()
+  // const dispatch = useDispatch()
 
-  const [showPassword, setShowPassword] = useState(false)
-
-  const handleSignIn = useCallback(async() => {
-    const response = await authApi.login(
+  const handleRegister = useCallback(async() => {
+    const response = await authApi.register(
       {
-        'user_name': 'khiem3',
-        'password': 'khiem3'
+        'user_name': 'khiem5',
+        'password': '',
+        'is_active': true,
+        'is_lecturer': false,
+        'major': '123e4567-e89b-12d3-a456-426614174000'
       }
     )
-    console.log('🚀 ~ handleSignIn ~ response:', response)
-  }, [router])
+    console.log('🚀 ~ handleRegister ~ response:', response)
+  }, [])
 
   const renderForm = (
     <Box
@@ -43,37 +45,11 @@ export function SignInView() {
       <TextField
         fullWidth
         name="email"
-        label="Email address"
-        defaultValue="hello@gmail.com"
+        label="Mã số sinh viên"
         sx={{ mb: 3 }}
         slotProps={{
-          inputLabel: { shrink: true }
+          // inputLabel: { shrink: true }
         }}
-      />
-
-      <Link variant="body2" color="inherit" sx={{ mb: 1.5 }}>
-        Forgot password?
-      </Link>
-
-      <TextField
-        fullWidth
-        name="password"
-        label="Password"
-        defaultValue="@demo1234"
-        type={showPassword ? 'text' : 'password'}
-        slotProps={{
-          inputLabel: { shrink: true },
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                  <Iconify icon={showPassword ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            )
-          }
-        }}
-        sx={{ mb: 3 }}
       />
 
       <Button
@@ -82,9 +58,9 @@ export function SignInView() {
         type="submit"
         color="inherit"
         variant="contained"
-        onClick={handleSignIn}
+        onClick={handleRegister}
       >
-        Sign in
+        Đăng ký
       </Button>
     </Box>
   )
@@ -100,7 +76,7 @@ export function SignInView() {
           mb: 5
         }}
       >
-        <Typography variant="h5">Sign in</Typography>
+        <Typography variant="h5">Đăng ký tài khoản</Typography>
         <Typography
           variant="body2"
           sx={{

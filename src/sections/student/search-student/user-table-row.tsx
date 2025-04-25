@@ -97,25 +97,25 @@ export function UserTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
           sx={{
             p: 0.5,
             gap: 0.5,
-            width: 140,
+            width: 160,
             display: 'flex',
             flexDirection: 'column',
             [`& .${menuItemClasses.root}`]: {
               px: 1,
               gap: 2,
               borderRadius: 0.75,
-              [`&.${menuItemClasses.selected}`]: { bgcolor: 'action.selected' },
+              [`&.${menuItemClasses.selected}`]: { bgcolor: 'action.selected' }
             },
           }}
         >
-          <MenuItem onClick={handleClosePopover}>
-            <Iconify icon="solar:pen-bold" />
-            Edit
+          <MenuItem onClick={handleClosePopover} sx={{ color: 'primary.main' }}>
+            <Iconify icon="solar:user-plus-linear" />
+            Gửi lời mời
           </MenuItem>
 
-          <MenuItem onClick={handleClosePopover} sx={{ color: 'error.main' }}>
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
+          <MenuItem onClick={handleClosePopover}>
+            <Iconify icon="solar:pen-bold" />
+            Xem thông tin
           </MenuItem>
         </MenuList>
       </Popover>
