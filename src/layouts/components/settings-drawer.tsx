@@ -81,22 +81,16 @@ const SwitchButton = styled(ButtonBase)(({ theme }) => ({
 export type SettingsDrawerProps = IconButtonProps
 export function SettingsDrawer({ sx, ...other } : SettingsDrawerProps) {
   const [openSetting, setOpenSetting] = useState(false)
-
-  const [toggle, setToggle] = useState(false)
-
   const { mode, setMode } = useColorScheme()
 
-  if (toggle) {
-    setMode('dark')
-  }
-
-  if (!toggle) {
-    setMode('light')
-  }
-
   const handleToggleDarkMode = useCallback(() => {
-    setToggle((prev) => !prev)
-  }, [])
+    if (mode === 'dark') {
+      setMode('light')
+    }
+    if (mode === 'light') {
+      setMode('dark')
+    }
+  }, [mode, setMode])
 
   const canReset = ''
 
@@ -164,7 +158,7 @@ export function SettingsDrawer({ sx, ...other } : SettingsDrawerProps) {
             <SwitchButton onClick={handleToggleDarkMode}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 'calc(3 * var(--spacing))' }}>
                 <Iconify icon="solar:cloudy-moon-bold" width={24} />
-                <AntSwitch checked={toggle}/>
+                <AntSwitch checked={mode === 'dark'}/>
               </Box>
               <Typography variant="button" >
                 Dark Mode
