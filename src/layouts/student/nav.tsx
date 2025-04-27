@@ -9,15 +9,15 @@ import { useTheme } from '@mui/material/styles'
 import { drawerClasses } from '@mui/material/Drawer'
 import ListItemButton from '@mui/material/ListItemButton'
 
-import { usePathname } from 'src/routes/hooks'
 import { RouterLink } from 'src/routes/components'
+import { usePathname, useRouter } from 'src/routes/hooks'
 
 import { Logo } from 'src/components/logo'
 import { Drawer } from 'src/components/drawer'
 import { Scrollbar } from 'src/components/scrollbar'
+import { AlertConfirmNavigate } from 'src/components/sweetalert2'
 
 import type { NavItem } from '../nav-config-student'
-
 
 // ----------------------------------------------------------------------
 
@@ -107,6 +107,7 @@ export function NavMobile({
 
 export function NavContent({ navData, navBottomData, slots, sx }: NavContentProps) {
   const pathname = usePathname()
+  const router = useRouter()
 
   return (
     <>
@@ -195,42 +196,91 @@ export function NavContent({ navData, navBottomData, slots, sx }: NavContentProp
 
               return (
                 <ListItem disableGutters disablePadding key={item.title}>
-                  <ListItemButton
-                    disableGutters
-                    component={RouterLink}
-                    href={item.path}
-                    sx={[
-                      (theme) => ({
-                        pl: 2,
-                        py: 1,
-                        gap: 2,
-                        pr: 1.5,
-                        borderRadius: 0.75,
-                        typography: 'body2',
-                        fontWeight: 'fontWeightMedium',
-                        color: theme.vars.palette.text.secondary,
-                        minHeight: 44,
-                        ...(isActived && {
-                          fontWeight: 'fontWeightSemiBold',
-                          color: theme.vars.palette.primary.main,
-                          bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
-                          '&:hover': {
-                            bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.16)
-                          }
+                  {item.isConfirmDialog ? (
+                    <ListItemButton
+                      disableGutters
+                      onClick={() => {
+                        AlertConfirmNavigate({
+                          title: 'Bạn có chắc chắn',
+                          text: 'Bạn có muốn đăng xuất không?',
+                          icon:'warning',
+                          showCancelButton: true,
+                          confirmButtonColor:'#3085d6',
+                          cancelButtonColor:'#d33',
+                          confirmButtonText:'Yes, delete it!',
+                          router: () => router.push('/sign-in')
                         })
-                      })
-                    ]}
-                  >
-                    <Box component="span" sx={{ width: 24, height: 24 }}>
-                      {item.icon}
-                    </Box>
+                      }}
+                      sx={[
+                        (theme) => ({
+                          pl: 2,
+                          py: 1,
+                          gap: 2,
+                          pr: 1.5,
+                          borderRadius: 0.75,
+                          typography: 'body2',
+                          fontWeight: 'fontWeightMedium',
+                          color: theme.vars.palette.text.secondary,
+                          minHeight: 44,
+                          ...(isActived && {
+                            fontWeight: 'fontWeightSemiBold',
+                            color: theme.vars.palette.primary.main,
+                            bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
+                            '&:hover': {
+                              bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.16)
+                            }
+                          })
+                        })
+                      ]}
+                    >
+                      <Box component="span" sx={{ width: 24, height: 24 }}>
+                        {item.icon}
+                      </Box>
 
-                    <Box component="span" sx={{ flexGrow: 1 }}>
-                      {item.title}
-                    </Box>
+                      <Box component="span" sx={{ flexGrow: 1 }}>
+                        {item.title}
+                      </Box>
 
-                    {item.info && item.info}
-                  </ListItemButton>
+                      {item.info && item.info}
+                    </ListItemButton>
+                  ) : (
+                    <ListItemButton
+                      disableGutters
+                      component={RouterLink}
+                      href={item.path}
+                      sx={[
+                        (theme) => ({
+                          pl: 2,
+                          py: 1,
+                          gap: 2,
+                          pr: 1.5,
+                          borderRadius: 0.75,
+                          typography: 'body2',
+                          fontWeight: 'fontWeightMedium',
+                          color: theme.vars.palette.text.secondary,
+                          minHeight: 44,
+                          ...(isActived && {
+                            fontWeight: 'fontWeightSemiBold',
+                            color: theme.vars.palette.primary.main,
+                            bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
+                            '&:hover': {
+                              bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.16)
+                            }
+                          })
+                        })
+                      ]}
+                    >
+                      <Box component="span" sx={{ width: 24, height: 24 }}>
+                        {item.icon}
+                      </Box>
+
+                      <Box component="span" sx={{ flexGrow: 1 }}>
+                        {item.title}
+                      </Box>
+
+                      {item.info && item.info}
+                    </ListItemButton>
+                  )}
                 </ListItem>
               )
             })}

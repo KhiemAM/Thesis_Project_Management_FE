@@ -9,6 +9,7 @@ export type NavItem = {
   path: string;
   icon: React.ReactNode;
   info?: React.ReactNode;
+  isConfirmDialog?: boolean;
 };
 
 export const navData = [
@@ -44,5 +45,11 @@ export const navBottomData = [
     title: 'Cài đặt khác',
     path: '/more',
     icon: icon('solar--list-line-duotone')
+  },
+  {
+    title: 'Đăng xuất',
+    path: '/logout',
+    icon: icon('solar--logout-outline'),
+    isConfirmDialog: true
   }
 ]
