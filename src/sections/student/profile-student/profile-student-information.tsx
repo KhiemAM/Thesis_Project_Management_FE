@@ -44,6 +44,7 @@ const ProfileStudentInformation: React.FC<ProfileStudentInformationProps> = ({
 }) => {
   const [values, setValues] = useState(initialValues)
   const [isEditing, setIsEditing] = useState(false)
+  console.log('🚀 ~ isEditing:', isEditing)
 
   // Hàm xử lý sự kiện thay đổi cho TextField
   const handleTextFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +69,7 @@ const ProfileStudentInformation: React.FC<ProfileStudentInformationProps> = ({
     if (onSave) {
       onSave(values)
     }
-    setIsEditing(false)
+    // setIsEditing(false)
   }
 
   return (

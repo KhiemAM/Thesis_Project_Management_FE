@@ -1,29 +1,31 @@
+import type { IconifyName } from 'src/components/iconify'
+
 import React from 'react'
 
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Avatar from '@mui/material/Avatar'
+import Tooltip from '@mui/material/Tooltip'
 import Divider from '@mui/material/Divider'
 import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import { blue, green } from '@mui/material/colors'
 
 import { Iconify } from 'src/components/iconify'
 
-interface StatisticProps {
+interface LabelInfoProps {
   label: string;
-  value: number;
-  color?: string;
+  value: string;
+  icon: IconifyName;
 }
 
-const Statistic: React.FC<StatisticProps> = ({ label, value, color = 'text.primary' }) => (
-  <Box sx={{ py: 1.5 }}>
-    <Typography variant="body2" color="text.secondary">
-      {label}
-    </Typography>
-    <Typography variant="h6" color={color} fontWeight={500}>
-      {value}
-    </Typography>
+const LabelInfo = ({ label, value, icon } : LabelInfoProps) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.5 }}>
+    <Iconify icon={icon}/>
+    <Tooltip title={label} placement='right'>
+      <Typography variant="body2" color="text.secondary">
+        {value}
+      </Typography>
+    </Tooltip>
   </Box>
 )
 
@@ -42,7 +44,6 @@ const ProfileStudentSidebarInfo: React.FC<ProfileStudentSidebarInfoProps> = ({
   name = 'Huỳnh Quang Khiêm',
   company = '2001210783',
   profileImage = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-  stats = { applied: 32, won: 26, current: 6 }
 }) => {
   const theme = useTheme()
 
@@ -109,19 +110,24 @@ const ProfileStudentSidebarInfo: React.FC<ProfileStudentSidebarInfoProps> = ({
         </Box>
       </Box>
 
-      <Typography variant="h6" gutterBottom>
-        {name}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" gutterBottom>
-        {company}
-      </Typography>
+      <Tooltip title='Họ tên' placement='left'>
+        <Typography variant="h6" gutterBottom>
+          {name}
+        </Typography>
+      </Tooltip>
+      <Tooltip title='Mã số sinh viên' placement='left'>
+        <Typography variant="body1" color="text.secondary" gutterBottom>
+          {company}
+        </Typography>
+      </Tooltip>
 
       <Divider sx={{ width: '100%', my: 2 }} />
 
       <Box sx={{ width: '100%' }}>
-        <Statistic label="Opportunities applied" value={stats.applied} color={blue[700]} />
-        <Statistic label="Opportunities won" value={stats.won} color={green[700]} />
-        <Statistic label="Current opportunities" value={stats.current} />
+        <LabelInfo label='Giới tính' value='Nam' icon='tabler:gender-male'/>
+        <LabelInfo label='Ngày sinh' value='09/02/2003' icon='tabler:gender-male'/>
+        <LabelInfo label='Lớp học' value='12DHTH03' icon='tabler:gender-male'/>
+        <LabelInfo label='Ngành' value='Công nghệ thông tin' icon='tabler:gender-male'/>
       </Box>
     </Paper>
   )
