@@ -12,9 +12,10 @@ import type { UserData } from './data'
 
 interface UserProfileCardProps {
   user: UserData;
+  onOpenInformation: () => void;
 }
 
-const UserProfileCard: React.FC<UserProfileCardProps> = ({ user }) => {
+const UserProfileCard = ({ user, onOpenInformation } : UserProfileCardProps) => {
   const [isVisible, setIsVisible] = useState(true)
   const [isAccepted, setIsAccepted] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
@@ -41,7 +42,12 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ user }) => {
         border: '1px solid',
         borderColor: theme.vars.palette.divider,
         borderRadius: '16px',
-        mb: 3
+        mb: 3,
+        '&:hover': {
+          backgroundColor: theme.vars.palette.action.hover,
+          borderColor: theme.vars.palette.primary.main,
+          cursor: 'pointer'
+        }
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -56,8 +62,9 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ user }) => {
           transform: isHovered ? 'scale(1.05)' : 'scale(1)',
           transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
+        onClick={onOpenInformation}
       />
-      <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Box sx={{ flex: 1, minWidth: 0 }} onClick={onOpenInformation}>
         <Box sx={{
           display: 'flex',
           alignItems: 'center',
