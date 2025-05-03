@@ -26,6 +26,7 @@ export const DashboardStudentPage = lazy(() => import('src/pages/student/dashboa
 export const SearchStudentPage = lazy(() => import('src/pages/student/search-student'))
 export const InviteStudentPage = lazy(() => import('src/pages/student/invite-student'))
 export const ProfileStudentPage = lazy(() => import('src/pages/student/profile-student'))
+export const GroupStudentPage = lazy(() => import('src/pages/student/group-student'))
 
 const renderFallback = () => (
   <Box
@@ -61,7 +62,8 @@ export const routesSection: RouteObject[] = [
       { index: true, element: <DashboardStudentPage /> },
       { path: 'search', element: <SearchStudentPage /> },
       { path: 'invite', element: <InviteStudentPage /> },
-      { path: 'profile', element: <ProfileStudentPage /> }
+      { path: 'profile', element: <ProfileStudentPage /> },
+      { path: 'group', element: <GroupStudentPage /> }
     ]
   },
   {
