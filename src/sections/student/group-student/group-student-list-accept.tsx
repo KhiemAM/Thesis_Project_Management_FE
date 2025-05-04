@@ -16,13 +16,7 @@ import {
 
 import { Iconify } from 'src/components/iconify'
 
-interface Student {
-  id: string;
-  username: string;
-  displayName: string;
-  profileImage: string;
-  type: string;
-}
+import type { Student } from './type'
 
 interface StudentListProps {
   students: Student[];

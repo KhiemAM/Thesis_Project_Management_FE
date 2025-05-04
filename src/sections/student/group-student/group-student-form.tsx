@@ -1,3 +1,5 @@
+import type { SubmitHandler } from 'react-hook-form'
+
 import React from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -12,29 +14,24 @@ import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
 import { Iconify } from 'src/components/iconify'
 
-interface GroupFormProps {
-  name: string;
-  description: string;
-  maxMembers: number;
-  onNameChange: (value: string) => void;
-  onDescriptionChange: (value: string) => void;
-  onMaxMembersChange: (value: number) => void;
-  disabled?: boolean;
+import type { Group } from './type'
+
+interface GroupStudentFormProps {
+   onCreateGroup: (group: Group) => void;
+   labelButton: string
 }
 
-const GroupStudentForm: React.FC<GroupFormProps> = ({
-  name,
-  description,
-  maxMembers,
-  onNameChange,
-  onDescriptionChange,
-  onMaxMembersChange,
-  disabled = false
-}) => {
-  const { register, handleSubmit, formState: { errors } } = useForm()
+interface IFormInput {
+  name: string
+  description?: string
+}
+
+const GroupStudentForm = ({ onCreateGroup, labelButton } : GroupStudentFormProps) => {
+  const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>()
+  const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data)
 
   return (
-    <form onSubmit={handleSubmit(() => {})}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Box sx={{ p: 3 }}>
         <TextField
           fullWidth
@@ -65,7 +62,7 @@ const GroupStudentForm: React.FC<GroupFormProps> = ({
           size="large"
           startIcon={<Iconify icon='solar:check-circle-bold' />}
         >
-            Tạo nhóm
+          {labelButton}
         </Button>
       </Box>
     </form>

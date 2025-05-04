@@ -3,12 +3,9 @@ import React, { useState } from 'react'
 import {
   Box,
   Grid,
-  Card,
   Alert,
-  Button,
   useTheme,
-  Typography,
-  CardContent
+  Typography
 } from '@mui/material'
 
 import { Iconify } from 'src/components/iconify'
@@ -17,47 +14,21 @@ import { userSuggestions } from './data'
 import GroupStudentForm from './group-student-form'
 import GroupStudentListAccept from './group-student-list-accept'
 
-interface Student {
-  id: string;
-  username: string;
-  displayName: string;
-  profileImage: string;
-  type: string;
+import type { Group, Student } from './type'
+
+interface GroupStudentCreateProps {
+  onCreateGroup: (group: Group) => void;
 }
 
-interface CreateGroupProps {
-  onCreateGroup: (group: {
-    name: string;
-    description: string;
-    maxMembers: number;
-    members: Student[];
-  }) => void;
-}
-
-const GroupStudentCreate: React.FC<CreateGroupProps> = ({ onCreateGroup }) => {
+const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
   const theme = useTheme()
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [maxMembers, setMaxMembers] = useState(3)
   const [students, setStudents] = useState<Student[]>(userSuggestions)
 
   const handleRemoveStudent = (id: string) => {
     setStudents(students.filter(student => student.id !== id))
   }
 
-  const handleCreateGroup = () => {
-    if (name.trim() === '') return
-
-    onCreateGroup({
-      name,
-      description,
-      maxMembers,
-      members: students
-    })
-  }
-
-  const isValid = name.trim() !== '' && students.length <= maxMembers
-  const isOverLimit = students.length > maxMembers
+  const isOverLimit = students.length > 3
 
   return (
     <Grid
@@ -99,17 +70,16 @@ const GroupStudentCreate: React.FC<CreateGroupProps> = ({ onCreateGroup }) => {
             severity="warning"
             sx={{
               mx: 2,
-              mt: 2,
-              borderRadius: 2
+              mt: 2
             }}
           >
-            Please remove {students.length - maxMembers} student(s) to meet the maximum limit.
+            Vui lòng xóa {students.length - 3} thành viên trước khi tạo nhóm.
           </Alert>
         )}
 
         <GroupStudentListAccept
           students={students}
-          maxMembers={maxMembers}
+          maxMembers={3}
           onRemoveStudent={handleRemoveStudent}
         />
       </Grid>
@@ -143,12 +113,8 @@ const GroupStudentCreate: React.FC<CreateGroupProps> = ({ onCreateGroup }) => {
         </Box>
 
         <GroupStudentForm
-          name={name}
-          description={description}
-          maxMembers={maxMembers}
-          onNameChange={setName}
-          onDescriptionChange={setDescription}
-          onMaxMembersChange={setMaxMembers}
+          onCreateGroup={onCreateGroup}
+          labelButton='Tạo nhóm'
         />
       </Grid>
     </Grid>
