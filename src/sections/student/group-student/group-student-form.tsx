@@ -14,9 +14,10 @@ import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
 import { Iconify } from 'src/components/iconify'
 
-import type { Group } from './type'
+import type { Group, Student } from './type'
 
 interface GroupStudentFormProps {
+   students: Student[]
    onCreateGroup: (group: Group) => void;
    labelButton: string
 }
@@ -26,9 +27,16 @@ interface IFormInput {
   description?: string
 }
 
-const GroupStudentForm = ({ onCreateGroup, labelButton } : GroupStudentFormProps) => {
+const GroupStudentForm = ({ students, onCreateGroup, labelButton } : GroupStudentFormProps) => {
   const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>()
-  const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data)
+  const onSubmit: SubmitHandler<IFormInput> = (data) => {
+    onCreateGroup({
+      id: '1',
+      ...data,
+      members: students,
+      coverImage: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGdyb3VwJTIwc3R1ZGVudHxlbnwwfHx8fDE2OTI5NzYxNTg&ixlib=rb-4.0.3&q=80&w=1080'
+    })
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

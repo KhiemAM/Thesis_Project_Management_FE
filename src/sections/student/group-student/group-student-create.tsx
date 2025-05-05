@@ -113,6 +113,7 @@ const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
         </Box>
 
         <GroupStudentForm
+          students={students}
           onCreateGroup={onCreateGroup}
           labelButton='Tạo nhóm'
         />

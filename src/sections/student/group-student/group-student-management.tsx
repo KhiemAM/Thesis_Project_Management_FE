@@ -106,6 +106,7 @@ const GroupStudentManagement = ({
         <Box sx={{ px: 3 }}>
           <TabPanel value={currentTab} index={0}>
             <GroupStudentForm
+              students={group.members}
               onCreateGroup={onUpdateGroup}
               labelButton='Cập nhật'
             />
