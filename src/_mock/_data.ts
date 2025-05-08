@@ -2,22 +2,25 @@ import {
   _id,
   _price,
   _times,
+  _email,
   _company,
   _boolean,
   _fullName,
   _taskNames,
   _postTitles,
+  _instructor,
   _description,
   _productNames,
-} from './_mock';
+  _fullNameTopic
+} from './_mock'
 
 // ----------------------------------------------------------------------
 
 export const _myAccount = {
   displayName: 'Jaydon Frankie',
   email: 'demo@minimals.cc',
-  photoURL: '/assets/images/avatar/avatar-25.webp',
-};
+  photoURL: '/assets/images/avatar/avatar-25.webp'
+}
 
 // ----------------------------------------------------------------------
 
@@ -39,9 +42,32 @@ export const _users = [...Array(24)].map((_, index) => ({
       'Backend Developer',
       'Full Stack Designer',
       'Front End Developer',
-      'Full Stack Developer',
-    ][index] || 'UI Designer',
-}));
+      'Full Stack Developer'
+    ][index] || 'UI Designer'
+}))
+
+export const _topic = [...Array(24)].map((_, index) => ({
+  id: _id(index),
+  topicNumber: index + 1,
+  name: _fullNameTopic(index),
+  instructor: _instructor(index),
+  email: _email(index),
+  department:
+    [
+      'KTPM',
+      'HTTT',
+      'KHDL&TTNT',
+      'HTTT',
+      'MMT-ATTT',
+      'MMT-ATTT',
+      'KTPM',
+      'HTTT',
+      'KHDL&TTNT',
+      'HTTT',
+      'MMT-ATTT',
+      'MMT-ATTT'
+    ][index] || 'KTPM'
+}))
 
 // ----------------------------------------------------------------------
 
@@ -57,9 +83,9 @@ export const _posts = [...Array(23)].map((_, index) => ({
   postedAt: _times(index),
   author: {
     name: _fullName(index),
-    avatarUrl: `/assets/images/avatar/avatar-${index + 1}.webp`,
-  },
-}));
+    avatarUrl: `/assets/images/avatar/avatar-${index + 1}.webp`
+  }
+}))
 
 // ----------------------------------------------------------------------
 
@@ -71,11 +97,11 @@ const COLORS = [
   '#FF4842',
   '#1890FF',
   '#94D82D',
-  '#FFC107',
-];
+  '#FFC107'
+]
 
 export const _products = [...Array(24)].map((_, index) => {
-  const setIndex = index + 1;
+  const setIndex = index + 1
 
   return {
     id: _id(index),
@@ -92,9 +118,9 @@ export const _products = [...Array(24)].map((_, index) => {
       (setIndex === 24 && COLORS.slice(5, 6)) ||
       COLORS,
     status:
-      ([1, 3, 5].includes(setIndex) && 'sale') || ([4, 8, 12].includes(setIndex) && 'new') || '',
-  };
-});
+      ([1, 3, 5].includes(setIndex) && 'sale') || ([4, 8, 12].includes(setIndex) && 'new') || ''
+  }
+})
 
 // ----------------------------------------------------------------------
 
@@ -102,19 +128,19 @@ export const _langs = [
   {
     value: 'en',
     label: 'English',
-    icon: '/assets/icons/flags/ic-flag-en.svg',
+    icon: '/assets/icons/flags/ic-flag-en.svg'
   },
   {
     value: 'de',
     label: 'German',
-    icon: '/assets/icons/flags/ic-flag-de.svg',
+    icon: '/assets/icons/flags/ic-flag-de.svg'
   },
   {
     value: 'fr',
     label: 'French',
-    icon: '/assets/icons/flags/ic-flag-fr.svg',
-  },
-];
+    icon: '/assets/icons/flags/ic-flag-fr.svg'
+  }
+]
 
 // ----------------------------------------------------------------------
 
@@ -125,39 +151,39 @@ export const _timeline = [...Array(5)].map((_, index) => ({
     '12 Invoices have been paid',
     'Order #37745 from September',
     'New order placed #XF-2356',
-    'New order placed #XF-2346',
+    'New order placed #XF-2346'
   ][index],
   type: `order${index + 1}`,
-  time: _times(index),
-}));
+  time: _times(index)
+}))
 
 export const _traffic = [
   {
     value: 'facebook',
     label: 'Facebook',
-    total: 19500,
+    total: 19500
   },
   {
     value: 'google',
     label: 'Google',
-    total: 91200,
+    total: 91200
   },
   {
     value: 'linkedin',
     label: 'Linkedin',
-    total: 69800,
+    total: 69800
   },
   {
     value: 'twitter',
     label: 'Twitter',
-    total: 84900,
-  },
-];
+    total: 84900
+  }
+]
 
 export const _tasks = Array.from({ length: 5 }, (_, index) => ({
   id: _id(index),
-  name: _taskNames(index),
-}));
+  name: _taskNames(index)
+}))
 
 // ----------------------------------------------------------------------
 
@@ -169,7 +195,7 @@ export const _notifications = [
     avatarUrl: null,
     type: 'order-placed',
     postedAt: _times(1),
-    isUnRead: true,
+    isUnRead: true
   },
   {
     id: _id(2),
@@ -178,7 +204,7 @@ export const _notifications = [
     avatarUrl: '/assets/images/avatar/avatar-2.webp',
     type: 'friend-interactive',
     postedAt: _times(2),
-    isUnRead: true,
+    isUnRead: true
   },
   {
     id: _id(3),
@@ -187,7 +213,7 @@ export const _notifications = [
     avatarUrl: null,
     type: 'chat-message',
     postedAt: _times(3),
-    isUnRead: false,
+    isUnRead: false
   },
   {
     id: _id(4),
@@ -196,7 +222,7 @@ export const _notifications = [
     avatarUrl: null,
     type: 'mail',
     postedAt: _times(4),
-    isUnRead: false,
+    isUnRead: false
   },
   {
     id: _id(5),
@@ -205,6 +231,6 @@ export const _notifications = [
     avatarUrl: null,
     type: 'order-shipped',
     postedAt: _times(5),
-    isUnRead: false,
-  },
-];
+    isUnRead: false
+  }
+]

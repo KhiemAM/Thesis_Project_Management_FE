@@ -230,3 +230,62 @@ export const _productNames = (index: number) =>
     'Nike React Art3mis',
     'Nike React Infinity Run Flyknit A.I.R. Chaz Bear'
   ][index]
+
+// -----------------------------------Student-----------------------------------
+export const _fullNameTopic = (index: number) =>
+  [
+    'Nghiên cứu bài toán lộ trình giao hàng và giải pháp gợi ý lịch trình thông minh',
+    'Nghiên cứu và phát triển mô hình nhận diện khuôn mặt ứng dụng điểm danh sinh viên',
+    'Xây dựng hệ thống phần mềm đặt lịch hẹn làm đẹp.',
+    'Xây dựng ứng dụng web quản lý hoạt động tại khoa Công nghệ thông tin.',
+    'Xây dựng ứng dụng web quản lý đề tài đồ án/khoá luận tại khoa Công nghệ thông tin',
+    'Xây dựng mô hình phân loại cảm xúc dựa trên học sâu và ứng dụng trong mạng xã hội để phát hiện, ngăn chặn bình luận không phù hợp',
+    'Ứng dụng học sâu trong xây dựng bài toán gợi ý về đường đi trên bản đồ Việt Nam',
+    'Xây dựng website mua bán nông sản',
+    'Xây dựng website hỗ trợ học tập cho sinh viên khoa Công nghệ Thông tin - Trường Đại học Công thương Tp.HCM',
+    'Phát triển chương trình mô phỏng điện toán đám mây sử dụng CloudSim và tối ưu hóa phân bổ tài nguyên tính toán bằng thuật toán học tăng cường để giả lập hệ thống giao thông taxi bay trong đô thị.',
+    'Phát triển phần mềm giao diện người sử dụng đồ họa trực quan hỗ trợ mô hình hóa và đánh giá hiệu năng và độ tin cậy của hệ thống điện toán đám mây dựa trên mạng Petri ngẫu nhiên',
+    'Xây dựng hệ thống bán hàng thời trang nữ',
+    'Xây dựng hệ thống quản lý cửa hàng cung cấp hoa tươi.',
+    'Xây dựng hệ thống giới thiệu và quảng bá ẩm thực Việt.',
+    'Xây dựng ứng dụng quản lý mua bán tại một chi nhánh trà sữa',
+    'Xây dựng hệ thống quản lý tiêm chủng VNVC',
+    'Xây dựng website quản lý khách sạn Robins Villa',
+    'Xây dựng ứng dụng Web quản lý đăng ký vé máy bay trực tuyến tại hãng hàng không Bamboo Airways',
+    'Hệ thống phân lớp dữ liệu ảnh áp dụng cho sinh viên Khoa CNTT-HUIT',
+    'Xây dựng ứng dụng môi giới bất động sản',
+    'Xây dựng hệ thống quản lý ký túc xá trường Đại học Công thương TP HCM',
+    'Cải tiến thuật toán nhận dạng dựa trên thuật yolo (you only look once) và thuật toán ssd (single shot multibox detector)trong phát hiện đối tượng',
+    'Xây dựng website mua bán nông sản',
+    'Xây dựng website hỗ trợ học tập cho sinh viên khoa Công nghệ Thông tin - Trường Đại học Công thương Tp.HCM'
+  ][index]
+
+export const _instructor = (index: number) =>
+  [
+    'Nguyễn Phương Hạc',
+    'Nguyễn Phương Hạc',
+    'Nguyễn Phương Hạc',
+    'Nguyễn Văn Lễ',
+    'Nguyễn Văn Lễ',
+    'Phan Thị Ngọc Mai',
+    'Phan Thị Ngọc Mai',
+    'Phan Thị Ngọc Mai',
+    'Huỳnh Thị Châu Lan',
+    'Huỳnh Thị Châu Lan',
+    'Bùi Công Danh',
+    'Bùi Công Danh',
+    'Vũ Văn Vinh',
+    'Đinh Thị Tâm',
+    'Vũ Văn Vinh',
+    'Đinh Thị Tâm',
+    'Đinh Thị Tâm',
+    'Vũ Văn Vinh',
+    'Đinh Thị Tâm',
+    'Đào Minh Châu',
+    'Vũ Văn Vinh',
+    'Nguyễn Tuấn Anh',
+    'Nguyễn Tuấn Anh',
+    'Nguyễn Tuấn Anh'
+  ][index]
+
+  export const _email = (index: number) => `khiem${index}khiem@gmail.com`

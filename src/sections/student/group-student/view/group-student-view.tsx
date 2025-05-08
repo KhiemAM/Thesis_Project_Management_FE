@@ -14,7 +14,7 @@ import { Scrollbar } from 'src/components/scrollbar'
 import GroupStudentCreate from '../group-student-create'
 import GroupStudentManagement from '../group-student-management'
 
-import type { Group, Student } from '../type'
+import type { Group } from '../type'
 // ----------------------------------------------------------------------
 
 export function GroupStudentView() {
@@ -95,11 +95,15 @@ export function GroupStudentView() {
                 onDeleteGroup={handleDeleteGroup}
               />
             ) : (
-              <GroupStudentCreate onCreateGroup={handleCreateGroup} />
+              <GroupStudentCreate
+                onCreateGroup={handleCreateGroup}
+              />
             )}
           </Box>
         </Scrollbar>
       </Card>
+
+
     </DashboardContent>
   )
 }

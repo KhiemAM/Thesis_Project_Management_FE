@@ -1,18 +1,16 @@
 import React from 'react'
 
-import {
-  Box,
-  List,
-  Chip,
-  Fade,
-  Paper,
-  Avatar,
-  ListItem,
-  useTheme,
-  IconButton,
-  Typography,
-  ListItemText
-} from '@mui/material'
+import Box from '@mui/material/Box'
+import List from '@mui/material/List'
+import Chip from '@mui/material/Chip'
+import Fade from '@mui/material/Fade'
+import Paper from '@mui/material/Paper'
+import { useTheme } from '@mui/material'
+import Avatar from '@mui/material/Avatar'
+import ListItem from '@mui/material/ListItem'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import ListItemText from '@mui/material/ListItemText'
 
 import { Iconify } from 'src/components/iconify'
 
@@ -22,12 +20,14 @@ interface StudentListProps {
   students: Student[];
   maxMembers: number;
   onRemoveStudent: (id: string) => void;
+  onOpenInformation?: () => void;
 }
 
 const GroupStudentListAccept: React.FC<StudentListProps> = ({
   students,
   maxMembers,
-  onRemoveStudent
+  onRemoveStudent,
+  onOpenInformation
 }) => {
   const theme = useTheme()
   const isOverLimit = students.length > maxMembers
@@ -67,6 +67,7 @@ const GroupStudentListAccept: React.FC<StudentListProps> = ({
                     backgroundColor: theme.vars.palette.action.selected
                   }
                 }}
+                onClick={onOpenInformation}
               >
                 <Avatar
                   src={student.profileImage}

@@ -37,6 +37,11 @@ export const navData = [
     title: 'Thông tin cá nhân',
     path: '/student/profile',
     icon: icon('iconamoon--profile')
+  },
+  {
+    title: 'Chọn đề tài',
+    path: '/student/topic',
+    icon: icon('solar--document-medicine-linear')
   }
 ]
 

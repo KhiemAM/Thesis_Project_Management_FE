@@ -4,14 +4,13 @@ import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Badge from '@mui/material/Badge'
 import Divider from '@mui/material/Divider'
-import { styled } from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
 import { DashboardContent } from 'src/layouts/student'
 
-import { Drawer } from 'src/components/drawer'
 import { Iconify } from 'src/components/iconify'
+import { Main, Drawer } from 'src/components/drawer'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import ProfileStudentSidebarInfo from 'src/sections/student/profile-student/profile-student-sidebar-info'
@@ -22,36 +21,6 @@ import { InviteStudentToolbar } from '../invite-student-toolbar'
 // ----------------------------------------------------------------------
 
 const drawerWidth = 360
-
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-  open?: boolean;
-}>(({ theme }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen
-  }),
-  /**
-   * This is necessary to enable the selection of content. In the DOM, the stacking order is determined
-   * by the order of appearance. Following this rule, elements appearing later in the markup will overlay
-   * those that appear earlier. Since the Drawer comes after the Main content, this adjustment ensures
-   * proper interaction with the underlying content.
-   */
-  position: 'relative',
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        transition: theme.transitions.create('margin', {
-          easing: theme.transitions.easing.easeOut,
-          duration: theme.transitions.duration.enteringScreen
-        }),
-        marginRight: drawerWidth
-      }
-    }
-  ]
-}))
 
 export function InviteStudentView() {
   const [filterName, setFilterName] = useState('')
@@ -88,7 +57,7 @@ export function InviteStudentView() {
           <Iconify width={24} icon="solar:menu-dots-circle-bold" />
         </IconButton>
       </Box>
-      <Main open={openInformation}>
+      <Main open={openInformation} drawerWidth={drawerWidth}>
         <Card>
           <InviteStudentToolbar
             numSelected={0}
