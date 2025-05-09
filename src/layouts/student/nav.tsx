@@ -10,7 +10,9 @@ import { drawerClasses } from '@mui/material/Drawer'
 import ListItemButton from '@mui/material/ListItemButton'
 
 import { RouterLink } from 'src/routes/components'
-import { usePathname, useRouter } from 'src/routes/hooks'
+import { useRouter, usePathname } from 'src/routes/hooks'
+
+import { useAppDispatch } from 'src/redux/hook'
 
 import { Logo } from 'src/components/logo'
 import { Drawer } from 'src/components/drawer'
@@ -108,6 +110,20 @@ export function NavMobile({
 export function NavContent({ navData, navBottomData, slots, sx }: NavContentProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const dispatch = useAppDispatch()
+
+  const handleLogout = () => {
+    AlertConfirmNavigate({
+      title: 'Bạn có chắc chắn',
+      text: 'Bạn có muốn đăng xuất không?',
+      icon:'warning',
+      showCancelButton: true,
+      confirmButtonColor:'#3085d6',
+      cancelButtonColor:'#d33',
+      confirmButtonText:'Yes, delete it!',
+      router: () => router.push('/login')
+    })
+  }
 
   return (
     <>
@@ -199,18 +215,7 @@ export function NavContent({ navData, navBottomData, slots, sx }: NavContentProp
                   {item.isConfirmDialog ? (
                     <ListItemButton
                       disableGutters
-                      onClick={() => {
-                        AlertConfirmNavigate({
-                          title: 'Bạn có chắc chắn',
-                          text: 'Bạn có muốn đăng xuất không?',
-                          icon:'warning',
-                          showCancelButton: true,
-                          confirmButtonColor:'#3085d6',
-                          cancelButtonColor:'#d33',
-                          confirmButtonText:'Yes, delete it!',
-                          router: () => router.push('/sign-in')
-                        })
-                      }}
+                      onClick={handleLogout}
                       sx={[
                         (theme) => ({
                           pl: 2,

@@ -1,7 +1,13 @@
+import type { SubmitHandler } from 'react-hook-form'
+
+import { toast } from 'react-toastify'
+import { useForm } from 'react-hook-form'
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import Box from '@mui/material/Box'
 import Link from '@mui/material/Link'
+import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import TextField from '@mui/material/TextField'
@@ -11,58 +17,67 @@ import InputAdornment from '@mui/material/InputAdornment'
 
 import { useRouter } from 'src/routes/hooks'
 
-import authApi from 'src/axios/auth'
+import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
+
+import { useAppDispatch } from 'src/redux/hook'
+import { loginUserAPI } from 'src/redux/user/user-slice'
 
 import { Iconify } from 'src/components/iconify'
 
 // ----------------------------------------------------------------------
+interface IFormInputLogin {
+  user_name: string;
+  password: string;
+}
 
 export function SignInView() {
   const router = useRouter()
-
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const { register, handleSubmit, formState: { errors } } = useForm<IFormInputLogin>()
 
-  const handleSignIn = useCallback(async() => {
-    const response = await authApi.login(
-      {
-        'user_name': 'khiem3',
-        'password': 'khiem3'
+  const handleSignIn: SubmitHandler<IFormInputLogin> = useCallback(async(data) => {
+    toast.promise(
+      dispatch(loginUserAPI(data)).unwrap(),
+      { pending: 'Đang đăng nhập...' }
+    ).then((res) => {
+      if (!res.error) {
+        navigate('/student')
       }
-    )
-    console.log('🚀 ~ handleSignIn ~ response:', response)
+    })
   }, [router])
 
   const renderForm = (
     <Box
       sx={{
         display: 'flex',
-        alignItems: 'flex-end',
         flexDirection: 'column'
       }}
     >
       <TextField
         fullWidth
-        name="email"
-        label="Email address"
-        defaultValue="hello@gmail.com"
+        label="Mã số sinh viên *"
+        error={!!errors['user_name']}
         sx={{ mb: 3 }}
-        slotProps={{
-          inputLabel: { shrink: true }
-        }}
+        {...register('user_name', {
+          required: FIELD_REQUIRED_MESSAGE
+        })}
       />
+      {errors['user_name'] && (
+        <Alert severity="error" sx={{ mb: 3 }}>{String(errors['user_name']?.message)}</Alert>
+      )}
 
-      <Link variant="body2" color="inherit" sx={{ mb: 1.5 }}>
-        Forgot password?
+      <Link variant="body2" color="inherit" sx={{ mb: 1.5, alignSelf: 'flex-end' }}>
+        Quên mật khẩu?
       </Link>
 
       <TextField
         fullWidth
-        name="password"
-        label="Password"
-        defaultValue="@demo1234"
+        label="Mật khẩu *"
+        error={!!errors['password']}
         type={showPassword ? 'text' : 'password'}
         slotProps={{
-          inputLabel: { shrink: true },
           input: {
             endAdornment: (
               <InputAdornment position="end">
@@ -74,7 +89,13 @@ export function SignInView() {
           }
         }}
         sx={{ mb: 3 }}
+        {...register('password', {
+          required: FIELD_REQUIRED_MESSAGE
+        })}
       />
+      {errors['password'] && (
+        <Alert severity="error" sx={{ mb: 3 }}>{String(errors['password']?.message)}</Alert>
+      )}
 
       <Button
         fullWidth
@@ -82,15 +103,14 @@ export function SignInView() {
         type="submit"
         color="inherit"
         variant="contained"
-        onClick={handleSignIn}
       >
-        Sign in
+        Đăng nhập
       </Button>
     </Box>
   )
 
   return (
-    <>
+    <form onSubmit={handleSubmit(handleSignIn)}>
       <Box
         sx={{
           gap: 1.5,
@@ -100,16 +120,16 @@ export function SignInView() {
           mb: 5
         }}
       >
-        <Typography variant="h5">Sign in</Typography>
+        <Typography variant="h5">Đăng nhập</Typography>
         <Typography
           variant="body2"
           sx={{
             color: 'text.secondary'
           }}
         >
-          Don’t have an account?
+          Bạn chưa có tài khoản?
           <Link variant="subtitle2" sx={{ ml: 0.5 }}>
-            Get started
+            Hãy bắt đầu ngay
           </Link>
         </Typography>
       </Box>
@@ -119,7 +139,7 @@ export function SignInView() {
           variant="overline"
           sx={{ color: 'text.secondary', fontWeight: 'fontWeightMedium' }}
         >
-          OR
+          HOẶC
         </Typography>
       </Divider>
       <Box
@@ -132,13 +152,7 @@ export function SignInView() {
         <IconButton color="inherit">
           <Iconify width={22} icon="socials:google" />
         </IconButton>
-        <IconButton color="inherit">
-          <Iconify width={22} icon="socials:github" />
-        </IconButton>
-        <IconButton color="inherit">
-          <Iconify width={22} icon="socials:twitter" />
-        </IconButton>
       </Box>
-    </>
+    </form>
   )
 }

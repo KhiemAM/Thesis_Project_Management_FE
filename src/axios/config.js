@@ -11,14 +11,14 @@ export const injectStore = mainStore => {
 
 const authorizedAxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_URL_API,
+  withCredentials: true,
   headers: {
+    'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': '69420'
   }
 })
 
 authorizedAxiosInstance.defaults.timeout = 1000 * 60 * 10
-
-// authorizedAxiosInstance.defaults.withCredentials = true
 
 authorizedAxiosInstance.interceptors.request.use((config) =>
   // interceptorLoadingElement(true)
@@ -58,8 +58,8 @@ authorizedAxiosInstance.interceptors.response.use((response) =>
   // }
 
   let errorMessage = error?.message
-  if (error.response?.data?.message) {
-    errorMessage = error.response.data.message
+  if (error.response?.data?.detail) {
+    errorMessage = error.response.data.detail
   }
   if (error.response?.status !== 410) {
     toast.error(errorMessage)

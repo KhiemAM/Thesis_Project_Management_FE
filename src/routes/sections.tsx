@@ -11,6 +11,7 @@ import { AuthLayout } from 'src/layouts/auth'
 import { StudentLayout } from 'src/layouts/student'
 import { DashboardLayout } from 'src/layouts/dashboard'
 
+
 // -----------------------Admin-----------------------------------------------
 export const DashboardPage = lazy(() => import('src/pages/dashboard'))
 export const BlogPage = lazy(() => import('src/pages/blog'))
@@ -49,15 +50,17 @@ const renderFallback = () => (
   </Box>
 )
 
-export const routesSection: RouteObject[] = [
+const MainRoutes = () => [
   {
     path: '/student',
     element: (
+      // <ProtectedRoute>
       <StudentLayout>
         <Suspense fallback={renderFallback()}>
           <Outlet />
         </Suspense>
       </StudentLayout>
+      // </ProtectedRoute>
     ),
     children: [
       { index: true, element: <DashboardStudentPage /> },
@@ -84,9 +87,12 @@ export const routesSection: RouteObject[] = [
       { path: 'blog', element: <BlogPage /> },
       { path: 'progress', element: <ProgressPage /> }
     ]
-  },
+  }
+]
+
+const AuthRoutes = () => [
   {
-    path: 'sign-in',
+    path: 'login',
     element: (
       <AuthLayout>
         <SignInPage />
@@ -100,7 +106,12 @@ export const routesSection: RouteObject[] = [
         <RegisterPage />
       </AuthLayout>
     )
-  },
+  }
+]
+
+export const routesSection: RouteObject[] = [
+  ...MainRoutes(),
+  ...AuthRoutes(),
   {
     path: '404',
     element: <Page404 />
