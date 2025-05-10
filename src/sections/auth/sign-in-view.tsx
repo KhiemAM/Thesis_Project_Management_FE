@@ -16,6 +16,7 @@ import Typography from '@mui/material/Typography'
 import InputAdornment from '@mui/material/InputAdornment'
 
 import { useRouter } from 'src/routes/hooks'
+import { RouterLink } from 'src/routes/components'
 
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
@@ -128,7 +129,7 @@ export function SignInView() {
           }}
         >
           Bạn chưa có tài khoản?
-          <Link variant="subtitle2" sx={{ ml: 0.5 }}>
+          <Link variant="subtitle2" component={RouterLink} href='/register' sx={{ ml: 0.5 }}>
             Hãy bắt đầu ngay
           </Link>
         </Typography>

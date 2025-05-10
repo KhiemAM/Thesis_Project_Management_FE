@@ -10,6 +10,7 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
 import { useRouter } from 'src/routes/hooks'
+import { RouterLink } from 'src/routes/components'
 
 import authApi from 'src/axios/auth'
 
@@ -83,9 +84,9 @@ export function RegisterView() {
             color: 'text.secondary'
           }}
         >
-          Don’t have an account?
-          <Link variant="subtitle2" sx={{ ml: 0.5 }}>
-            Get started
+          Bạn đã có tài khoản?
+          <Link variant="subtitle2" component={RouterLink} href='/login' sx={{ ml: 0.5 }}>
+            Bắt đầu ngay
           </Link>
         </Typography>
       </Box>
@@ -107,12 +108,6 @@ export function RegisterView() {
       >
         <IconButton color="inherit">
           <Iconify width={22} icon="socials:google" />
-        </IconButton>
-        <IconButton color="inherit">
-          <Iconify width={22} icon="socials:github" />
-        </IconButton>
-        <IconButton color="inherit">
-          <Iconify width={22} icon="socials:twitter" />
         </IconButton>
       </Box>
     </>

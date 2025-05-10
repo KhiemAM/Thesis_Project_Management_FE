@@ -288,4 +288,33 @@ export const _instructor = (index: number) =>
     'Nguyễn Tuấn Anh'
   ][index]
 
-  export const _email = (index: number) => `khiem${index}khiem@gmail.com`
+export const _email = (index: number) => `khiem${index}khiem@gmail.com`
+
+export const _content = (index: number) =>
+  [
+    `Tên đề tài: Xây dựng ứng dụng web quản lý đề tài đồ án/Khoá luận tại khoa CNTT
+    Cơ sở lý thuyết: 
+    - Các phương pháp phát triển phần mềm ứng dụng
+    - Mô hình hóa hệ thống sử dụng UML
+    - Khảo sát, phân tích, thiết kế hệ thống quản lý đề tài đồ án/khóa luận
+    
+    Các chức năng trên web:
+    - Quản trị người dùng, đăng nhập, đăng xuất
+    - Quản lý đồ án, khóa luận của sinh viên theo từng nhóm, theo chuyên ngành
+    - Tìm kiếm/lọc danh sách đề tài theo giảng viên, bộ môn, hướng đề tài.
+    - Đăng ký đề tài, khoá luận tốt nghiệp.
+    - Xét duyệt đề tài đồ án, khóa luận cấp bộ môn và cấp khoa.
+    - Đề xuất đề tài đồ án của giảng viên theo từng bộ môn.
+    - Quản lý tiến độ thực hiện đề tài đồ án/Khóa luận.
+    - Quản lý kết quả thực hiện đề tài đồ án của sinh viên. Đối với đồ án thì lấy điểm hướng dẫn và điểm phản biện. Đối với khóa luận thì lấy điểm hội đồng.
+    - Thống kê báo cáo: Xuất danh sách đăng ký đề tài của các sinh viên trong một đợt đăng ký, trong học kỳ, danh sách đề tài hướng dẫn của từng giảng viên, danh sách hội đồng theo từng tiểu ban.
+    
+    Các chức năng trên mobile:
+    - Sinh viên lập nhóm, đăng ký đề tài đồ án/khóa luận
+    - Xét duyệt đề tài
+    - Xem tiến độ, kết quả thực hiện đề tài
+    
+    Công nghệ sử dụng:
+    - Hệ quản trị SQL Server, ASP.NET
+    - ASP.NET/ASP.NET Core, ReactJS hoặc tương đương`
+  ][index]

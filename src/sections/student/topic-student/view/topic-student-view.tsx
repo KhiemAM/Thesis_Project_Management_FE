@@ -3,18 +3,14 @@ import { useState, useCallback } from 'react'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
-import Divider from '@mui/material/Divider'
 import TableBody from '@mui/material/TableBody'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
 import { _topic } from 'src/_mock'
 import { DashboardContent } from 'src/layouts/student'
 
-import { Drawer } from 'src/components/drawer'
-import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
@@ -34,15 +30,6 @@ export function TopicStudentView() {
 
   const [filterName, setFilterName] = useState('')
   const [valueTab, setValueTab] = useState('ALL')
-  const [openTopicDetail, setOpenTopicDetail] = useState(false)
-
-  const onOpenTopicDetail = useCallback(() => {
-    setOpenTopicDetail(true)
-  }, [])
-
-  const onCloseTopicDetail = useCallback(() => {
-    setOpenTopicDetail(false)
-  }, [])
 
   const dataFiltered: TopicProps[] = applyFilter({
     inputData: _topic,
@@ -115,7 +102,6 @@ export function TopicStudentView() {
                       row={row}
                       selected={table.selected.includes(row.id)}
                       onSelectRow={() => table.onSelectRow(row.id)}
-                      onOpenTopicDetail={onOpenTopicDetail}
                     />
                   ))}
 
@@ -140,41 +126,6 @@ export function TopicStudentView() {
           onRowsPerPageChange={table.onChangeRowsPerPage}
         />
       </Card>
-
-      <Drawer
-        anchor="right"
-        open={openTopicDetail}
-        onClose={onCloseTopicDetail}
-        slotProps={{
-          paper: {
-            sx: { width: 360, overflow: 'hidden' }
-          }
-        }}
-      >
-        <Box
-          sx={{
-            py: 2,
-            pl: 2.5,
-            pr: 1.5,
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        >
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Setting
-          </Typography>
-
-          <IconButton onClick={onCloseTopicDetail}>
-            <Iconify icon="mingcute:close-line" />
-          </IconButton>
-        </Box>
-
-        <Divider />
-
-        <Scrollbar>
-          <></>
-        </Scrollbar>
-      </Drawer>
     </DashboardContent>
   )
 }

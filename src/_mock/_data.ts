@@ -11,7 +11,8 @@ import {
   _instructor,
   _description,
   _productNames,
-  _fullNameTopic
+  _fullNameTopic,
+  _content
 } from './_mock'
 
 // ----------------------------------------------------------------------
@@ -50,6 +51,7 @@ export const _topic = [...Array(24)].map((_, index) => ({
   id: _id(index),
   topicNumber: index + 1,
   name: _fullNameTopic(index),
+  content: _content(index),
   instructor: _instructor(index),
   email: _email(index),
   department:
