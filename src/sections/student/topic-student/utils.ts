@@ -1,3 +1,5 @@
+import type { ChipsFilter } from 'src/components/chip/types'
+
 import type { TopicProps } from './topic-table-row'
 
 // ----------------------------------------------------------------------
@@ -54,12 +56,11 @@ export function getComparator<Key extends keyof any>(
 
 type ApplyFilterProps = {
   inputData: TopicProps[];
-  filterName: string;
   comparator: (a: any, b: any) => number;
-  filterTab: string;
+  filter: ChipsFilter;
 };
 
-export function applyFilter({ inputData, comparator, filterName, filterTab }: ApplyFilterProps) {
+export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps) {
   const stabilizedThis = inputData.map((el, index) => [el, index] as const)
 
   stabilizedThis.sort((a, b) => {
@@ -70,14 +71,14 @@ export function applyFilter({ inputData, comparator, filterName, filterTab }: Ap
 
   inputData = stabilizedThis.map((el) => el[0])
 
-  if (filterName) {
+  if (filter.filterName.data.length > 0) {
     inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+      (user) => user.name.toLowerCase().indexOf(filter.filterName.data[0].label.toLowerCase()) !== -1
     )
   }
 
-  if (filterTab !== 'ALL') {
-    inputData = inputData.filter((user) => user.department === filterTab)
+  if (filter.filterDepartment.data.length > 0 && filter.filterDepartment.data[0].label !== 'ALL') {
+    inputData = inputData.filter((user) => user.department === filter.filterDepartment.data[0].label)
   }
 
   return inputData

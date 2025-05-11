@@ -1,3 +1,6 @@
+import type { ChipsFilter } from 'src/components/chip/types'
+
+import { v4 as uuidv4 } from 'uuid'
 import { useState, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
@@ -11,6 +14,7 @@ import TablePagination from '@mui/material/TablePagination'
 import { _topic } from 'src/_mock'
 import { DashboardContent } from 'src/layouts/student'
 
+import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
@@ -27,18 +31,72 @@ import type { TopicProps } from '../topic-table-row'
 
 export function TopicStudentView() {
   const table = useTable()
-
+  const id = uuidv4()
   const [filterName, setFilterName] = useState('')
-  const [valueTab, setValueTab] = useState('ALL')
+  const [filterDepartment, setFilterDepartment] = useState('ALL')
+  const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
+    filterName: {
+      display: 'Tìm kiếm',
+      data: []
+    },
+    filterDepartment: {
+      display: 'Bộ môn',
+      data: []
+    }
+  })
 
   const dataFiltered: TopicProps[] = applyFilter({
     inputData: _topic,
     comparator: getComparator(table.order, table.orderBy),
-    filterName,
-    filterTab: valueTab
+    filter: chipsFilter
   })
 
   const notFound = !dataFiltered.length && !!filterName
+
+  const handleClearFilter = useCallback(() => {
+    setChipsFilter({
+      filterName: {
+        display: 'Tìm kiếm',
+        data: []
+      },
+      filterDepartment: {
+        display: 'Bộ môn',
+        data: []
+      }
+    })
+    setFilterName('')
+    setFilterDepartment('ALL')
+  }, [])
+
+  const handleChipData = useCallback((newChipsFilter: ChipsFilter) => {
+    setChipsFilter(newChipsFilter)
+    setFilterName('')
+    setFilterDepartment('ALL')
+  }, [])
+
+  const handleFilterName = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setChipsFilter((pvev) => ({
+      ...pvev,
+      filterName: {
+        ...pvev.filterName,
+        data: event.target.value ? [{ key: id, label: event.target.value }] : []
+      }
+    }))
+
+    setFilterName(event.target.value)
+    table.onResetPage()
+  }, [id, table])
+
+  const handleFilterDepartment = useCallback((newValue: string) => {
+    setChipsFilter((pvev) => ({
+      ...pvev,
+      filterDepartment: {
+        ...pvev.filterDepartment,
+        data: newValue ? [{ key: id, label: newValue }] : []
+      }
+    }))
+    setFilterDepartment(newValue)
+  }, [id])
 
   return (
     <DashboardContent>
@@ -55,16 +113,15 @@ export function TopicStudentView() {
       </Box>
 
       <Card>
-        <TopicTabsFilter value={valueTab} setValue={setValueTab}/>
+        <TopicTabsFilter value={filterDepartment} setValue={handleFilterDepartment}/>
 
         <UserTableToolbar
           numSelected={table.selected.length}
           filterName={filterName}
-          onFilterName={(event: React.ChangeEvent<HTMLInputElement>) => {
-            setFilterName(event.target.value)
-            table.onResetPage()
-          }}
+          onFilterName={handleFilterName}
         />
+
+        <ChipsArrayFilter chipData={chipsFilter} handleChipData={handleChipData} handleClearFilter={handleClearFilter}/>
 
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
