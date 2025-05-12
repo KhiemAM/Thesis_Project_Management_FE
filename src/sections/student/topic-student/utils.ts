@@ -73,12 +73,18 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
 
   if (filter.filterName.data.length > 0) {
     inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(filter.filterName.data[0].label.toLowerCase()) !== -1
+      (item) => item.name.toLowerCase().indexOf(filter.filterName.data[0].label.toLowerCase()) !== -1
     )
   }
 
   if (filter.filterDepartment.data.length > 0 && filter.filterDepartment.data[0].label !== 'ALL') {
-    inputData = inputData.filter((user) => user.department === filter.filterDepartment.data[0].label)
+    inputData = inputData.filter((item) => item.department === filter.filterDepartment.data[0].label)
+  }
+
+  if (filter.filterInstructor.data.length > 0) {
+    const instructorLabels = filter.filterInstructor.data.map((item) => item.label)
+    inputData = inputData.filter((item) => instructorLabels.includes(item.instructor)
+    )
   }
 
   return inputData

@@ -12,10 +12,14 @@ export interface ChipsFilter {
     display: string;
     data: ChipData[];
   };
+  filterInstructor: {
+    display: string;
+    data: ChipData[];
+  };
 }
 
 export interface ChipsArrayFilterProps {
   chipData: ChipsFilter
-  handleChipData: (ChipsFilter: ChipsFilter) => void
+  handleDeleteChipData: (ChipsFilter: ChipsFilter) => void
   handleClearFilter: () => void
 }

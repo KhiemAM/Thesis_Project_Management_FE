@@ -14,7 +14,7 @@ const ListItem = styled('li')(({ theme }) => ({
   margin: theme.spacing(0.5)
 }))
 
-export default function ChipsArrayFilter({ chipData, handleChipData, handleClearFilter } : ChipsArrayFilterProps) {
+export default function ChipsArrayFilter({ chipData, handleDeleteChipData, handleClearFilter } : ChipsArrayFilterProps) {
 
   const handleDelete = (chipToDelete: ChipData) => () => {
     // Tìm loại chip nào chứa dữ liệu cần xóa
@@ -29,11 +29,13 @@ export default function ChipsArrayFilter({ chipData, handleChipData, handleClear
     })
 
     // Cập nhật lại state bằng hàm handleChipData
-    handleChipData(newChipsFilter)
+    handleDeleteChipData(newChipsFilter)
   }
 
-
-  if (chipData.filterName.data.length === 0 && chipData.filterDepartment.data.length === 0) return null
+  if (chipData.filterName.data.length === 0 &&
+      (chipData.filterDepartment.data.length === 0 || chipData.filterDepartment.data[0].label === 'ALL') &&
+      chipData.filterInstructor.data.length === 0
+  ) return null
 
   return (
     <>

@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _topic } from 'src/_mock'
+import { _topic, _instructor } from 'src/_mock'
 import { DashboardContent } from 'src/layouts/student'
 
 import ChipsArrayFilter from 'src/components/chip'
@@ -28,12 +28,20 @@ import { emptyRows, applyFilter, getComparator } from '../utils'
 import type { TopicProps } from '../topic-table-row'
 
 // ----------------------------------------------------------------------
+const getUniqueInstructors = (): string[] => {
+  const uniqueInstructors = new Set<string>()
+  for (let i = 0; i < 24; i++) {
+    uniqueInstructors.add(_instructor(i))
+  }
+  return Array.from(uniqueInstructors)
+}
 
 export function TopicStudentView() {
   const table = useTable()
   const id = uuidv4()
   const [filterName, setFilterName] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('ALL')
+  const [filterInstructor, setFilterInstructor] = useState<string[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterName: {
       display: 'Tìm kiếm',
@@ -41,6 +49,10 @@ export function TopicStudentView() {
     },
     filterDepartment: {
       display: 'Bộ môn',
+      data: []
+    },
+    filterInstructor: {
+      display: 'Giáo viên hướng dẫn',
       data: []
     }
   })
@@ -62,16 +74,31 @@ export function TopicStudentView() {
       filterDepartment: {
         display: 'Bộ môn',
         data: []
+      },
+      filterInstructor: {
+        display: 'Giáo viên hướng dẫn',
+        data: []
       }
     })
     setFilterName('')
     setFilterDepartment('ALL')
+    setFilterInstructor([])
   }, [])
 
-  const handleChipData = useCallback((newChipsFilter: ChipsFilter) => {
+  const handleDeleteChipData = useCallback((newChipsFilter: ChipsFilter) => {
     setChipsFilter(newChipsFilter)
-    setFilterName('')
-    setFilterDepartment('ALL')
+    Object.keys(newChipsFilter).forEach((key) => {
+      const section = newChipsFilter[key as keyof ChipsFilter]
+      if (key === 'filterName' && section.data.length === 0) {
+        setFilterName('')
+      }
+      if (key === 'filterDepartment' && section.data.length === 0) {
+        setFilterDepartment('ALL')
+      }
+      if (key === 'filterInstructor') {
+        setFilterInstructor(section.data.map((item) => item.label))
+      }
+    })
   }, [])
 
   const handleFilterName = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,6 +125,18 @@ export function TopicStudentView() {
     setFilterDepartment(newValue)
   }, [id])
 
+  const handleFilterInstructor = useCallback((newValue: string[]) => {
+    setChipsFilter((pvev) => ({
+      ...pvev,
+      filterInstructor: {
+        ...pvev.filterInstructor,
+        data: newValue.map((item, index) => ({ key: id + index, label: item }))
+      }
+    }))
+    setFilterInstructor(newValue)
+  }
+  , [id])
+
   return (
     <DashboardContent>
       <Box
@@ -119,9 +158,12 @@ export function TopicStudentView() {
           numSelected={table.selected.length}
           filterName={filterName}
           onFilterName={handleFilterName}
+          valueMultipleSelect={getUniqueInstructors()}
+          filterInstructor={filterInstructor}
+          onFilterInstructor={handleFilterInstructor}
         />
 
-        <ChipsArrayFilter chipData={chipsFilter} handleChipData={handleChipData} handleClearFilter={handleClearFilter}/>
+        <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>
 
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
