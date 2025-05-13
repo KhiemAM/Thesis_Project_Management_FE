@@ -199,7 +199,7 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
                         {item.children.map((child) => {
                           const isChildActived = pathname === child.path
                           return (
-                            <ListItem key={child.title} disableGutters>
+                            <Box key={child.title} sx={{ my: 1 }}>
                               <ListItemButton
                                 component={RouterLink}
                                 href={child.path}
@@ -226,7 +226,7 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
                                   {child.title}
                                 </Box>
                               </ListItemButton>
-                            </ListItem>
+                            </Box>
                           )
                         })}
                       </List>

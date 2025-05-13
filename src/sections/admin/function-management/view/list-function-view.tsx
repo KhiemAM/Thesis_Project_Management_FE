@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _topic, _instructor } from 'src/_mock'
+import { _function, _instructor } from 'src/_mock'
 import { DashboardContent } from 'src/layouts/student'
 
 import ChipsArrayFilter from 'src/components/chip'
@@ -21,11 +21,11 @@ import { TableNoData } from '../table-no-data'
 import { TopicTableRow } from '../topic-table-row'
 import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
-import { TopicTabsFilter } from '../topic-tabs-filter'
 import { UserTableToolbar } from '../user-table-toolbar'
+import { FunctionTabsFilter } from '../topic-tabs-filter'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 
-import type { TopicProps } from '../topic-table-row'
+import type { FunctionProps } from '../topic-table-row'
 
 // ----------------------------------------------------------------------
 const getUniqueInstructors = (): string[] => {
@@ -36,11 +36,11 @@ const getUniqueInstructors = (): string[] => {
   return Array.from(uniqueInstructors)
 }
 
-export function TopicStudentView() {
+export function ListFunctionView() {
   const table = useTable()
   const id = uuidv4()
   const [filterName, setFilterName] = useState('')
-  const [filterDepartment, setFilterDepartment] = useState('Tất cả')
+  const [filterStatus, setFilterStatus] = useState('Tất cả')
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
@@ -48,7 +48,7 @@ export function TopicStudentView() {
       data: []
     },
     filterTab: {
-      display: 'Bộ môn',
+      display: 'Trạng thái',
       data: []
     },
     filterSelect: {
@@ -57,8 +57,8 @@ export function TopicStudentView() {
     }
   })
 
-  const dataFiltered: TopicProps[] = applyFilter({
-    inputData: _topic,
+  const dataFiltered: FunctionProps[] = applyFilter({
+    inputData: _function,
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
   })
@@ -72,7 +72,7 @@ export function TopicStudentView() {
         data: []
       },
       filterTab: {
-        display: 'Bộ môn',
+        display: 'Trạng thái',
         data: []
       },
       filterSelect: {
@@ -81,7 +81,7 @@ export function TopicStudentView() {
       }
     })
     setFilterName('')
-    setFilterDepartment('Tất cả')
+    setFilterStatus('Tất cả')
     setFilterInstructor([])
   }, [])
 
@@ -93,7 +93,7 @@ export function TopicStudentView() {
         setFilterName('')
       }
       if (key === 'filterTab' && section.data.length === 0) {
-        setFilterDepartment('Tất cả')
+        setFilterStatus('Tất cả')
       }
       if (key === 'filterSelect') {
         setFilterInstructor(section.data.map((item) => item.label))
@@ -114,7 +114,7 @@ export function TopicStudentView() {
     table.onResetPage()
   }, [id, table])
 
-  const handleFilterDepartment = useCallback((newValue: string) => {
+  const handleFilterStatus = useCallback((newValue: string) => {
     setChipsFilter((pvev) => ({
       ...pvev,
       filterTab: {
@@ -122,7 +122,7 @@ export function TopicStudentView() {
         data: newValue ? [{ key: id, label: newValue }] : []
       }
     }))
-    setFilterDepartment(newValue)
+    setFilterStatus(newValue)
   }, [id])
 
   const handleFilterInstructor = useCallback((newValue: string[]) => {
@@ -147,12 +147,12 @@ export function TopicStudentView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Chọn đề tài
+          Danh sách chức năng
         </Typography>
       </Box>
 
       <Card>
-        <TopicTabsFilter value={filterDepartment} setValue={handleFilterDepartment}/>
+        <FunctionTabsFilter value={filterStatus} setValue={handleFilterStatus}/>
 
         <UserTableToolbar
           numSelected={table.selected.length}
@@ -171,21 +171,21 @@ export function TopicStudentView() {
               <UserTableHead
                 order={table.order}
                 orderBy={table.orderBy}
-                rowCount={_topic.length}
+                rowCount={_function.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
-                    _topic.map((topic) => topic.id)
+                    _function.map((topic) => topic.id)
                   )
                 }
                 headLabel={[
-                  { id: 'topicNumber', label: 'STT đề tài', minWidth: 130 },
-                  { id: 'name', label: 'Tên đề tài', minWidth: 350 },
-                  { id: 'instructor', label: 'Giáo viên hướng dẫn', minWidth: 200 },
-                  { id: 'email', label: 'Email', minWidth: 300 },
-                  { id: 'department', label: 'Bộ môn', align: 'center', minWidth: 100 },
+                  { id: 'function', label: 'Chức năng', minWidth: 200 },
+                  { id: 'path', label: 'Đường dẫn', minWidth: 200 },
+                  { id: 'parentFunction', label: 'Chức năng cha', minWidth: 200 },
+                  { id: 'type', label: 'Loại chức năng', align: 'center', minWidth: 100 },
+                  { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 100 },
                   { id: '' }
                 ]}
               />
@@ -206,7 +206,7 @@ export function TopicStudentView() {
 
                 <TableEmptyRows
                   height={68}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, _topic.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, _function.length)}
                 />
 
                 {notFound && <TableNoData searchQuery={filterName} />}
@@ -218,7 +218,7 @@ export function TopicStudentView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_topic.length}
+          count={_function.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}

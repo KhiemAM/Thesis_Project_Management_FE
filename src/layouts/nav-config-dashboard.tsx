@@ -1,9 +1,8 @@
-import { Label } from 'src/components/label'
 import { SvgColor } from 'src/components/svg-color'
 
 // ----------------------------------------------------------------------
 
-const icon = (name: string) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} />
+const icon = (name: string) => <SvgColor src={`/assets/icons/navbar/admin/${name}.svg`} />
 
 type NavItemChildren = {
   title: string;
@@ -44,26 +43,23 @@ export const navData = [
     ]
   },
   {
-    title: 'Quản lý tài khoản 2',
-    path: '/products',
-    icon: icon('ic-user'),
+    title: 'Quản lý chức năng',
+    path: '/function',
+    icon: icon('solar--settings-bold-duotone'),
     children: [
       {
-        title: 'Danh sách tài khoản 2',
-        path: '/user1',
-        icon: icon('ic-user')
+        title: 'Danh sách chức năng',
+        path: '/function/list'
+      },
+      {
+        title: 'Thêm chức năng',
+        path: '/function/create'
+      },
+      {
+        title: 'Cập nhật chức năng',
+        path: '/function/update'
       }
     ]
-  },
-  {
-    title: 'Product',
-    path: '/products',
-    icon: icon('ic-cart'),
-    info: (
-      <Label color="error" variant="inverted">
-        +3
-      </Label>
-    )
   },
   {
     title: 'Tiến độ',

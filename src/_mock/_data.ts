@@ -5,14 +5,16 @@ import {
   _email,
   _company,
   _boolean,
+  _content,
   _fullName,
   _taskNames,
   _postTitles,
   _instructor,
   _description,
   _productNames,
+  _functionName,
   _fullNameTopic,
-  _content
+  _path
 } from './_mock'
 
 // ----------------------------------------------------------------------
@@ -69,6 +71,16 @@ export const _topic = [...Array(24)].map((_, index) => ({
       'MMT-ATTT',
       'MMT-ATTT'
     ][index] || 'KTPM'
+}))
+
+export const _function = [...Array(7)].map((_, index) => ({
+  id: _id(index),
+  function: _functionName(index),
+  path: _path(index),
+  parentFunction: '',
+  type: 'GROUP',
+  status: index % 2 ? 'Hoạt động' : 'Không hoạt động',
+  children: []
 }))
 
 // ----------------------------------------------------------------------

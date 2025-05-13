@@ -318,3 +318,25 @@ export const _content = (index: number) =>
     - Hệ quản trị SQL Server, ASP.NET
     - ASP.NET/ASP.NET Core, ReactJS hoặc tương đương`
   ][index]
+
+export const _functionName = (index: number) =>
+  [
+    'Quản lý người dùng',
+    'Quản lý chức năng',
+    'Quản lý vai trò',
+    'Quản lý đề tài đồ án',
+    'Quản lý sinh viên',
+    'Quản lý giảng viên',
+    'Quản lý bộ môn'
+  ][index]
+
+export const _path = (index: number) =>
+  [
+    '/user',
+    '/function',
+    '/role',
+    '/topic',
+    '/student',
+    '/instructor',
+    '/department'
+  ][index]

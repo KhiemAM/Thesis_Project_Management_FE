@@ -1,6 +1,6 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
-import type { TopicProps } from './topic-table-row'
+import type { FunctionProps } from './topic-table-row'
 
 // ----------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ export function getComparator<Key extends keyof any>(
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: TopicProps[];
+  inputData: FunctionProps[];
   comparator: (a: any, b: any) => number;
   filter: ChipsFilter;
 };
@@ -73,33 +73,29 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
 
   if (filter.filterSearch.data.length > 0) {
     inputData = inputData.filter(
-      (item) => item.name.toLowerCase().indexOf(filter.filterSearch.data[0].label.toLowerCase()) !== -1
+      (item) => item.function.toLowerCase().indexOf(filter.filterSearch.data[0].label.toLowerCase()) !== -1
     )
   }
 
   if (filter.filterTab.data.length > 0 && filter.filterTab.data[0].label !== 'Tất cả') {
-    inputData = inputData.filter((item) => item.department === filter.filterTab.data[0].label)
+    inputData = inputData.filter((item) => item.status === filter.filterTab.data[0].label)
   }
 
-  if (filter.filterSelect.data.length > 0) {
-    const instructorLabels = filter.filterSelect.data.map((item) => item.label)
-    inputData = inputData.filter((item) => instructorLabels.includes(item.instructor)
-    )
-  }
+  // if (filter.filterInstructor.data.length > 0) {
+  //   const instructorLabels = filter.filterInstructor.data.map((item) => item.label)
+  //   inputData = inputData.filter((item) => instructorLabels.includes(item.instructor)
+  //   )
+  // }
 
   return inputData
 }
 
-export const getColorByDepartment = (department: string) => {
+export const getColorByStatus = (department: string) => {
   switch (department) {
-  case 'KTPM':
-    return 'primary'
-  case 'HTTT':
-    return 'warning'
-  case 'KHDL&TTNT':
-    return 'error'
-  case 'MMT-ATTT':
+  case 'Hoạt động':
     return 'success'
+  case 'Không hoạt động':
+    return 'error'
   default:
     return 'default'
   }

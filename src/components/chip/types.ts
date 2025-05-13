@@ -4,15 +4,15 @@ export interface ChipData {
 }
 
 export interface ChipsFilter {
-  filterName: {
+  filterSearch: {
     display: string;
     data: ChipData[];
   };
-  filterDepartment: {
+  filterTab: {
     display: string;
     data: ChipData[];
   };
-  filterInstructor: {
+  filterSelect: {
     display: string;
     data: ChipData[];
   };

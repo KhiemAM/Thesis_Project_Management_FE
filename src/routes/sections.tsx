@@ -22,6 +22,9 @@ export const ProductsPage = lazy(() => import('src/pages/products'))
 export const ProgressPage = lazy(() => import('src/pages/progress'))
 export const Page404 = lazy(() => import('src/pages/page-not-found'))
 
+// -----------------------Admin Management--------------------------------------
+export const ListFunctionPage = lazy(() => import('src/pages/admin/functionManagement/list-function'))
+
 // ----------------------Student------------------------------------------------
 export const DashboardStudentPage = lazy(() => import('src/pages/student/dashboard-student'))
 export const SearchStudentPage = lazy(() => import('src/pages/student/search-student'))
@@ -88,6 +91,15 @@ const MainRoutes = () => [
         children: [
           { path: 'list', element: <UserPage /> },
           { path: 'create', element: <UserPage /> }
+        ]
+      },
+      {
+        path: 'function',
+        element: <Outlet />,
+        children: [
+          { path: 'list', element: <ListFunctionPage /> },
+          { path: 'create', element: <UserPage /> },
+          { path: 'update', element: <UserPage /> }
         ]
       }
       // { path: 'products', element: <ProductsPage /> },

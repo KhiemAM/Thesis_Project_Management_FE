@@ -32,9 +32,9 @@ export default function ChipsArrayFilter({ chipData, handleDeleteChipData, handl
     handleDeleteChipData(newChipsFilter)
   }
 
-  if (chipData.filterName.data.length === 0 &&
-      (chipData.filterDepartment.data.length === 0 || chipData.filterDepartment.data[0].label === 'ALL') &&
-      chipData.filterInstructor.data.length === 0
+  if (chipData.filterSearch.data.length === 0 &&
+      (chipData.filterTab.data.length === 0 || chipData.filterTab.data[0].label === 'Tất cả') &&
+      chipData.filterSelect.data.length === 0
   ) return null
 
   return (
