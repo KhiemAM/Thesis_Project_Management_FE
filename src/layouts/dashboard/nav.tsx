@@ -1,10 +1,12 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles'
 
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { varAlpha } from 'minimal-shared/utils'
 
 import Box from '@mui/material/Box'
+import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
+import Collapse from '@mui/material/Collapse'
 import { useTheme } from '@mui/material/styles'
 import { drawerClasses } from '@mui/material/Drawer'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -14,6 +16,7 @@ import { RouterLink } from 'src/routes/components'
 
 import { Logo } from 'src/components/logo'
 import { Drawer } from 'src/components/drawer'
+import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 
 // import { NavUpgrade } from '../components/nav-upgrade';
@@ -111,6 +114,14 @@ export function NavMobile({
 
 export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
   const pathname = usePathname()
+  const [openItems, setOpenItems] = useState<Record<string, boolean>>({})
+
+  const handleClick = (key: string, hasChildren: boolean, event: React.MouseEvent) => {
+    if (hasChildren) {
+      event.preventDefault()
+      setOpenItems((prev) => ({ ...prev, [key]: !prev[key] }))
+    }
+  }
 
   return (
     <>
@@ -141,14 +152,16 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
             }}
           >
             {data.map((item) => {
-              const isActived = item.path === pathname
-
+              const isAnyChildActive = item.children?.some((child) => pathname === child.path)
+              const isActived = pathname === item.path || isAnyChildActive
+              const isOpen = openItems[item.title] || false
               return (
-                <ListItem disableGutters disablePadding key={item.title}>
+                <ListItem disableGutters disablePadding key={item.title} sx={{ display: 'block' }}>
                   <ListItemButton
                     disableGutters
                     component={RouterLink}
                     href={item.path}
+                    onClick={(event) => handleClick(item.title, !!item.children, event)}
                     sx={[
                       (theme) => ({
                         pl: 2,
@@ -174,13 +187,51 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
                     <Box component="span" sx={{ width: 24, height: 24 }}>
                       {item.icon}
                     </Box>
-
                     <Box component="span" sx={{ flexGrow: 1 }}>
                       {item.title}
                     </Box>
-
                     {item.info && item.info}
+                    {item.children && (isOpen ? (<Iconify icon='solar:alt-arrow-down-line-duotone'/>) : (<Iconify icon='solar:alt-arrow-right-line-duotone'/>))}
                   </ListItemButton>
+                  {item.children && (
+                    <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                      <List component="div" disablePadding sx={{ pl: 5 }}>
+                        {item.children.map((child) => {
+                          const isChildActived = pathname === child.path
+                          return (
+                            <ListItem key={child.title} disableGutters>
+                              <ListItemButton
+                                component={RouterLink}
+                                href={child.path}
+                                sx={[
+                                  (theme) => ({
+                                    pl: 2,
+                                    py: 1,
+                                    gap: 2,
+                                    pr: 1.5,
+                                    borderRadius: 0.75,
+                                    typography: 'body2',
+                                    fontWeight: 'fontWeightMedium',
+                                    color: theme.vars.palette.text.secondary,
+                                    minHeight: 44,
+                                    ...(isChildActived && {
+                                      fontWeight: 'fontWeightSemiBold',
+                                      color: theme.vars.palette.primary.main,
+                                      bgcolor: theme.vars.palette.action.hover
+                                    })
+                                  })
+                                ]}
+                              >
+                                <Box component="span" sx={{ flexGrow: 1 }}>
+                                  {child.title}
+                                </Box>
+                              </ListItemButton>
+                            </ListItem>
+                          )
+                        })}
+                      </List>
+                    </Collapse>
+                  )}
                 </ListItem>
               )
             })}
@@ -190,7 +241,6 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
 
       {slots?.bottomArea}
 
-      {/* <NavUpgrade /> */}
     </>
   )
 }

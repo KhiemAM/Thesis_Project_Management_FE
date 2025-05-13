@@ -82,10 +82,17 @@ const MainRoutes = () => [
     ),
     children: [
       { index: true, element: <DashboardPage /> },
-      { path: 'user', element: <UserPage /> },
-      { path: 'products', element: <ProductsPage /> },
-      { path: 'blog', element: <BlogPage /> },
-      { path: 'progress', element: <ProgressPage /> }
+      {
+        path: 'user',
+        element: <Outlet />,
+        children: [
+          { path: 'list', element: <UserPage /> },
+          { path: 'create', element: <UserPage /> }
+        ]
+      }
+      // { path: 'products', element: <ProductsPage /> },
+      // { path: 'blog', element: <BlogPage /> },
+      // { path: 'progress', element: <ProgressPage /> }
     ]
   }
 ]
