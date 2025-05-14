@@ -62,6 +62,25 @@ export const navData = [
     ]
   },
   {
+    title: 'Quản lý vai trò',
+    path: '/role',
+    icon: icon('solar--shield-user-bold-duotone'),
+    children: [
+      {
+        title: 'Danh sách vai trò',
+        path: '/role/list'
+      },
+      {
+        title: 'Thêm vai trò',
+        path: '/role/create'
+      },
+      {
+        title: 'Cập nhật vai trò',
+        path: '/role/update'
+      }
+    ]
+  },
+  {
     title: 'Tiến độ',
     path: '/progress',
     icon: icon('tabler-progress-check')

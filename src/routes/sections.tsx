@@ -26,6 +26,8 @@ export const Page404 = lazy(() => import('src/pages/page-not-found'))
 export const ListFunctionPage = lazy(() => import('src/pages/admin/functionManagement/list-function'))
 export const CreateFunctionPage = lazy(() => import('src/pages/admin/functionManagement/create-function'))
 export const UpdateFunctionPage = lazy(() => import('src/pages/admin/functionManagement/update-function'))
+export const ListRolePage = lazy(() => import('src/pages/admin/roleManagement/list-role'))
+export const CreateRolePage = lazy(() => import('src/pages/admin/roleManagement/create-role'))
 
 // ----------------------Student------------------------------------------------
 export const DashboardStudentPage = lazy(() => import('src/pages/student/dashboard-student'))
@@ -101,6 +103,15 @@ const MainRoutes = () => [
         children: [
           { path: 'list', element: <ListFunctionPage /> },
           { path: 'create', element: <CreateFunctionPage /> },
+          { path: 'update', element: <UpdateFunctionPage /> }
+        ]
+      },
+      {
+        path: 'role',
+        element: <Outlet />,
+        children: [
+          { path: 'list', element: <ListRolePage /> },
+          { path: 'create', element: <CreateRolePage /> },
           { path: 'update', element: <UpdateFunctionPage /> }
         ]
       }

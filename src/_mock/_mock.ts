@@ -340,3 +340,36 @@ export const _path = (index: number) =>
     '/instructor',
     '/department'
   ][index]
+
+export const _roleId = (index: number) =>
+  [
+    'ADMIN',
+    'USER',
+    'INSTRUCTOR',
+    'STUDENT',
+    'DEPARTMENT',
+    'DEPARTMENT_ADMIN',
+    'DEPARTMENT_USER'
+  ][index]
+
+export const _roleName = (index: number) =>
+  [
+    'Quản trị viên',
+    'Người dùng',
+    'Giảng viên',
+    'Sinh viên',
+    'Bộ môn',
+    'Quản trị viên bộ môn',
+    'Người dùng bộ môn'
+  ][index]
+
+export const _roleDescription = (index: number) =>
+  [
+    'Quản trị viên có quyền cao nhất trong hệ thống',
+    'Người dùng có quyền truy cập vào hệ thống',
+    'Giảng viên có quyền quản lý sinh viên và đề tài đồ án',
+    'Sinh viên có quyền truy cập vào hệ thống và đăng ký đề tài đồ án',
+    'Bộ môn có quyền quản lý đề tài đồ án và sinh viên',
+    'Quản trị viên bộ môn có quyền quản lý sinh viên và đề tài đồ án trong bộ môn',
+    'Người dùng bộ môn có quyền truy cập vào hệ thống và đăng ký đề tài đồ án trong bộ môn'
+  ][index]

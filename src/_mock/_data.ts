@@ -1,12 +1,15 @@
 import {
   _id,
+  _path,
   _price,
   _times,
   _email,
+  _roleId,
   _company,
   _boolean,
   _content,
   _fullName,
+  _roleName,
   _taskNames,
   _postTitles,
   _instructor,
@@ -14,7 +17,7 @@ import {
   _productNames,
   _functionName,
   _fullNameTopic,
-  _path
+  _roleDescription
 } from './_mock'
 
 // ----------------------------------------------------------------------
@@ -81,6 +84,15 @@ export const _function = [...Array(7)].map((_, index) => ({
   type: 'GROUP',
   status: index % 2 ? 'Hoạt động' : 'Ngừng hoạt động',
   children: []
+}))
+
+export const _role = [...Array(7)].map((_, index) => ({
+  id: _id(index),
+  roleId: _roleId(index),
+  roleName: _roleName(index),
+  description: _roleDescription(index),
+  status: index % 2 ? 'Hoạt động' : 'Ngừng hoạt động',
+  function: _function[index].function
 }))
 
 // ----------------------------------------------------------------------

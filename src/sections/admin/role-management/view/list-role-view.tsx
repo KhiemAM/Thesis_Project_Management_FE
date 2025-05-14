@@ -11,21 +11,21 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _function, _instructor } from 'src/_mock'
+import { _role, _instructor } from 'src/_mock'
 import { DashboardContent } from 'src/layouts/student'
 
 import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
+import { RoleTableRow } from '../role-table-row'
 import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
-import { FunctionTableRow } from '../function-table-row'
+import { RoleTabsFilter } from '../role-tabs-filter'
 import { UserTableToolbar } from '../user-table-toolbar'
-import { FunctionTabsFilter } from '../function-tabs-filter'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 
-import type { FunctionProps } from '../function-table-row'
+import type { RoleProps } from '../role-table-row'
 
 // ----------------------------------------------------------------------
 const getUniqueInstructors = (): string[] => {
@@ -36,7 +36,7 @@ const getUniqueInstructors = (): string[] => {
   return Array.from(uniqueInstructors)
 }
 
-export function ListFunctionView() {
+export function ListRoleView() {
   const table = useTable()
   const id = uuidv4()
   const [filterName, setFilterName] = useState('')
@@ -57,8 +57,8 @@ export function ListFunctionView() {
     }
   })
 
-  const dataFiltered: FunctionProps[] = applyFilter({
-    inputData: _function,
+  const dataFiltered: RoleProps[] = applyFilter({
+    inputData: _role,
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
   })
@@ -147,12 +147,12 @@ export function ListFunctionView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Danh sách chức năng
+          Danh sách vai trò
         </Typography>
       </Box>
 
       <Card>
-        <FunctionTabsFilter value={filterStatus} setValue={handleFilterStatus}/>
+        <RoleTabsFilter value={filterStatus} setValue={handleFilterStatus}/>
 
         <UserTableToolbar
           numSelected={table.selected.length}
@@ -171,21 +171,21 @@ export function ListFunctionView() {
               <UserTableHead
                 order={table.order}
                 orderBy={table.orderBy}
-                rowCount={_function.length}
+                rowCount={_role.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
-                    _function.map((topic) => topic.id)
+                    _role.map((topic) => topic.id)
                   )
                 }
                 headLabel={[
-                  { id: 'function', label: 'Chức năng', minWidth: 200 },
-                  { id: 'path', label: 'Đường dẫn', minWidth: 200 },
-                  { id: 'parentFunction', label: 'Chức năng cha', minWidth: 200 },
-                  { id: 'type', label: 'Loại chức năng', align: 'center', minWidth: 100 },
+                  { id: 'roleId', label: 'Mã vai trò', minWidth: 200 },
+                  { id: 'roleName', label: 'Tên vai trò', minWidth: 200 },
+                  { id: 'description', label: 'Mô tả vai trò', minWidth: 200 },
                   { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 100 },
+                  { id: 'function', label: 'Chức năng', align: 'center', minWidth: 150 },
                   { id: '' }
                 ]}
               />
@@ -196,7 +196,7 @@ export function ListFunctionView() {
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
                   .map((row) => (
-                    <FunctionTableRow
+                    <RoleTableRow
                       key={row.id}
                       row={row}
                       selected={table.selected.includes(row.id)}
@@ -206,7 +206,7 @@ export function ListFunctionView() {
 
                 <TableEmptyRows
                   height={68}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, _function.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, _role.length)}
                 />
 
                 {notFound && <TableNoData searchQuery={filterName} />}
@@ -218,7 +218,7 @@ export function ListFunctionView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_function.length}
+          count={_role.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}
@@ -233,7 +233,7 @@ export function ListFunctionView() {
 
 export function useTable() {
   const [page, setPage] = useState(0)
-  const [orderBy, setOrderBy] = useState('function')
+  const [orderBy, setOrderBy] = useState('roleId')
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [selected, setSelected] = useState<string[]>([])
   const [order, setOrder] = useState<'asc' | 'desc'>('asc')
