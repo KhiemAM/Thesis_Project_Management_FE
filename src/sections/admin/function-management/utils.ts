@@ -1,6 +1,6 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
-import type { FunctionProps } from './topic-table-row'
+import type { FunctionProps } from './function-table-row'
 
 // ----------------------------------------------------------------------
 
@@ -94,7 +94,7 @@ export const getColorByStatus = (department: string) => {
   switch (department) {
   case 'Hoạt động':
     return 'success'
-  case 'Không hoạt động':
+  case 'Ngừng hoạt động':
     return 'error'
   default:
     return 'default'

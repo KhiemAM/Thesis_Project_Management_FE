@@ -136,5 +136,8 @@ export default {
   },
   'solar:alt-arrow-right-line-duotone': {
     body: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m9 5l6 7l-6 7"/>'
+  },
+  'solar:alt-arrow-left-line-duotone': {
+    body: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m15 5l-6 7l6 7"/>'
   }
 }

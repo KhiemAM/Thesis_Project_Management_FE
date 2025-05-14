@@ -79,7 +79,7 @@ export const _function = [...Array(7)].map((_, index) => ({
   path: _path(index),
   parentFunction: '',
   type: 'GROUP',
-  status: index % 2 ? 'Hoạt động' : 'Không hoạt động',
+  status: index % 2 ? 'Hoạt động' : 'Ngừng hoạt động',
   children: []
 }))
 

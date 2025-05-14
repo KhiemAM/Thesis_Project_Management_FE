@@ -24,6 +24,8 @@ export const Page404 = lazy(() => import('src/pages/page-not-found'))
 
 // -----------------------Admin Management--------------------------------------
 export const ListFunctionPage = lazy(() => import('src/pages/admin/functionManagement/list-function'))
+export const CreateFunctionPage = lazy(() => import('src/pages/admin/functionManagement/create-function'))
+export const UpdateFunctionPage = lazy(() => import('src/pages/admin/functionManagement/update-function'))
 
 // ----------------------Student------------------------------------------------
 export const DashboardStudentPage = lazy(() => import('src/pages/student/dashboard-student'))
@@ -98,8 +100,8 @@ const MainRoutes = () => [
         element: <Outlet />,
         children: [
           { path: 'list', element: <ListFunctionPage /> },
-          { path: 'create', element: <UserPage /> },
-          { path: 'update', element: <UserPage /> }
+          { path: 'create', element: <CreateFunctionPage /> },
+          { path: 'update', element: <UpdateFunctionPage /> }
         ]
       }
       // { path: 'products', element: <ProductsPage /> },

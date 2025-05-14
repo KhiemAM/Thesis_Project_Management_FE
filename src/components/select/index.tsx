@@ -23,13 +23,13 @@ const MenuProps = {
   }
 }
 
-export default function MultipleSelectFilter({ valueMultipleSelect, filterInstructor, onFilterInstructor } : MultipleSelectFilterProps) {
+export default function MultipleSelectFilter({ valueMultipleSelect, filterValue, onFilter } : MultipleSelectFilterProps) {
 
-  const handleChange = (event: SelectChangeEvent<typeof filterInstructor>) => {
+  const handleChange = (event: SelectChangeEvent<typeof filterValue>) => {
     const {
       target: { value }
     } = event
-    onFilterInstructor(
+    onFilter(
       // On autofill we get a stringified value.
       typeof value === 'string' ? value.split(',') : value
     )
@@ -43,7 +43,7 @@ export default function MultipleSelectFilter({ valueMultipleSelect, filterInstru
           labelId="multiple-checkbox-label-filter"
           id="multiple-checkbox-filter"
           multiple
-          value={filterInstructor}
+          value={filterValue}
           onChange={handleChange}
           input={<OutlinedInput label="Giáo viên hướng dẫn" />}
           renderValue={(selected) => selected.join(', ')}
@@ -51,7 +51,7 @@ export default function MultipleSelectFilter({ valueMultipleSelect, filterInstru
         >
           {valueMultipleSelect.map((name) => (
             <MenuItem key={name} value={name}>
-              <Checkbox checked={filterInstructor.includes(name)} />
+              <Checkbox checked={filterValue.includes(name)} />
               <ListItemText primary={name} />
             </MenuItem>
           ))}

@@ -18,14 +18,14 @@ import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
-import { TopicTableRow } from '../topic-table-row'
 import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
+import { FunctionTableRow } from '../function-table-row'
 import { UserTableToolbar } from '../user-table-toolbar'
 import { FunctionTabsFilter } from '../topic-tabs-filter'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 
-import type { FunctionProps } from '../topic-table-row'
+import type { FunctionProps } from '../function-table-row'
 
 // ----------------------------------------------------------------------
 const getUniqueInstructors = (): string[] => {
@@ -125,7 +125,7 @@ export function ListFunctionView() {
     setFilterStatus(newValue)
   }, [id])
 
-  const handleFilterInstructor = useCallback((newValue: string[]) => {
+  const handleFilterPath = useCallback((newValue: string[]) => {
     setChipsFilter((pvev) => ({
       ...pvev,
       filterSelect: {
@@ -160,7 +160,7 @@ export function ListFunctionView() {
           onFilterName={handleFilterName}
           valueMultipleSelect={getUniqueInstructors()}
           filterInstructor={filterInstructor}
-          onFilterInstructor={handleFilterInstructor}
+          onFilterInstructor={handleFilterPath}
         />
 
         <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>
@@ -196,7 +196,7 @@ export function ListFunctionView() {
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
                   .map((row) => (
-                    <TopicTableRow
+                    <FunctionTableRow
                       key={row.id}
                       row={row}
                       selected={table.selected.includes(row.id)}
@@ -233,7 +233,7 @@ export function ListFunctionView() {
 
 export function useTable() {
   const [page, setPage] = useState(0)
-  const [orderBy, setOrderBy] = useState('topicNumber')
+  const [orderBy, setOrderBy] = useState('function')
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [selected, setSelected] = useState<string[]>([])
   const [order, setOrder] = useState<'asc' | 'desc'>('asc')

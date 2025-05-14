@@ -74,7 +74,7 @@ export function UserTableToolbar({ numSelected, filterName, onFilterName, valueM
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-        <MultipleSelectFilter valueMultipleSelect={valueMultipleSelect} filterInstructor={filterInstructor} onFilterInstructor={onFilterInstructor}/>
+        <MultipleSelectFilter valueMultipleSelect={valueMultipleSelect} filterValue={filterInstructor} onFilter={onFilterInstructor}/>
 
         <OutlinedInput
           fullWidth
