@@ -18,10 +18,10 @@ import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
-import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
+import { UserTableHead } from '../function-table-head'
 import { FunctionTableRow } from '../function-table-row'
-import { UserTableToolbar } from '../user-table-toolbar'
+import { UserTableToolbar } from '../function-table-toolbar'
 import { FunctionTabsFilter } from '../function-tabs-filter'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 

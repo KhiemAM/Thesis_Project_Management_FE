@@ -83,7 +83,17 @@ export const _function = [...Array(7)].map((_, index) => ({
   parentFunction: '',
   type: 'GROUP',
   status: index % 2 ? 'Hoạt động' : 'Ngừng hoạt động',
-  children: []
+  children:
+    [...Array(3)].map((__, childIndex) => (
+      {
+        id: _id(childIndex),
+        function: _functionName(childIndex),
+        path: _path(childIndex),
+        parentFunction: '',
+        type: 'API',
+        status: childIndex % 2 ? 'Hoạt động' : 'Ngừng hoạt động'
+      }
+    ))
 }))
 
 export const _role = [...Array(7)].map((_, index) => ({
