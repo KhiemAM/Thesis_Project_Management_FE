@@ -38,7 +38,7 @@ interface IFormInputCreateRole {
   status: string;
 }
 
-export function CreateRoleView() {
+export function UpdateRoleView() {
   const theme = useTheme()
   const { register, handleSubmit, formState: { errors } } = useForm<IFormInputCreateRole>()
 
@@ -55,7 +55,7 @@ export function CreateRoleView() {
           }}
         >
           <Typography variant="h4" sx={{ flexGrow: 1 }}>
-            Thêm vai trò mới
+            Cập nhật vai trò
           </Typography>
         </Box>
 
@@ -145,7 +145,7 @@ export function CreateRoleView() {
                         ml: { sm: 'none', md: 'auto' }
                       }}
                     >
-                  Thêm mới
+                      Cập nhật
                     </Button>
                   </Box>
                 </Scrollbar>

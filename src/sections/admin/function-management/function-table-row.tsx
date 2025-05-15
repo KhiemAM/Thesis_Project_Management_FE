@@ -85,7 +85,7 @@ export function FunctionTableRow({ row, selected, onSelectRow, level = 0 }: User
 
         <TableCell sx={{ pl: 3 + 3 * level }}>
           {row.function}
-          {row.children && (
+          {(row.children?.length ?? 0) > 0 && (
             <IconButton onClick={toggleExpand} size="small">
               <Iconify icon={expanded ? 'solar:alt-arrow-down-line-duotone' : 'solar:alt-arrow-right-line-duotone'} />
             </IconButton>
