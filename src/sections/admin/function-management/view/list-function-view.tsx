@@ -47,10 +47,12 @@ export function ListFunctionView() {
       display: 'Tìm kiếm',
       data: []
     },
-    filterTab: {
-      display: 'Trạng thái',
-      data: []
-    },
+    filterTab: [
+      {
+        display: 'Trạng thái',
+        data: []
+      }
+    ],
     filterSelect: {
       display: 'Giáo viên hướng dẫn',
       data: []
@@ -71,10 +73,12 @@ export function ListFunctionView() {
         display: 'Tìm kiếm',
         data: []
       },
-      filterTab: {
-        display: 'Trạng thái',
-        data: []
-      },
+      filterTab: [
+        {
+          display: 'Trạng thái',
+          data: []
+        }
+      ],
       filterSelect: {
         display: 'Giáo viên hướng dẫn',
         data: []
@@ -89,13 +93,25 @@ export function ListFunctionView() {
     setChipsFilter(newChipsFilter)
     Object.keys(newChipsFilter).forEach((key) => {
       const section = newChipsFilter[key as keyof ChipsFilter]
-      if (key === 'filterSearch' && section.data.length === 0) {
+
+      // Xử lý cho filterSearch
+      if (key === 'filterSearch' && section && 'data' in section && Array.isArray(section.data) && section.data.length === 0) {
         setFilterName('')
       }
-      if (key === 'filterTab' && section.data.length === 0) {
-        setFilterStatus('Tất cả')
+
+      // Xử lý cho filterTab
+      if (key === 'filterTab' && Array.isArray(section)) {
+        section.forEach((item) => {
+          if (Array.isArray(item.data) && item.data.length === 0) {
+            if (item.display === 'Trạng thái') {
+              setFilterStatus('Tất cả')
+            }
+          }
+        })
       }
-      if (key === 'filterSelect') {
+
+      // Xử lý cho filterSelect
+      if (key === 'filterSelect' && section && 'data' in section && Array.isArray(section.data)) {
         setFilterInstructor(section.data.map((item) => item.label))
       }
     })
@@ -115,13 +131,15 @@ export function ListFunctionView() {
   }, [id, table])
 
   const handleFilterStatus = useCallback((newValue: string) => {
-    setChipsFilter((pvev) => ({
-      ...pvev,
-      filterTab: {
-        ...pvev.filterTab,
-        data: newValue ? [{ key: id, label: newValue }] : []
-      }
-    }))
+    setChipsFilter((prev) => {
+      const updatedFilterTab = prev.filterTab.map((item) =>
+        item.display === 'Trạng thái'
+          ? { ...item, data: newValue ? [{ key: id, label: newValue }] : [] }
+          : item
+      )
+
+      return { ...prev, filterTab: updatedFilterTab }
+    })
     setFilterStatus(newValue)
   }, [id])
 

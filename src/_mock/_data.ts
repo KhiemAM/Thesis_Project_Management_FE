@@ -55,6 +55,7 @@ export const _users = [...Array(24)].map((_, index) => ({
 export const _topic = [...Array(24)].map((_, index) => ({
   id: _id(index),
   topicNumber: index + 1,
+  status: index % 2 ? 'Chờ duyệt' : index % 3 ? 'Đã duyệt' : 'Từ chối',
   name: _fullNameTopic(index),
   content: _content(index),
   instructor: _instructor(index),

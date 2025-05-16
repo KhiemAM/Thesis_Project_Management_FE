@@ -3,19 +3,14 @@ export interface ChipData {
   label: string;
 }
 
+export interface ChipsProps {
+  display: string;
+  data: ChipData[];
+}
 export interface ChipsFilter {
-  filterSearch: {
-    display: string;
-    data: ChipData[];
-  };
-  filterTab: {
-    display: string;
-    data: ChipData[];
-  };
-  filterSelect: {
-    display: string;
-    data: ChipData[];
-  };
+  filterSearch: ChipsProps;
+  filterTab: ChipsProps[];
+  filterSelect: ChipsProps;
 }
 
 export interface ChipsArrayFilterProps {

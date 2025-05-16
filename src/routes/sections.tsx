@@ -29,6 +29,7 @@ export const UpdateFunctionPage = lazy(() => import('src/pages/admin/functionMan
 export const ListRolePage = lazy(() => import('src/pages/admin/roleManagement/list-role'))
 export const CreateRolePage = lazy(() => import('src/pages/admin/roleManagement/create-role'))
 export const UpdateRolePage = lazy(() => import('src/pages/admin/roleManagement/update-role'))
+export const ListTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/list-role'))
 
 // ----------------------Student------------------------------------------------
 export const DashboardStudentPage = lazy(() => import('src/pages/student/dashboard-student'))
@@ -112,6 +113,15 @@ const MainRoutes = () => [
         element: <Outlet />,
         children: [
           { path: 'list', element: <ListRolePage /> },
+          { path: 'create', element: <CreateRolePage /> },
+          { path: 'update', element: <UpdateRolePage /> }
+        ]
+      },
+      {
+        path: 'topic-proposal',
+        element: <Outlet />,
+        children: [
+          { path: 'list', element: <ListTopicProposalPage /> },
           { path: 'create', element: <CreateRolePage /> },
           { path: 'update', element: <UpdateRolePage /> }
         ]

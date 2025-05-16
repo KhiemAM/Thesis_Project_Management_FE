@@ -17,24 +17,38 @@ const ListItem = styled('li')(({ theme }) => ({
 export default function ChipsArrayFilter({ chipData, handleDeleteChipData, handleClearFilter } : ChipsArrayFilterProps) {
 
   const handleDelete = (chipToDelete: ChipData) => () => {
-    // Tìm loại chip nào chứa dữ liệu cần xóa
+  // Tìm loại chip nào chứa dữ liệu cần xóa
     const newChipsFilter = { ...chipData }
 
     // Duyệt qua tất cả các loại chip
     Object.keys(newChipsFilter).forEach((key) => {
       const section = newChipsFilter[key as keyof ChipsFilter]
 
-      // Lọc ra những chip không bị xóa
-      section.data = section.data.filter((chip) => chip.key !== chipToDelete.key)
+      // Kiểm tra kiểu của section
+      if (Array.isArray(section)) {
+      // Nếu là mảng ChipsProps[], duyệt từng phần tử
+        section.forEach((item) => {
+          if (Array.isArray(item.data)) {
+            item.data = item.data.filter((chip) => chip.key !== chipToDelete.key)
+          }
+        })
+      } else if (section && 'data' in section && Array.isArray(section.data)) {
+      // Nếu là đối tượng ChipsProps có thuộc tính data
+        section.data = section.data.filter((chip) => chip.key !== chipToDelete.key)
+      }
     })
 
     // Cập nhật lại state bằng hàm handleChipData
     handleDeleteChipData(newChipsFilter)
   }
 
-  if (chipData.filterSearch.data.length === 0 &&
-      (chipData.filterTab.data.length === 0 || chipData.filterTab.data[0].label === 'Tất cả') &&
-      chipData.filterSelect.data.length === 0
+  if (
+    chipData.filterSearch.data.length === 0 &&
+  (
+    Array.isArray(chipData.filterTab) &&
+      chipData.filterTab.every((item) => Array.isArray(item.data) && item.data.every((chip) => chip.label === 'Tấ cả'))
+  ) &&
+  chipData.filterSelect.data.length === 0
   ) return null
 
   return (
@@ -55,21 +69,52 @@ export default function ChipsArrayFilter({ chipData, handleDeleteChipData, handl
       >
         {Object.keys(chipData).map((key) => {
           const section = chipData[key as keyof ChipsFilter]
+
           return (
             <React.Fragment key={key}>
-              {section.data.length > 0 && <Typography variant='subtitle2' sx={{ px: 1 }}>{section.display}:</Typography>}
-              {section.data.map((data) => (
-                <ListItem key={data.key}>
-                  <Chip
-                    size="small"
-                    label={data.label}
-                    onDelete={handleDelete(data)}
-                  />
-                </ListItem>
-              ))}
+              {/* Xử lý nếu section là một mảng ChipsProps[] */}
+              {Array.isArray(section) ? (
+                section.map((item, index) => (
+                  <React.Fragment key={index}>
+                    {item.data.length > 0 && (
+                      <Typography variant='subtitle2' sx={{ px: 1 }}>
+                        {item.display}:
+                      </Typography>
+                    )}
+                    {item.data.map((data) => (
+                      <ListItem key={data.key}>
+                        <Chip
+                          size="small"
+                          label={data.label}
+                          onDelete={handleDelete(data)}
+                        />
+                      </ListItem>
+                    ))}
+                  </React.Fragment>
+                ))
+              ) : (
+              // Xử lý nếu section là một đối tượng ChipsProps
+                section && section.data.length > 0 && (
+                  <>
+                    <Typography variant='subtitle2' sx={{ px: 1 }}>
+                      {section.display}:
+                    </Typography>
+                    {section.data.map((data) => (
+                      <ListItem key={data.key}>
+                        <Chip
+                          size="small"
+                          label={data.label}
+                          onDelete={handleDelete(data)}
+                        />
+                      </ListItem>
+                    ))}
+                  </>
+                )
+              )}
             </React.Fragment>
           )
         })}
+
       </Box>
       <Button
         color="error"

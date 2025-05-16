@@ -77,8 +77,22 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
     )
   }
 
-  if (filter.filterTab.data.length > 0 && filter.filterTab.data[0].label !== 'Tất cả') {
-    inputData = inputData.filter((item) => item.status === filter.filterTab.data[0].label)
+  if (Array.isArray(filter.filterTab) && filter.filterTab.length > 0) {
+    // Hàm lấy các label hợp lệ từ filterTab
+    const getLabels = (type: string) =>
+      filter.filterTab
+        .filter((item) => item.display === type)
+        .flatMap((item) => item.data)
+        .map((chip) => chip.label)
+        .filter((label) => label !== 'Tất cả')
+
+    // Lấy danh sách labels cho department và status
+    const statusLabels = getLabels('Trạng thái')
+
+    // Lọc inputData theo cả department và status
+    inputData = inputData.filter((item) =>
+      (!statusLabels.length || statusLabels.includes(item.status))
+    )
   }
 
   // if (filter.filterInstructor.data.length > 0) {

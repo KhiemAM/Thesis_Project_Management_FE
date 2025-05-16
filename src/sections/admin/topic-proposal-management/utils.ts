@@ -88,10 +88,12 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
 
     // Lấy danh sách labels cho department và status
     const departmentLabels = getLabels('Bộ môn')
+    const statusLabels = getLabels('Trạng thái')
 
     // Lọc inputData theo cả department và status
     inputData = inputData.filter((item) =>
-      (!departmentLabels.length || departmentLabels.includes(item.department))
+      (!departmentLabels.length || departmentLabels.includes(item.department)) &&
+    (!statusLabels.length || statusLabels.includes(item.status))
     )
   }
 
@@ -114,6 +116,19 @@ export const getColorByDepartment = (department: string) => {
     return 'error'
   case 'MMT-ATTT':
     return 'success'
+  default:
+    return 'default'
+  }
+}
+
+export const getColorByStatus = (status: string) => {
+  switch (status) {
+  case 'Đã duyệt':
+    return 'success'
+  case 'Chờ duyệt':
+    return 'warning'
+  case 'Từ chối':
+    return 'error'
   default:
     return 'default'
   }

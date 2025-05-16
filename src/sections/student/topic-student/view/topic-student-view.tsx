@@ -47,10 +47,12 @@ export function TopicStudentView() {
       display: 'Tìm kiếm',
       data: []
     },
-    filterTab: {
-      display: 'Bộ môn',
-      data: []
-    },
+    filterTab: [
+      {
+        display: 'Bộ môn',
+        data: []
+      }
+    ],
     filterSelect: {
       display: 'Giáo viên hướng dẫn',
       data: []
@@ -71,10 +73,12 @@ export function TopicStudentView() {
         display: 'Tìm kiếm',
         data: []
       },
-      filterTab: {
-        display: 'Bộ môn',
-        data: []
-      },
+      filterTab: [
+        {
+          display: 'Bộ môn',
+          data: []
+        }
+      ],
       filterSelect: {
         display: 'Giáo viên hướng dẫn',
         data: []
@@ -89,13 +93,25 @@ export function TopicStudentView() {
     setChipsFilter(newChipsFilter)
     Object.keys(newChipsFilter).forEach((key) => {
       const section = newChipsFilter[key as keyof ChipsFilter]
-      if (key === 'filterSearch' && section.data.length === 0) {
+
+      // Xử lý cho filterSearch
+      if (key === 'filterSearch' && section && 'data' in section && Array.isArray(section.data) && section.data.length === 0) {
         setFilterName('')
       }
-      if (key === 'filterTab' && section.data.length === 0) {
-        setFilterDepartment('Tất cả')
+
+      // Xử lý cho filterTab
+      if (key === 'filterTab' && Array.isArray(section)) {
+        section.forEach((item) => {
+          if (Array.isArray(item.data) && item.data.length === 0) {
+            if (item.display === 'Bộ môn') {
+              setFilterDepartment('Tất cả')
+            }
+          }
+        })
       }
-      if (key === 'filterSelect') {
+
+      // Xử lý cho filterSelect
+      if (key === 'filterSelect' && section && 'data' in section && Array.isArray(section.data)) {
         setFilterInstructor(section.data.map((item) => item.label))
       }
     })
@@ -115,13 +131,15 @@ export function TopicStudentView() {
   }, [id, table])
 
   const handleFilterDepartment = useCallback((newValue: string) => {
-    setChipsFilter((pvev) => ({
-      ...pvev,
-      filterTab: {
-        ...pvev.filterTab,
-        data: newValue ? [{ key: id, label: newValue }] : []
-      }
-    }))
+    setChipsFilter((prev) => {
+      const updatedFilterTab = prev.filterTab.map((item) =>
+        item.display === 'Bộ môn'
+          ? { ...item, data: newValue ? [{ key: id, label: newValue }] : [] }
+          : item
+      )
+
+      return { ...prev, filterTab: updatedFilterTab }
+    })
     setFilterDepartment(newValue)
   }, [id])
 

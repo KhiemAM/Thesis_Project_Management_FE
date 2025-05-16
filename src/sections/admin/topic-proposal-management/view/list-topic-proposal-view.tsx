@@ -11,21 +11,22 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _role, _instructor } from 'src/_mock'
+import { _topic, _instructor } from 'src/_mock'
 import { DashboardContent } from 'src/layouts/student'
 
 import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
-import { RoleTableRow } from '../role-table-row'
+import { TopicTableRow } from '../topic-table-row'
 import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
-import { RoleTabsFilter } from '../role-tabs-filter'
+import { TopicTabsFilter } from '../topic-tabs-filter'
 import { UserTableToolbar } from '../user-table-toolbar'
 import { emptyRows, applyFilter, getComparator } from '../utils'
+import { TopicProposalTabsStatusFilter } from '../topic-proposal-tabs-status-filter'
 
-import type { RoleProps } from '../role-table-row'
+import type { TopicProps } from '../topic-table-row'
 
 // ----------------------------------------------------------------------
 const getUniqueInstructors = (): string[] => {
@@ -36,10 +37,11 @@ const getUniqueInstructors = (): string[] => {
   return Array.from(uniqueInstructors)
 }
 
-export function ListRoleView() {
+export function ListTopicProposalView() {
   const table = useTable()
   const id = uuidv4()
   const [filterName, setFilterName] = useState('')
+  const [filterDepartment, setFilterDepartment] = useState('Tất cả')
   const [filterStatus, setFilterStatus] = useState('Tất cả')
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
@@ -48,6 +50,10 @@ export function ListRoleView() {
       data: []
     },
     filterTab: [
+      {
+        display: 'Bộ môn',
+        data: []
+      },
       {
         display: 'Trạng thái',
         data: []
@@ -59,8 +65,8 @@ export function ListRoleView() {
     }
   })
 
-  const dataFiltered: RoleProps[] = applyFilter({
-    inputData: _role,
+  const dataFiltered: TopicProps[] = applyFilter({
+    inputData: _topic,
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
   })
@@ -75,6 +81,10 @@ export function ListRoleView() {
       },
       filterTab: [
         {
+          display: 'Bộ môn',
+          data: []
+        },
+        {
           display: 'Trạng thái',
           data: []
         }
@@ -85,6 +95,7 @@ export function ListRoleView() {
       }
     })
     setFilterName('')
+    setFilterDepartment('Tất cả')
     setFilterStatus('Tất cả')
     setFilterInstructor([])
   }, [])
@@ -103,6 +114,9 @@ export function ListRoleView() {
       if (key === 'filterTab' && Array.isArray(section)) {
         section.forEach((item) => {
           if (Array.isArray(item.data) && item.data.length === 0) {
+            if (item.display === 'Bộ môn') {
+              setFilterDepartment('Tất cả')
+            }
             if (item.display === 'Trạng thái') {
               setFilterStatus('Tất cả')
             }
@@ -130,6 +144,19 @@ export function ListRoleView() {
     table.onResetPage()
   }, [id, table])
 
+  const handleFilterDepartment = useCallback((newValue: string) => {
+    setChipsFilter((prev) => {
+      const updatedFilterTab = prev.filterTab.map((item) =>
+        item.display === 'Bộ môn'
+          ? { ...item, data: newValue ? [{ key: id, label: newValue }] : [] }
+          : item
+      )
+
+      return { ...prev, filterTab: updatedFilterTab }
+    })
+    setFilterDepartment(newValue)
+  }, [id])
+
   const handleFilterStatus = useCallback((newValue: string) => {
     setChipsFilter((prev) => {
       const updatedFilterTab = prev.filterTab.map((item) =>
@@ -143,7 +170,7 @@ export function ListRoleView() {
     setFilterStatus(newValue)
   }, [id])
 
-  const handleFilterPath = useCallback((newValue: string[]) => {
+  const handleFilterInstructor = useCallback((newValue: string[]) => {
     setChipsFilter((pvev) => ({
       ...pvev,
       filterSelect: {
@@ -165,12 +192,14 @@ export function ListRoleView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Danh sách vai trò
+          Chọn đề tài
         </Typography>
       </Box>
 
       <Card>
-        <RoleTabsFilter value={filterStatus} setValue={handleFilterStatus}/>
+        <TopicTabsFilter value={filterDepartment} setValue={handleFilterDepartment}/>
+
+        <TopicProposalTabsStatusFilter value={filterStatus} setValue={handleFilterStatus}/>
 
         <UserTableToolbar
           numSelected={table.selected.length}
@@ -178,7 +207,7 @@ export function ListRoleView() {
           onFilterName={handleFilterName}
           valueMultipleSelect={getUniqueInstructors()}
           filterInstructor={filterInstructor}
-          onFilterInstructor={handleFilterPath}
+          onFilterInstructor={handleFilterInstructor}
         />
 
         <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>
@@ -189,21 +218,22 @@ export function ListRoleView() {
               <UserTableHead
                 order={table.order}
                 orderBy={table.orderBy}
-                rowCount={_role.length}
+                rowCount={_topic.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
-                    _role.map((topic) => topic.id)
+                    _topic.map((topic) => topic.id)
                   )
                 }
                 headLabel={[
-                  { id: 'roleId', label: 'Mã vai trò', minWidth: 200 },
-                  { id: 'roleName', label: 'Tên vai trò', minWidth: 200 },
-                  { id: 'description', label: 'Mô tả vai trò', minWidth: 200 },
-                  { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 100 },
-                  { id: 'function', label: 'Chức năng', align: 'center', minWidth: 150 },
+                  { id: 'topicNumber', label: 'STT đề tài', minWidth: 130 },
+                  { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 150 },
+                  { id: 'name', label: 'Tên đề tài', minWidth: 350 },
+                  { id: 'instructor', label: 'Giáo viên hướng dẫn', minWidth: 200 },
+                  { id: 'email', label: 'Email', minWidth: 300 },
+                  { id: 'department', label: 'Bộ môn', align: 'center', minWidth: 150 },
                   { id: '' }
                 ]}
               />
@@ -214,7 +244,7 @@ export function ListRoleView() {
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
                   .map((row) => (
-                    <RoleTableRow
+                    <TopicTableRow
                       key={row.id}
                       row={row}
                       selected={table.selected.includes(row.id)}
@@ -224,7 +254,7 @@ export function ListRoleView() {
 
                 <TableEmptyRows
                   height={68}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, _role.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, _topic.length)}
                 />
 
                 {notFound && <TableNoData searchQuery={filterName} />}
@@ -236,7 +266,7 @@ export function ListRoleView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_role.length}
+          count={_topic.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}
@@ -251,7 +281,7 @@ export function ListRoleView() {
 
 export function useTable() {
   const [page, setPage] = useState(0)
-  const [orderBy, setOrderBy] = useState('roleId')
+  const [orderBy, setOrderBy] = useState('topicNumber')
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [selected, setSelected] = useState<string[]>([])
   const [order, setOrder] = useState<'asc' | 'desc'>('asc')

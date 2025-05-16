@@ -81,6 +81,21 @@ export const navData = [
     ]
   },
   {
+    title: 'Quản lý đề xuất đề tài',
+    path: '/topic-proposal',
+    icon: icon('solar--document-add-bold-duotone'),
+    children: [
+      {
+        title: 'Danh sách đề xuất đề tài',
+        path: '/topic-proposal/list'
+      },
+      {
+        title: 'Lập đề xuất đề tài',
+        path: '/topic-proposal/create'
+      }
+    ]
+  },
+  {
     title: 'Tiến độ',
     path: '/progress',
     icon: icon('tabler-progress-check')
