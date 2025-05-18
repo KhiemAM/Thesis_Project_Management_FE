@@ -1,182 +1,249 @@
-import type {
-  SelectChangeEvent
-} from '@mui/material'
+import 'dayjs/locale/vi'
 
-import React, { useState } from 'react'
+import type { Dayjs } from 'dayjs'
+import type { SubmitHandler } from 'react-hook-form'
 
+import dayjs from 'dayjs'
+import { useForm } from 'react-hook-form'
+import { useState, useCallback } from 'react'
+
+import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
-import {
-  Box,
-  Button,
-  Select,
-  MenuItem,
-  TextField,
-  InputLabel,
-  FormControl
-} from '@mui/material'
+import Alert from '@mui/material/Alert'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import { MenuItem, useTheme } from '@mui/material'
+import ListSubheader from '@mui/material/ListSubheader'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+
+import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
+
+dayjs.locale('vi')
 
 interface ProfileStudentInformationProps {
   initialValues?: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    city: string;
-    state: string;
-    postcode: string;
-    country: string;
+    first_name: string;
+    last_name: string;
+    date_of_birth: string | Dayjs;
+    gender: string;
+    address: string;
+    tel_phone: string;
+    student_code: string;
+    class_name: string;
+    major_name: string;
   };
   onSave?: (values: any) => void;
 }
 
-const ProfileStudentInformation: React.FC<ProfileStudentInformationProps> = ({
+interface IFormInput {
+  first_name: string;
+  last_name: string;
+  date_of_birth: string | Dayjs;
+  gender: string;
+  address?: string;
+  tel_phone?: string;
+  student_code: string;
+  class_name: string;
+  major_name: string;
+}
+
+const ProfileStudentInformation = ({
   initialValues = {
-    firstName: 'Nathaniel',
-    lastName: 'Poole',
-    email: 'nathaniel.poole@microsoft.com',
-    phone: '+1800-000-0000',
-    city: 'Bridgeport',
-    state: 'NA',
-    postcode: '31005',
-    country: 'United States'
+    first_name: 'khiem',
+    last_name: '',
+    date_of_birth: '',
+    gender: '',
+    address: '',
+    tel_phone: '',
+    student_code: '',
+    class_name: '',
+    major_name: ''
   },
   onSave
-}) => {
-  const [values, setValues] = useState(initialValues)
+} : ProfileStudentInformationProps) => {
+  const theme = useTheme()
   const [isEditing, setIsEditing] = useState(false)
-  console.log('🚀 ~ isEditing:', isEditing)
-
-  // Hàm xử lý sự kiện thay đổi cho TextField
-  const handleTextFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setValues({
-      ...values,
-      [name]: value
-    })
+  const { register, handleSubmit, formState: { errors }, reset, setValue, getValues } = useForm<IFormInput>({
+    defaultValues: initialValues
+  })
+  const onSubmit: SubmitHandler<IFormInput> = async(data) => {
+    console.log('🚀 ~ constonSubmit:SubmitHandler<IFormInput>=async ~ data:', data)
   }
 
-  // Hàm xử lý sự kiện thay đổi cho Select
-  const handleSelectChange = (e: SelectChangeEvent<string>) => {
-    const { name, value } = e.target
-    setValues({
-      ...values,
-      [name]: value
-    })
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (onSave) {
-      onSave(values)
+  const handleValueDateOfBirth = useCallback((newValue: Dayjs | null) => {
+    if (newValue) {
+      const formattedDate = dayjs(newValue).format('DD/MM/YYYY')
+      setValue('date_of_birth', formattedDate) // Cập nhật giá trị vào react-hook-form
     }
-    // setIsEditing(false)
-  }
+  }, [setValue])
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ py: 3 }}>
-      <Grid container spacing={3}>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Grid container spacing={3} sx={{ py: 3 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField
-            label="First Name"
-            name="firstName"
-            value={values.firstName}
-            onChange={handleTextFieldChange}
             fullWidth
+            label="Mã số sinh viên *"
+            error={!!errors['student_code']}
             variant="outlined"
             disabled={!isEditing}
+            {...register('student_code', {
+              required: FIELD_REQUIRED_MESSAGE
+            })}
           />
+          {errors['student_code'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['student_code']?.message)}</Alert>
+          )
+          }
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField
-            label="Last Name"
-            name="lastName"
-            value={values.lastName}
-            onChange={handleTextFieldChange}
             fullWidth
+            label="Lớp học *"
+            error={!!errors['class_name']}
             variant="outlined"
             disabled={!isEditing}
+            {...register('class_name', {
+              required: FIELD_REQUIRED_MESSAGE
+            })}
           />
+          {errors['class_name'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['class_name']?.message)}</Alert>
+          )
+          }
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField
-            label="Phone Number"
-            name="phone"
-            value={values.phone}
-            onChange={handleTextFieldChange}
             fullWidth
+            label="Chuyên ngành *"
+            error={!!errors['major_name']}
             variant="outlined"
             disabled={!isEditing}
+            {...register('major_name', {
+              required: FIELD_REQUIRED_MESSAGE
+            })}
           />
+          {errors['major_name'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['major_name']?.message)}</Alert>
+          )
+          }
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField
-            label="Email address"
-            name="email"
-            value={values.email}
-            onChange={handleTextFieldChange}
             fullWidth
+            label="Tên sinh viên *"
+            error={!!errors['first_name']}
             variant="outlined"
             disabled={!isEditing}
-            type="email"
+            {...register('first_name', {
+              required: FIELD_REQUIRED_MESSAGE
+            })}
           />
+          {errors['first_name'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['first_name']?.message)}</Alert>
+          )
+          }
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField
-            label="City"
-            name="city"
-            value={values.city}
-            onChange={handleTextFieldChange}
             fullWidth
+            label="Họ sinh viên *"
+            error={!!errors['last_name']}
             variant="outlined"
             disabled={!isEditing}
+            {...register('last_name', {
+              required: FIELD_REQUIRED_MESSAGE
+            })}
           />
+          {errors['last_name'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['last_name']?.message)}</Alert>
+          )
+          }
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <TextField
-            label="State/County"
-            name="state"
-            value={values.state}
-            onChange={handleTextFieldChange}
-            fullWidth
-            variant="outlined"
-            disabled={!isEditing}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <TextField
-            label="Postcode"
-            name="postcode"
-            value={values.postcode}
-            onChange={handleTextFieldChange}
-            fullWidth
-            variant="outlined"
-            disabled={!isEditing}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel id="country-label">Country</InputLabel>
-            <Select
-              labelId="country-label"
-              name="country"
-              value={values.country}
-              onChange={handleSelectChange}
-              label="Country"
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='vi'>
+            <DatePicker
+              label="Ngày sinh *"
+              dayOfWeekFormatter={(weekday) => `${weekday.format('dd')}`}
+              enableAccessibleFieldDOMStructure={false}
               disabled={!isEditing}
-            >
-              <MenuItem value="United States">United States</MenuItem>
-              <MenuItem value="Canada">Canada</MenuItem>
-              <MenuItem value="United Kingdom">United Kingdom</MenuItem>
-              <MenuItem value="Australia">Australia</MenuItem>
-              <MenuItem value="Germany">Germany</MenuItem>
-            </Select>
-          </FormControl>
+              defaultValue={dayjs(getValues('date_of_birth'))}
+              onChange={handleValueDateOfBirth}
+              slots={{
+                textField: (params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    error={!!errors['date_of_birth']}
+                    variant="outlined"
+                    {...register('date_of_birth', {
+                      required: FIELD_REQUIRED_MESSAGE
+                    })}
+                  />
+                )
+              }}
+            />
+          </LocalizationProvider>
+          {errors['date_of_birth'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['date_of_birth']?.message)}</Alert>
+          )}
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <TextField
+            fullWidth
+            select
+            label="Chọn giới tính *"
+            error={!!errors['gender']}
+            disabled={!isEditing}
+            {...register('gender', {
+              required: FIELD_REQUIRED_MESSAGE
+            })}
+          >
+            <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
+                <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                  Giới tính
+                </Typography>
+              </Box>
+            </ListSubheader>
+            <MenuItem value="Nam">
+              <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>Nam</Typography>
+            </MenuItem>
+            <MenuItem value="Nữ">
+              <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>Nữ</Typography>
+            </MenuItem>
+          </TextField>
+          {errors['gender'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['gender']?.message)}</Alert>
+          )}
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <TextField
+            fullWidth
+            label="Địa chỉ"
+            variant="outlined"
+            disabled={!isEditing}
+            {...register('address')}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <TextField
+            fullWidth
+            label="Điện thoại"
+            variant="outlined"
+            disabled={!isEditing}
+            {...register('tel_phone')}
+          />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-start' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             {isEditing ? (
               <Button
                 type="submit"
+                size='large'
                 variant="contained"
                 color="primary"
                 sx={{
@@ -184,26 +251,34 @@ const ProfileStudentInformation: React.FC<ProfileStudentInformationProps> = ({
                   transition: 'all 0.2s ease'
                 }}
               >
-                Update
+                Cập nhật
               </Button>
             ) : (
               <Button
+                type='button'
+                size='large'
                 variant="contained"
                 color="primary"
-                onClick={() => setIsEditing(true)}
+                onClick={(event) => {
+                  event.preventDefault()
+                  setIsEditing(true)
+                }}
                 sx={{
                   minWidth: 120,
                   transition: 'all 0.2s ease'
                 }}
               >
-                Edit
+                Chỉnh sửa
               </Button>
             )}
             {isEditing && (
               <Button
+                type='button'
+                size='large'
                 variant="outlined"
-                onClick={() => {
-                  setValues(initialValues)
+                onClick={(event) => {
+                  event.preventDefault()
+                  reset()
                   setIsEditing(false)
                 }}
                 sx={{ ml: 2 }}
@@ -214,7 +289,7 @@ const ProfileStudentInformation: React.FC<ProfileStudentInformationProps> = ({
           </Box>
         </Grid>
       </Grid>
-    </Box>
+    </form>
   )
 }
 

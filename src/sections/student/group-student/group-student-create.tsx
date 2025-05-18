@@ -48,7 +48,7 @@ const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
 
   return (
     <>
-      <Main open={openInformation} drawerWidth={drawerWidth}>
+      {/* <Main open={openInformation} drawerWidth={drawerWidth}> */}
         <Grid
           container
           spacing={3}
@@ -138,8 +138,8 @@ const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
             />
           </Grid>
         </Grid>
-      </Main>
-      <Drawer
+      {/* </Main> */}
+      {/* <Drawer
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -177,7 +177,7 @@ const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
 
         <Divider />
         <ProfileStudentSidebarInfo isDrawer/>
-      </Drawer>
+      </Drawer> */}
     </>
   )
 }

@@ -17,7 +17,12 @@ import {
   _productNames,
   _functionName,
   _fullNameTopic,
-  _roleDescription
+  _roleDescription,
+  _MSSV,
+  _studentName,
+  _studentClass,
+  _studentGender,
+  _studentBirthday
 } from './_mock'
 
 // ----------------------------------------------------------------------
@@ -50,6 +55,15 @@ export const _users = [...Array(24)].map((_, index) => ({
       'Front End Developer',
       'Full Stack Developer'
     ][index] || 'UI Designer'
+}))
+
+export const _searchStudent = [...Array(9)].map((_, index) => ({
+  id: _id(index),
+  mssv: _MSSV(index),
+  name: _studentName(index),
+  class: _studentClass(index),
+  gender: _studentGender(index),
+  birthday: _studentBirthday(index)
 }))
 
 export const _topic = [...Array(24)].map((_, index) => ({

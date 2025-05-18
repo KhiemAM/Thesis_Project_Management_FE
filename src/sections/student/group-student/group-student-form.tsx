@@ -1,6 +1,7 @@
 import type { SubmitHandler } from 'react-hook-form'
 
-import React from 'react'
+import { useState } from 'react'
+import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 
 import {
@@ -11,6 +12,8 @@ import {
 } from '@mui/material'
 
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
+
+import groupApi from 'src/axios/group'
 
 import { Iconify } from 'src/components/iconify'
 
@@ -28,14 +31,17 @@ interface IFormInput {
 }
 
 const GroupStudentForm = ({ students, onCreateGroup, labelButton } : GroupStudentFormProps) => {
+  const [loading, setLoading] = useState(false)
   const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>()
-  const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    onCreateGroup({
-      id: '1',
-      ...data,
-      members: students,
-      coverImage: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGdyb3VwJTIwc3R1ZGVudHxlbnwwfHx8fDE2OTI5NzYxNTg&ixlib=rb-4.0.3&q=80&w=1080'
-    })
+  const onSubmit: SubmitHandler<IFormInput> = async(data) => {
+    try {
+      setLoading(true)
+      await groupApi.createGroup(data)
+      toast.success('Tạo nhóm thành công')
+    }
+    finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -64,6 +70,8 @@ const GroupStudentForm = ({ students, onCreateGroup, labelButton } : GroupStuden
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 3 }}>
         <Button
+          loading={loading}
+          loadingPosition='start'
           variant="contained"
           type='submit'
           color="primary"

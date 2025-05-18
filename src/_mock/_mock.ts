@@ -373,3 +373,68 @@ export const _roleDescription = (index: number) =>
     'Quản trị viên bộ môn có quyền quản lý sinh viên và đề tài đồ án trong bộ môn',
     'Người dùng bộ môn có quyền truy cập vào hệ thống và đăng ký đề tài đồ án trong bộ môn'
   ][index]
+
+export const _MSSV = (index: number) =>
+  [
+    '2001210783',
+    '2001210784',
+    '2001210785',
+    '2001210786',
+    '2001210787',
+    '2001210788',
+    '2001210789',
+    '2001210790',
+    '2001210791'
+  ][index]
+
+export const _studentName = (index: number) =>
+  [
+    'Nguyễn Văn A',
+    'Nguyễn Văn B',
+    'Nguyễn Văn C',
+    'Nguyễn Văn D',
+    'Nguyễn Văn E',
+    'Nguyễn Văn F',
+    'Nguyễn Văn G',
+    'Nguyễn Văn H',
+    'Nguyễn Văn I'
+  ][index]
+
+export const _studentClass = (index: number) =>
+  [
+    'KTPM-K18',
+    'HTTT-K18',
+    'KHDL&TTNT-K18',
+    'HTTT-K18',
+    'MMT-ATTT-K18',
+    'MMT-ATTT-K18',
+    'KTPM-K18',
+    'HTTT-K18',
+    'KHDL&TTNT-K18'
+  ][index]
+
+export const _studentGender = (index: number) =>
+  [
+    'Nam',
+    'Nữ',
+    'Nam',
+    'Nữ',
+    'Nam',
+    'Nữ',
+    'Nam',
+    'Nữ',
+    'Nam'
+  ][index]
+
+export const _studentBirthday = (index: number) =>
+  [
+    '01/01/2003',
+    '02/02/2003',
+    '03/03/2003',
+    '04/04/2003',
+    '05/05/2003',
+    '06/06/2003',
+    '07/07/2003',
+    '08/08/2003',
+    '09/09/2003'
+  ][index]

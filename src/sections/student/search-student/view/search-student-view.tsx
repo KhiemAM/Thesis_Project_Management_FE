@@ -1,18 +1,18 @@
+import type { ChipsFilter } from 'src/components/chip/types'
+
 import { useState, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
-import Button from '@mui/material/Button'
 import TableBody from '@mui/material/TableBody'
 import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _users } from 'src/_mock'
+import { _searchStudent } from 'src/_mock'
 import { DashboardContent } from 'src/layouts/student'
 
-import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
@@ -22,7 +22,7 @@ import { TableEmptyRows } from '../table-empty-rows'
 import { UserTableToolbar } from '../user-table-toolbar'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 
-import type { UserProps } from '../user-table-row'
+import type { SearchStudentProps } from '../user-table-row'
 
 // ----------------------------------------------------------------------
 
@@ -30,9 +30,25 @@ export function SearchStudentView() {
   const table = useTable()
 
   const [filterName, setFilterName] = useState('')
+  const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
+    filterSearch: {
+      display: 'Tìm kiếm',
+      data: []
+    },
+    filterTab: [
+      {
+        display: 'Bộ môn',
+        data: []
+      }
+    ],
+    filterSelect: {
+      display: 'Giáo viên hướng dẫn',
+      data: []
+    }
+  })
 
-  const dataFiltered: UserProps[] = applyFilter({
-    inputData: _users,
+  const dataFiltered: SearchStudentProps[] = applyFilter({
+    inputData: _searchStudent,
     comparator: getComparator(table.order, table.orderBy),
     filterName
   })
@@ -49,7 +65,7 @@ export function SearchStudentView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Users
+          Danh sách sinh viên
         </Typography>
       </Box>
 
@@ -69,21 +85,21 @@ export function SearchStudentView() {
               <UserTableHead
                 order={table.order}
                 orderBy={table.orderBy}
-                rowCount={_users.length}
+                rowCount={_searchStudent.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
-                    _users.map((user) => user.id)
+                    _searchStudent.map((user) => user.id)
                   )
                 }
                 headLabel={[
-                  { id: 'name', label: 'Mã số sinh viên' },
-                  { id: 'company', label: 'Họ tên' },
-                  { id: 'role', label: 'Lớp' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                  { id: 'mssv', label: 'Mã số sinh viên' },
+                  { id: 'name', label: 'Họ tên' },
+                  { id: 'class', label: 'Lớp' },
+                  { id: 'birthday', label: 'Ngày sinh' },
+                  { id: 'gender', label: 'Giới tính', align: 'center' },
                   { id: '' }
                 ]}
               />
@@ -104,7 +120,7 @@ export function SearchStudentView() {
 
                 <TableEmptyRows
                   height={68}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, _users.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, _searchStudent.length)}
                 />
 
                 {notFound && <TableNoData searchQuery={filterName} />}
@@ -116,7 +132,7 @@ export function SearchStudentView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_users.length}
+          count={_searchStudent.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}

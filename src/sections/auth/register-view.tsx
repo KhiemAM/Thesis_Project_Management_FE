@@ -25,11 +25,10 @@ export function RegisterView() {
   const handleRegister = useCallback(async() => {
     const response = await authApi.register(
       {
-        'user_name': 'khiem5',
-        'password': '',
+        'user_name': 'khiem2',
+        'password': '123456',
         'is_active': true,
-        'is_lecturer': false,
-        'major': '123e4567-e89b-12d3-a456-426614174000'
+        'user_type': 2
       }
     )
     console.log('🚀 ~ handleRegister ~ response:', response)

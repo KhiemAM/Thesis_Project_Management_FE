@@ -53,7 +53,7 @@ const renderFallback = () => (
         width: 1,
         maxWidth: 320,
         bgcolor: (theme) => varAlpha(theme.vars.palette.text.primaryChannel, 0.16),
-        [`& .${linearProgressClasses.bar}`]: { bgcolor: 'text.primary' }
+        [`& .${linearProgressClasses.bar}`]: { bgcolor: 'primary.main' }
       }}
     />
   </Box>
