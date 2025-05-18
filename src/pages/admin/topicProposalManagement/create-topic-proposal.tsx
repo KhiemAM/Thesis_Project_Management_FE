@@ -1,0 +1,15 @@
+import { CONFIG } from 'src/config-global'
+
+import { CreateTopicProposalView } from 'src/sections/admin/topic-proposal-management/view'
+
+// ----------------------------------------------------------------------
+
+export default function Page() {
+  return (
+    <>
+      <title>{`Lập đề xuất đề tài - ${CONFIG.appName}`}</title>
+
+      <CreateTopicProposalView />
+    </>
+  )
+}

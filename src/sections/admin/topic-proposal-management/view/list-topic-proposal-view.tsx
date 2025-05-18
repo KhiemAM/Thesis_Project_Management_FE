@@ -192,7 +192,7 @@ export function ListTopicProposalView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Chọn đề tài
+          Danh sách đề xuất đề tài
         </Typography>
       </Box>
 
