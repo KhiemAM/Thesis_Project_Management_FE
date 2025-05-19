@@ -1,6 +1,6 @@
 import Swal from 'sweetalert2'
 
-import type { AlertConfirmNavigateProps } from './types'
+import type { AlertConfirmNavigateProps, AlertConfirmCallAPIProps } from './types'
 
 export const AlertConfirmNavigate = ({
   title,
@@ -23,6 +23,33 @@ export const AlertConfirmNavigate = ({
   }).then((result) => {
     if (result.isConfirmed) {
       router()
+    }
+  })
+)
+
+export const AlertConfirmCallAPI = ({
+  title,
+  text,
+  icon,
+  showCancelButton,
+  confirmButtonColor,
+  cancelButtonColor,
+  confirmButtonText,
+  cancelButtonText,
+  api
+} : AlertConfirmCallAPIProps) => (
+  Swal.fire({
+    title,
+    text,
+    icon,
+    showCancelButton,
+    confirmButtonColor,
+    cancelButtonColor,
+    confirmButtonText,
+    cancelButtonText
+  }).then((result) => {
+    if (result.isConfirmed) {
+      api()
     }
   })
 )

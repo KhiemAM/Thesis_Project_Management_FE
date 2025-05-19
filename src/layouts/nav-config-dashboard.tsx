@@ -92,6 +92,10 @@ export const navData = [
       {
         title: 'Lập đề xuất đề tài',
         path: '/topic-proposal/create'
+      },
+      {
+        title: 'Duyệt đề tài',
+        path: '/topic-proposal/approve'
       }
     ]
   },
