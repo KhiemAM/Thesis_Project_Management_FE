@@ -1,6 +1,7 @@
 import {
   _id,
   _path,
+  _MSSV,
   _price,
   _times,
   _email,
@@ -14,15 +15,16 @@ import {
   _postTitles,
   _instructor,
   _description,
+  _studentName,
+  _groupTitles,
   _productNames,
   _functionName,
-  _fullNameTopic,
-  _roleDescription,
-  _MSSV,
-  _studentName,
   _studentClass,
+  _fullNameTopic,
   _studentGender,
-  _studentBirthday
+  _roleDescription,
+  _studentBirthday,
+  _groupDescription
 } from './_mock'
 
 // ----------------------------------------------------------------------
@@ -118,6 +120,17 @@ export const _role = [...Array(7)].map((_, index) => ({
   description: _roleDescription(index),
   status: index % 2 ? 'Hoạt động' : 'Ngừng hoạt động',
   function: _function[index].function
+}))
+
+export const _groupStudent = [...Array(23)].map((_, index) => ({
+  id: _id(index),
+  title: _groupTitles(index),
+  description: _groupDescription(index),
+  coverUrl: `/assets/images/cover/cover-${index + 1}.webp`,
+  author: {
+    name: _fullName(index),
+    avatarUrl: `/assets/images/avatar/avatar-${index + 1}.webp`
+  }
 }))
 
 // ----------------------------------------------------------------------

@@ -438,3 +438,57 @@ export const _studentBirthday = (index: number) =>
     '08/08/2003',
     '09/09/2003'
   ][index]
+
+export const _groupTitles = (index: number) =>
+  [
+    'Nhóm 01',
+    'Nhóm 02',
+    'Nhóm 03',
+    'Nhóm 04',
+    'Nhóm 05',
+    'Nhóm 06',
+    'Nhóm 07',
+    'Nhóm 08',
+    'Nhóm 09',
+    'Nhóm 10',
+    'Nhóm 11',
+    'Nhóm 12',
+    'Nhóm 13',
+    'Nhóm 14',
+    'Nhóm 15',
+    'Nhóm 16',
+    'Nhóm 17',
+    'Nhóm 18',
+    'Nhóm 19',
+    'Nhóm 20',
+    'Nhóm 21',
+    'Nhóm 22',
+    'Nhóm 23'
+  ][index]
+
+export const _groupDescription = (index: number) =>
+  [
+    'Nhóm 01 là nhóm đầu tiên trong lớp học',
+    'Nhóm 02 là nhóm thứ hai trong lớp học',
+    'Nhóm 03 là nhóm thứ ba trong lớp học',
+    'Nhóm 04 là nhóm thứ tư trong lớp học',
+    'Nhóm 05 là nhóm thứ năm trong lớp học',
+    'Nhóm 06 là nhóm thứ sáu trong lớp học',
+    'Nhóm 07 là nhóm thứ bảy trong lớp học',
+    'Nhóm 08 là nhóm thứ tám trong lớp học',
+    'Nhóm 09 là nhóm thứ chín trong lớp học',
+    'Nhóm 10 là nhóm thứ mười trong lớp học',
+    'Nhóm 11 là nhóm thứ mười một trong lớp học',
+    'Nhóm 12 là nhóm thứ mười hai trong lớp học',
+    'Nhóm 13 là nhóm thứ mười ba trong lớp học',
+    'Nhóm 14 là nhóm thứ mười bốn trong lớp học',
+    'Nhóm 15 là nhóm thứ mười lăm trong lớp học',
+    'Nhóm 16 là nhóm thứ mười sáu trong lớp học',
+    'Nhóm 17 là nhóm thứ mười bảy trong lớp học',
+    'Nhóm 18 là nhóm thứ mười tám trong lớp học',
+    'Nhóm 19 là nhóm thứ mười chín trong lớp học',
+    'Nhóm 20 là nhóm thứ hai mươi trong lớp học',
+    'Nhóm 21 là nhóm thứ hai mươi mốt trong lớp học',
+    'Nhóm 22 là nhóm thứ hai mươi hai trong lớp học',
+    'Nhóm 23 là nhóm thứ hai mươi ba trong lớp học'
+  ][index]

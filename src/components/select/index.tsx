@@ -23,7 +23,7 @@ const MenuProps = {
   }
 }
 
-export default function MultipleSelectFilter({ valueMultipleSelect, filterValue, onFilter } : MultipleSelectFilterProps) {
+export default function MultipleSelectFilter({ inputLabel = 'Giáo viên hướng dẫn', valueMultipleSelect, filterValue, onFilter } : MultipleSelectFilterProps) {
 
   const handleChange = (event: SelectChangeEvent<typeof filterValue>) => {
     const {
@@ -38,14 +38,14 @@ export default function MultipleSelectFilter({ valueMultipleSelect, filterValue,
   return (
     <div>
       <FormControl sx={{ width: 300 }}>
-        <InputLabel id="multiple-checkbox-label-filter">Giáo viên hướng dẫn</InputLabel>
+        <InputLabel id="multiple-checkbox-label-filter">{inputLabel}</InputLabel>
         <Select
           labelId="multiple-checkbox-label-filter"
           id="multiple-checkbox-filter"
           multiple
           value={filterValue}
           onChange={handleChange}
-          input={<OutlinedInput label="Giáo viên hướng dẫn" />}
+          input={<OutlinedInput label={inputLabel} />}
           renderValue={(selected) => selected.join(', ')}
           MenuProps={MenuProps}
         >

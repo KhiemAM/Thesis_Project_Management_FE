@@ -100,6 +100,21 @@ export const navData = [
     ]
   },
   {
+    title: 'Quản lý nhóm',
+    path: '/group',
+    icon: icon('solar--users-group-two-rounded-bold-duotone'),
+    children: [
+      {
+        title: 'Danh sách nhóm sinh viên',
+        path: '/group/list'
+      },
+      {
+        title: 'Quản lý tiến độ nhóm',
+        path: '/group/progress'
+      }
+    ]
+  },
+  {
     title: 'Tiến độ',
     path: '/progress',
     icon: icon('tabler-progress-check')

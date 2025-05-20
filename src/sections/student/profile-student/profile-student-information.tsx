@@ -73,12 +73,17 @@ const ProfileStudentInformation = ({
     console.log('🚀 ~ constonSubmit:SubmitHandler<IFormInput>=async ~ data:', data)
   }
 
-  const handleValueDateOfBirth = useCallback((newValue: Dayjs | null) => {
-    if (newValue) {
-      const formattedDate = dayjs(newValue).format('DD/MM/YYYY')
-      setValue('date_of_birth', formattedDate) // Cập nhật giá trị vào react-hook-form
-    }
-  }, [setValue])
+  const handleValueDateOfBirth = useCallback(
+    (value: unknown, context: any) => {
+      // value can be Dayjs | null | string | number | Date, but we expect Dayjs or null
+      const newValue = value as Dayjs | null
+      if (newValue && dayjs.isDayjs(newValue)) {
+        const formattedDate = dayjs(newValue).format('DD/MM/YYYY')
+        setValue('date_of_birth', formattedDate) // Cập nhật giá trị vào react-hook-form
+      }
+    },
+    [setValue]
+  )
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -167,7 +172,7 @@ const ProfileStudentInformation = ({
           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='vi'>
             <DatePicker
               label="Ngày sinh *"
-              dayOfWeekFormatter={(weekday) => `${weekday.format('dd')}`}
+              dayOfWeekFormatter={(weekday) => `${(weekday as Dayjs).format('dd')}`}
               enableAccessibleFieldDOMStructure={false}
               disabled={!isEditing}
               defaultValue={dayjs(getValues('date_of_birth'))}
