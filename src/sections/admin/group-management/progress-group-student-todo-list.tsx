@@ -31,7 +31,6 @@ const TodoList = () => {
     selectedTodo,
     setSelectedTodo
   } = useTodo()
-    console.log('🚀 ~ TodoList ~ todos:', todos)
 
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
@@ -282,11 +281,11 @@ const TodoList = () => {
 
         {filteredTodos.length > 0 ? (
           <Box>
-            {filteredTodos.map((todo) => (
-              <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="popLayout">
+              {filteredTodos.map((todo) => (
                 <TodoItem key={todo.id} todo={todo} />
-              </AnimatePresence>
-            ))}
+              ))}
+            </AnimatePresence>
           </Box>
         ) : (
           <Box
