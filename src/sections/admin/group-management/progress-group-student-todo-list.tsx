@@ -1,21 +1,21 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
 import { v4 as uuidv4 } from 'uuid'
+import { AnimatePresence } from 'framer-motion'
 import { useMemo, useState, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Fade from '@mui/material/Fade'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
-import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import InputAdornment from '@mui/material/InputAdornment'
-import FormControlLabel from '@mui/material/FormControlLabel'
 
 import { Iconify } from 'src/components/iconify'
 import ChipsArrayFilter from 'src/components/chip'
+import { IOSSwitches } from 'src/components/switch'
 import MultipleSelectFilter from 'src/components/select'
 
 import { useTodo } from './todo-context'
@@ -24,21 +24,20 @@ import TodoItem from './progress-group-student-todo-item'
 import TodoDetails from './progress-group-student-todo-detail'
 import ProgressBar from './progress-group-student-progress-bar'
 
-
 const TodoList = () => {
   const id = uuidv4()
   const {
     todos,
     selectedTodo,
-    setSelectedTodo,
-    filterCompleted,
-    setFilterCompleted
+    setSelectedTodo
   } = useTodo()
+    console.log('🚀 ~ TodoList ~ todos:', todos)
 
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [filterName, setFilterName] = useState<string>('')
   const [filterPriority, setFilterPriority] = useState<string[]>([])
+  const [filterOnlyCompletedTask, setFilterOnlyCompletedTask] = useState<boolean>(false)
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -53,13 +52,17 @@ const TodoList = () => {
     filterSelect: {
       display: 'Độ ưu tiên',
       data: []
+    },
+    filterSwitch: {
+      display: 'Chỉ hiển thị công việc hoàn thành',
+      data: []
     }
   })
 
   const filteredTodos = useMemo(() => todos
     .filter((todo) => {
       // Filter by completion status
-      if (filterCompleted) {
+      if (filterOnlyCompletedTask) {
         return todo.completed
       }
       return true
@@ -80,19 +83,19 @@ const TodoList = () => {
         )
       }
       return true
-    }), [todos, filterCompleted, filterPriority, filterName])
+    }), [todos, filterOnlyCompletedTask, filterPriority, filterName])
 
-  const handleOpenAddDialog = () => {
+  const handleOpenAddDialog = useCallback(() => {
     setAddDialogOpen(true)
-  }
+  }, [])
 
-  const handleCloseAddDialog = () => {
+  const handleCloseAddDialog = useCallback(() => {
     setAddDialogOpen(false)
-  }
+  }, [])
 
-  const handleCloseDetails = () => {
+  const handleCloseDetails = useCallback(() => {
     setSelectedTodo(null)
-  }
+  }, [])
 
   const handleClearFilter = useCallback(() => {
     setChipsFilter({
@@ -109,10 +112,15 @@ const TodoList = () => {
       filterSelect: {
         display: 'Giáo viên hướng dẫn',
         data: []
+      },
+      filterSwitch: {
+        display: 'Chỉ hiển thị công việc hoàn thành',
+        data: []
       }
     })
     setFilterName('')
     setFilterPriority([])
+    setFilterOnlyCompletedTask(false)
   }, [])
 
   const handleDeleteChipData = useCallback((newChipsFilter: ChipsFilter) => {
@@ -129,19 +137,24 @@ const TodoList = () => {
       if (key === 'filterSelect' && section && 'data' in section && Array.isArray(section.data)) {
         setFilterPriority(section.data.map((item) => item.label))
       }
+
+      // Xử lý cho filterSwitch
+      if (key === 'filterSwitch' && section && 'data' in section && Array.isArray(section.data) && section.data.length === 0) {
+        setFilterOnlyCompletedTask(false)
+      }
     })
   }, [])
 
-  const handleFilterName = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilterName = useCallback((newValue: string) => {
     setChipsFilter((pvev) => ({
       ...pvev,
       filterSearch: {
         ...pvev.filterSearch,
-        data: event.target.value ? [{ key: id, label: event.target.value }] : []
+        data: newValue ? [{ key: id, label: newValue }] : []
       }
     }))
 
-    setFilterName(event.target.value)
+    setFilterName(newValue)
   }, [id])
 
   const handleFilterPriority = useCallback((newValue: string[]) => {
@@ -156,7 +169,19 @@ const TodoList = () => {
   }
   , [id])
 
-  const hasActiveFilters = filterCompleted || filterPriority.length || filterName !== ''
+  const handleFilterOnlyCompletedTask = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setChipsFilter((pvev) => ({
+      ...pvev,
+      filterSwitch: {
+        display: 'Chỉ hiển thị công việc hoàn thành',
+        data: event.target.checked ? [{ key: id, label: 'Có' }] : []
+      }
+    }))
+    setFilterOnlyCompletedTask(event.target.checked)
+  }
+  , [id])
+
+  const hasActiveFilters = filterOnlyCompletedTask || filterPriority.length || filterName !== ''
 
   return (
     <>
@@ -184,7 +209,7 @@ const TodoList = () => {
             <OutlinedInput
               fullWidth
               value={filterName}
-              onChange={handleFilterName}
+              onChange={(event) => handleFilterName(event.target.value)}
               placeholder="Tìm kiếm tên công việc..."
               startAdornment={
                 <InputAdornment position="start">
@@ -196,7 +221,7 @@ const TodoList = () => {
                   <InputAdornment position="end">
                     <IconButton
                       size="small"
-                      onClick={() => setFilterName('')}
+                      onClick={() => handleFilterName('')}
                       edge="end"
                     >
                       <Iconify icon='mingcute:close-line' />
@@ -231,16 +256,10 @@ const TodoList = () => {
             >
               <MultipleSelectFilter inputLabel='Độ ưu tiên' valueMultipleSelect={['Thấp', 'Trung bình', 'Cao']} filterValue={filterPriority} onFilter={handleFilterPriority}/>
 
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={filterCompleted}
-                    onChange={(e) => setFilterCompleted(e.target.checked)}
-                    color="primary"
-                  />
-                }
-                label="Completed only"
-                sx={{ mx: 1 }}
+              <IOSSwitches
+                label="Chỉ hiển thị công việc hoàn thành"
+                isChecked={filterOnlyCompletedTask}
+                handleChecked={handleFilterOnlyCompletedTask}
               />
             </Box>
           </Fade>
@@ -264,7 +283,9 @@ const TodoList = () => {
         {filteredTodos.length > 0 ? (
           <Box>
             {filteredTodos.map((todo) => (
-              <TodoItem key={todo.id} todo={todo} />
+              <AnimatePresence mode="popLayout">
+                <TodoItem key={todo.id} todo={todo} />
+              </AnimatePresence>
             ))}
           </Box>
         ) : (

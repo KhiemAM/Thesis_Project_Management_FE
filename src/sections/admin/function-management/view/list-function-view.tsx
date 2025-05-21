@@ -58,6 +58,8 @@ export function ListFunctionView() {
       data: []
     }
   })
+console.log('🚀 ~ _function:', _function)
+
 
   const dataFiltered: FunctionProps[] = applyFilter({
     inputData: _function,

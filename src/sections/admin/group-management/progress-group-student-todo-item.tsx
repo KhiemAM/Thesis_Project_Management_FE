@@ -1,18 +1,20 @@
-import React from 'react'
+import { motion } from 'framer-motion'
+import React, { useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import Chip from '@mui/material/Chip'
-import Grow from '@mui/material/Grow'
+import { useTheme } from '@mui/material'
 import Tooltip from '@mui/material/Tooltip'
 import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import CardContent from '@mui/material/CardContent'
 
+import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
 
 import { useTodo } from './todo-context'
+import { getColorByPriority } from './utils'
 
 import type { Todo } from './types'
 
@@ -20,42 +22,31 @@ interface TodoItemProps {
   todo: Todo;
 }
 
-const priorityColors: Record<string, { bg: string; text: string }> = {
-  'Thấp': { bg: '#e0f2fe', text: '#0369a1' }, // light blue
-  'Trung bình': { bg: '#fef3c7', text: '#b45309' }, // light orange
-  'Cao': { bg: '#fee2e2', text: '#b91c1c' } // light red
-}
-
 const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
+  const theme = useTheme()
   const { toggleTodo, deleteTodo, setSelectedTodo } = useTodo()
 
-  const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleToggle = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     toggleTodo(todo.id)
-  }
+  }, [todo.id, toggleTodo])
 
-  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDelete = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     deleteTodo(todo.id)
-  }
+  }, [todo.id, deleteTodo])
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     setSelectedTodo(todo)
-  }
-
-  // Format date to be more readable
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return null
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })
-  }
+  }, [todo, setSelectedTodo])
 
   return (
-    <Grow in timeout={300}>
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0 }}
+    >
       <Card
         sx={{
           mb: 2,
@@ -63,127 +54,93 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
           cursor: 'pointer',
           transition: 'all 0.2s ease-in-out',
           opacity: todo.completed ? 0.8 : 1,
-          backgroundColor: todo.completed ? 'rgba(249, 250, 251, 0.7)' : '#ffffff',
-          '&:hover': {
-            transform: 'translateY(-4px)',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
-          }
+          ...todo.completed && {
+            backgroundColor: theme.vars.palette.action.disabledBackground
+          },
+          border: `1px solid ${theme.vars.palette.grey[500]}`
         }}
         onClick={handleEdit}
       >
-        <CardContent sx={{ pb: '16px !important' }}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
-            <Tooltip title={todo.completed ? 'Mark as incomplete' : 'Mark as complete'}>
-              <Checkbox
-                checked={todo.completed}
-                onClick={handleToggle}
-                color="primary"
-                icon={<Box sx={{
-                  width: 20,
-                  height: 20,
-                  border: '2px solid #d1d5db',
-                  borderRadius: '4px'
-                }} />}
-                checkedIcon={<Iconify icon='solar:trash-bin-trash-bold' />}
-                sx={{
-                  p: 0.5,
-                  mr: 1.5,
-                  color: 'primary.main',
-                  '&.Mui-checked': {
-                    color: 'primary.main'
-                  }
-                }}
-              />
-            </Tooltip>
-            <Box sx={{ flexGrow: 1 }}>
-              <Typography
-                variant="h6"
-                component="h3"
-                sx={{
-                  textDecoration: todo.completed ? 'line-through' : 'none',
-                  color: todo.completed ? 'text.secondary' : 'text.primary',
-                  mb: 0.5,
-                  fontWeight: 600
-                }}
-              >
-                {todo.title}
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  mb: 1.5,
-                  textDecoration: todo.completed ? 'line-through' : 'none',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden'
-                }}
-              >
-                {todo.description}
-              </Typography>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', maxWidth: '80%' }}>
+              <Tooltip title={todo.completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}>
+                <Checkbox
+                  checked={todo.completed}
+                  onClick={handleToggle}
+                  icon={<Box sx={{
+                    width: 20,
+                    height: 20,
+                    border: `2px solid ${theme.vars.palette.grey[500]}`,
+                    borderRadius: 0.7
+                  }} />}
+                  checkedIcon={<Iconify width={20} icon='solar:check-square-bold' />}
+                  sx={{ mr: 1 }}
+                />
+              </Tooltip>
+              <Box sx={{ maxWidth: '90%' }}>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    textDecoration: todo.completed ? 'line-through' : 'none',
+                    color: todo.completed ? 'text.secondary' : 'text.primary',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}
+                >
+                  {todo.title}
+                </Typography>
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{
+                    textDecoration: todo.completed ? 'line-through' : 'none',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}
+                >
+                  {todo.description}
+                </Typography>
+              </Box>
             </Box>
-            <Tooltip title="Delete task">
+            <Tooltip title="Xóa công việc">
               <IconButton
-                size="small"
                 color="error"
                 onClick={handleDelete}
-                sx={{
-                  ml: 1,
-                  opacity: 0.6,
-                  '&:hover': { opacity: 1 }
-                }}
               >
                 <Iconify icon='solar:trash-bin-trash-bold' />
               </IconButton>
             </Tooltip>
           </Box>
 
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
-            <Chip
-              label={todo.priority.charAt(0).toUpperCase() + todo.priority.slice(1)}
-              size="small"
-              sx={{
-                backgroundColor: priorityColors[todo.priority]?.bg,
-                color: priorityColors[todo.priority]?.text,
-                fontWeight: 500,
-                height: 24
-              }}
-            />
-
-            {todo.comments.length > 0 && (
-              <Chip
-                icon={<Iconify icon='solar:trash-bin-trash-bold' />}
-                label={`${todo.comments.length}`}
-                size="small"
-                sx={{ height: 24 }}
-              />
-            )}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Label color={getColorByPriority(todo.priority)}>{todo.priority}</Label>
 
             {todo.results.length > 0 && (
-              <Chip
-                icon={todo.results.some(r => r.type === 'image') ?
-                  <Iconify icon='solar:alt-arrow-left-line-duotone' /> :
-                  <Iconify icon='solar:alt-arrow-down-line-duotone' />
-                }
-                label={`${todo.results.length}`}
-                size="small"
-                sx={{ height: 24 }}
-              />
+              <Label startIcon={<Iconify icon='solar:document-text-bold' />}>
+                {todo.results.length}
+              </Label>
+            )}
+
+            {todo.comments.length > 0 && (
+              <Label startIcon={<Iconify icon='solar:chat-round-line-bold' />}>
+                {todo.comments.length}
+              </Label>
             )}
 
             {todo.dueDate && (
-              <Chip
-                icon={<Iconify icon='solar:trash-bin-trash-bold' />}
-                label={formatDate(todo.dueDate)}
-                size="small"
-                sx={{ height: 24 }}
-              />
+              <Label startIcon={<Iconify icon='solar:calendar-bold' />}>
+                {todo.dueDate}
+              </Label>
             )}
           </Box>
         </CardContent>
       </Card>
-    </Grow>
+    </motion.div>
   )
 }
 

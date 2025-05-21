@@ -171,7 +171,7 @@ export function SettingsDrawer({ sx, ...other } : SettingsDrawerProps) {
                 <AntSwitch />
               </Box>
               <Typography variant="button" >
-                Dark Mode
+                Right to left
               </Typography>
             </SwitchButton>
           </Stack>

@@ -32,9 +32,9 @@ const initialTodos: Todo[] = [
   {
     id: uuidv4(),
     title: 'Lịch trình cuộc họp nhóm',
-    description: 'Lên lịch cuộc họp nhóm hàng tuần để thảo luận về tiến độ dự án',
+    description: 'Lên lịch cuộc họp nhóm hàng tuần để thảo luận về tiến độ dự án và vấn đề phát sinh fdsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssdfdfjsfsdjfsdfisfsjdfggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggdfgfddddddddddddddddddddddddddddddddđ',
     completed: true,
-    priority: 'Trung bình',
+    priority: 'Trung bình',
     dueDate: '15-01-2025',
     createdAt: new Date().toISOString(),
     results: [],
@@ -45,7 +45,31 @@ const initialTodos: Todo[] = [
     title: 'Thiết kế giao diện người dùng mới',
     description: 'Thiết kế giao diện người dùng mới cho ứng dụng',
     completed: false,
-    priority: 'Trung bình',
+    priority: 'Trung bình',
+    dueDate: '20-01-2025',
+    createdAt: new Date().toISOString(),
+    results: [
+      {
+        id: uuidv4(),
+        type: 'image',
+        content: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: uuidv4(),
+        type: 'text',
+        content: 'Draft proposal created with initial requirements',
+        createdAt: new Date().toISOString()
+      }
+    ],
+    comments: []
+  },
+  {
+    id: uuidv4(),
+    title: 'Thiết kế giao diện quản lý nhóm',
+    description: 'Thiết kế giao diện quản lý nhóm cho ứng dụng',
+    completed: false,
+    priority: 'Thấp',
     dueDate: '20-01-2025',
     createdAt: new Date().toISOString(),
     results: [

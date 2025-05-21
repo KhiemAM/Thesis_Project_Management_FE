@@ -11,6 +11,7 @@ export interface ChipsFilter {
   filterSearch: ChipsProps;
   filterTab: ChipsProps[];
   filterSelect: ChipsProps;
+  filterSwitch?: ChipsProps;
 }
 
 export interface ChipsArrayFilterProps {

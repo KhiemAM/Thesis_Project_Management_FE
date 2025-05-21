@@ -44,11 +44,15 @@ export default function ChipsArrayFilter({ chipData, handleDeleteChipData, handl
 
   if (
     chipData.filterSearch.data.length === 0 &&
-  (
-    Array.isArray(chipData.filterTab) &&
-      chipData.filterTab.every((item) => Array.isArray(item.data) && item.data.every((chip) => chip.label === 'Tấ cả'))
-  ) &&
-  chipData.filterSelect.data.length === 0
+    (
+      Array.isArray(chipData.filterTab) &&
+        chipData.filterTab.every((item) => Array.isArray(item.data) && item.data.every((chip) => chip.label === 'Tất cả'))
+    ) &&
+    chipData.filterSelect.data.length === 0 &&
+    (
+      !chipData.filterSwitch || // nếu không có filterSwitch thì vẫn hợp lệ
+      (chipData.filterSwitch && chipData.filterSwitch.data.length === 0) // nếu có thì phải rỗng
+    )
   ) return null
 
   return (
