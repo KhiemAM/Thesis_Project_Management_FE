@@ -94,7 +94,7 @@ const TodoList = () => {
 
   const handleCloseDetails = useCallback(() => {
     setSelectedTodo(null)
-  }, [])
+  }, [setSelectedTodo])
 
   const handleClearFilter = useCallback(() => {
     setChipsFilter({

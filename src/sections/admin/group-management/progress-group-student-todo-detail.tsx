@@ -1,12 +1,8 @@
 import type { SelectChangeEvent } from '@mui/material/Select'
-import type { TransitionProps } from '@mui/material/transitions'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
-import Slide from '@mui/material/Slide'
 import Dialog from '@mui/material/Dialog'
 import Button from '@mui/material/Button'
 import Select from '@mui/material/Select'
@@ -20,16 +16,14 @@ import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
-// import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import FormControlLabel from '@mui/material/FormControlLabel'
-// import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
+import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
 
 import { useTodo } from './todo-context'
-import ResultSection from './progress-group-student-result-section'
-import CommentSection from './progress-group-student-comment-section'
+import { getColorByPriority } from './utils'
+import MessageSection from './progress-group-student-message-section'
 
 import type { Todo } from './types'
 
@@ -38,32 +32,20 @@ interface TodoDetailsProps {
   onClose: () => void;
 }
 
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & { children: React.ReactElement },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="up" ref={ref} {...props} />
-})
-
 const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
   const { selectedTodo, updateTodo } = useTodo()
   const [isEditing, setIsEditing] = useState(false)
   const [editForm, setEditForm] = useState<Todo | null>(null)
-  const [tabValue, setTabValue] = useState(0)
 
   useEffect(() => {
     if (selectedTodo) {
-      setEditForm({ ...selectedTodo })
+      setEditForm(selectedTodo)
     }
   }, [selectedTodo])
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue)
-  }
-
-  const handleEditToggle = () => {
+  const handleEditToggle = useCallback(() => {
     setIsEditing(!isEditing)
-  }
+  }, [isEditing])
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (!editForm) return
@@ -75,21 +57,6 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
   const handlePriorityChange = (e: SelectChangeEvent<string>) => {
     if (!editForm) return
     setEditForm({ ...editForm, priority: e.target.value })
-  }
-
-  const handleDateChange = (value: unknown /* PickerValue */, _context: any) => {
-    if (!editForm) return
-    let dateObj: Date | null = null
-    if (value && typeof value === 'object' && 'toDate' in value && typeof value['toDate'] === 'function') {
-      // Dayjs object
-      dateObj = value['toDate']()
-    } else if (value instanceof Date) {
-      dateObj = value
-    }
-    setEditForm({
-      ...editForm,
-      dueDate: dateObj ? dateObj.toISOString().split('T')[0] : null
-    })
   }
 
   const handleCompletedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,9 +71,8 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
     }
   }
 
-  const handleClose = () => {
+  const handleCloseDialog = () => {
     setIsEditing(false)
-    setTabValue(0)
     onClose()
   }
 
@@ -128,19 +94,16 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
+      onClose={handleCloseDialog}
       fullWidth
-      maxWidth="md"
-      TransitionComponent={Transition}
+      maxWidth="lg"
     >
-      <DialogTitle sx={{ pb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {isEditing ? (
-            <Typography variant="h6">Edit Task</Typography>
-          ) : (
-            <Typography variant="h6">Task Details</Typography>
-          )}
-        </Box>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {isEditing ? (
+          <Typography variant="h6">Chỉnh sửa công việc</Typography>
+        ) : (
+          <Typography variant="h6">Chi tiết công việc</Typography>
+        )}
         <Box>
           {!isEditing && (
             <IconButton
@@ -150,16 +113,16 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
               aria-label="edit"
               sx={{ mr: 1 }}
             >
-              <Iconify icon='solar:trash-bin-trash-bold' />
+              <Iconify icon='solar:pen-bold' />
             </IconButton>
           )}
           <IconButton
             edge="end"
             color="inherit"
-            onClick={handleClose}
+            onClick={handleCloseDialog}
             aria-label="close"
           >
-            <Iconify icon='solar:trash-bin-trash-bold' />
+            <Iconify icon='mingcute:close-line' />
           </IconButton>
         </Box>
       </DialogTitle>
@@ -235,94 +198,51 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
             />
           </Box>
         ) : (
-          <Box>
+          <>
             <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid #e5e7eb' }}>
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+              <Typography variant="h5" gutterBottom>
                 {selectedTodo.title}
               </Typography>
 
-              <Typography variant="body1" gutterBottom sx={{ whiteSpace: 'pre-wrap' }}>
-                {selectedTodo.description || 'No description provided.'}
+              <Typography variant="body1" gutterBottom whiteSpace="pre-wrap">
+                {selectedTodo.description || 'Không có mô tả'}
               </Typography>
 
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mt: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                    Priority:
+              <Box sx={{ display: 'flex', gap: 3, mt: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Độ ưu tiên:
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 600,
-                      color:
-                        selectedTodo.priority === 'high' ? '#b91c1c' :
-                          selectedTodo.priority === 'medium' ? '#b45309' :
-                            '#0369a1'
-                    }}
-                  >
-                    {selectedTodo.priority.charAt(0).toUpperCase() + selectedTodo.priority.slice(1)}
-                  </Typography>
+                  <Label color={getColorByPriority(selectedTodo.priority)}>{selectedTodo.priority}</Label>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                    Status:
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Trạng thái:
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 600,
-                      color: selectedTodo.completed ? '#047857' : '#4b5563'
-                    }}
-                  >
-                    {selectedTodo.completed ? 'Completed' : 'Pending'}
-                  </Typography>
+                  <Label color={selectedTodo.completed ? 'success' : 'error'}>
+                    {selectedTodo.completed ? 'Hoàn thành' : 'Chưa hoàn thành'}
+                  </Label>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Iconify icon='solar:trash-bin-trash-bold' />
-                  <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                    Due: {formatDate(selectedTodo.dueDate)}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Iconify icon='solar:calendar-bold' />
+                  <Typography variant="body2" color="text.secondary">
+                    Ngày hết hạn:
                   </Typography>
+                  <Label color='default'>{selectedTodo.dueDate}</Label>
                 </Box>
               </Box>
             </Box>
 
-            <Box sx={{ width: '100%' }}>
-              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs
-                  value={tabValue}
-                  onChange={handleTabChange}
-                  aria-label="task details tabs"
-                >
-                  <Tab label="Results" id="tab-0" aria-controls="tabpanel-0" />
-                  <Tab label="Comments" id="tab-1" aria-controls="tabpanel-1" />
-                </Tabs>
-              </Box>
-
-              <Box
-                role="tabpanel"
-                hidden={tabValue !== 0}
-                id="tabpanel-0"
-                aria-labelledby="tab-0"
-              >
-                {tabValue === 0 && (
-                  <ResultSection todoId={selectedTodo.id} results={selectedTodo.results} />
-                )}
-              </Box>
-
-              <Box
-                role="tabpanel"
-                hidden={tabValue !== 1}
-                id="tabpanel-1"
-                aria-labelledby="tab-1"
-              >
-                {tabValue === 1 && (
-                  <CommentSection todoId={selectedTodo.id} comments={selectedTodo.comments} />
-                )}
-              </Box>
+            <Box>
+              <MessageSection
+                todoId={selectedTodo.id}
+                results={selectedTodo.results}
+                comments={selectedTodo.comments}
+              />
             </Box>
-          </Box>
+          </>
         )}
       </DialogContent>
 

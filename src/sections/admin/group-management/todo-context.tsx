@@ -32,7 +32,10 @@ const initialTodos: Todo[] = [
   {
     id: uuidv4(),
     title: 'Lịch trình cuộc họp nhóm',
-    description: 'Lên lịch cuộc họp nhóm hàng tuần để thảo luận về tiến độ dự án và vấn đề phát sinh fdsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssdfdfjsfsdjfsdfisfsjdfggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggdfgfddddddddddddddddddddddddddddddddđ',
+    description: 'Lên lịch cuộc họp nhóm hàng tuần để thảo luận về tiến độ dự án và vấn đề phát sinh'+
+                 'Lên lịch cuộc họp nhóm hàng tuần để thảo luận về tiến độ dự án và vấn đề phát sinh'+
+                 'Lên lịch cuộc họp nhóm hàng tuần để thảo luận về tiến độ dự án và vấn đề phát sinh'+
+                 'Lên lịch cuộc họp nhóm hàng tuần để thảo luận về tiến độ dự án và vấn đề phát sinh',
     completed: true,
     priority: 'Trung bình',
     dueDate: '15-01-2025',
