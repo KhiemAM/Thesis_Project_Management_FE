@@ -1,6 +1,7 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles'
 
 import { useState, useEffect } from 'react'
+import { matchPath } from 'react-router-dom'
 import { varAlpha } from 'minimal-shared/utils'
 
 import Box from '@mui/material/Box'
@@ -152,8 +153,10 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
             }}
           >
             {data.map((item) => {
-              const isAnyChildActive = item.children?.some((child) => pathname === child.path)
-              const isActived = pathname === item.path || isAnyChildActive
+              const match = (path: string) =>
+                !!matchPath({ path, end: path === '/' }, pathname)
+              const isAnyChildActive = item.children?.some((child) => match(child.path))
+              const isActived = match(item.path) || isAnyChildActive
               const isOpen = openItems[item.title] || false
               return (
                 <ListItem disableGutters disablePadding key={item.title} sx={{ display: 'block' }}>
@@ -197,7 +200,7 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
                     <Collapse in={isOpen} timeout="auto" unmountOnExit>
                       <List component="div" disablePadding sx={{ pl: 5 }}>
                         {item.children.map((child) => {
-                          const isChildActived = pathname === child.path
+                          const isChildActived = match(child.path)
                           return (
                             <Box key={child.title} sx={{ my: 1 }}>
                               <ListItemButton

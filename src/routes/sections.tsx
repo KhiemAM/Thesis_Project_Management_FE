@@ -135,8 +135,7 @@ const MainRoutes = () => [
         element: <Outlet />,
         children: [
           { path: 'list', element: <ListGroupStudentPage /> },
-          { path: 'create', element: <CreateTopicProposalPage /> },
-          { path: 'progress', element: <ProgressGroupStudentPage /> }
+          { path: 'progress/:id', element: <ProgressGroupStudentPage /> }
         ]
       }
       // { path: 'products', element: <ProductsPage /> },

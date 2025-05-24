@@ -1,7 +1,7 @@
 import { SvgColor } from 'src/components/svg-color'
 
 // ----------------------------------------------------------------------
-
+const DEFAULT_GROUP_ID = 'e99f09a7-dd88-49d5-b1c8-1daf80c2d7b0'
 const icon = (name: string) => <SvgColor src={`/assets/icons/navbar/admin/${name}.svg`} />
 
 type NavItemChildren = {
@@ -110,7 +110,7 @@ export const navData = [
       },
       {
         title: 'Quản lý tiến độ nhóm',
-        path: '/group/progress'
+        path: `/group/progress/${DEFAULT_GROUP_ID}` //Default group ID
       }
     ]
   },

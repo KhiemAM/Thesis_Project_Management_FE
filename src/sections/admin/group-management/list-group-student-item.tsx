@@ -4,9 +4,11 @@ import type { IconifyName } from 'src/components/iconify'
 import Box from '@mui/material/Box'
 import Link from '@mui/material/Link'
 import Card from '@mui/material/Card'
-import { Tooltip } from '@mui/material'
 import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
+import { Tooltip, IconButton } from '@mui/material'
+
+import { RouterLink } from 'src/routes/components'
 
 import { Iconify } from 'src/components/iconify'
 import { SvgColor } from 'src/components/svg-color'
@@ -91,8 +93,8 @@ export function PostItem({
       }}
     >
       {[
-        { title: 'Xem thông tin nhóm', icon: 'solar:eye-bold' },
-        { title: 'Xem tiến độ nhóm', icon: 'solar:checklist-minimalistic-bold-duotone' }
+        { title: 'Xem thông tin nhóm', icon: 'solar:eye-bold', href: '' },
+        { title: 'Xem tiến độ nhóm', icon: 'solar:checklist-minimalistic-bold-duotone', href: `/group/progress/${post.id}` }
       ].map((info, _index) => (
         <Box
           key={_index}
@@ -101,7 +103,14 @@ export function PostItem({
           }}
         >
           <Tooltip title={info.title} arrow>
-            <Iconify icon={info.icon as IconifyName} sx={{ mr: 0.5 }} />
+            <IconButton
+              component={RouterLink}
+              href={info.href}
+              color='primary'
+              sx={{ p: 0 }}
+            >
+              <Iconify icon={info.icon as IconifyName} />
+            </IconButton>
           </Tooltip>
         </Box>
       ))}
