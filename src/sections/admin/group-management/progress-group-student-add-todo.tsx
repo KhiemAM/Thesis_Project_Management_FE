@@ -5,7 +5,6 @@ import type {
 import React, { useState } from 'react'
 
 import Box from '@mui/material/Box'
-import Fade from '@mui/material/Fade'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import Select from '@mui/material/Select'
@@ -82,7 +81,8 @@ const AddTodo: React.FC<AddTodoProps> = ({ open, onClose }) => {
       description: formState.description,
       completed: false,
       priority: formState.priority,
-      dueDate: formState.dueDate
+      dueDate: formState.dueDate,
+      message: []
     })
 
     // Reset form and close dialog
@@ -100,8 +100,6 @@ const AddTodo: React.FC<AddTodoProps> = ({ open, onClose }) => {
     <Dialog
       open={open}
       onClose={handleCancel}
-      TransitionComponent={Fade}
-      TransitionProps={{ timeout: 500 }}
       maxWidth="sm"
       fullWidth
     >

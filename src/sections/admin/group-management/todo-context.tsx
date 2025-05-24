@@ -13,18 +13,14 @@ const initialTodos: Todo[] = [
     priority: 'Cao',
     dueDate: '05-01-2025',
     createdAt: new Date().toISOString(),
-    results: [
+    message: [
       {
         id: uuidv4(),
-        type: 'text',
-        content: 'Draft proposal created with initial requirements',
-        createdAt: new Date().toISOString()
-      }
-    ],
-    comments: [
-      {
-        id: uuidv4(),
-        content: 'Don\'t forget to include budget estimates',
+        type: 'image',
+        content: [
+          'Thực hiện đề xuất dự án cho khách hàng ABC',
+          '/assets/images/cover/cover-1.webp'
+        ],
         createdAt: new Date().toISOString()
       }
     ]
@@ -40,8 +36,7 @@ const initialTodos: Todo[] = [
     priority: 'Trung bình',
     dueDate: '15-01-2025',
     createdAt: new Date().toISOString(),
-    results: [],
-    comments: []
+    message: []
   },
   {
     id: uuidv4(),
@@ -51,21 +46,25 @@ const initialTodos: Todo[] = [
     priority: 'Trung bình',
     dueDate: '20-01-2025',
     createdAt: new Date().toISOString(),
-    results: [
+    message: [
       {
         id: uuidv4(),
         type: 'image',
-        content: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        content: [
+          'Thiết kế giao diện người dùng mới cho ứng dụng',
+          '/assets/images/cover/cover-1.webp',
+          '/assets/images/cover/cover-2.webp',
+          '/assets/images/cover/cover-3.webp'
+        ],
         createdAt: new Date().toISOString()
       },
       {
         id: uuidv4(),
         type: 'text',
-        content: 'Draft proposal created with initial requirements',
+        content: ['Thiết kế giao diện người dùng mới cho ứng dụng'],
         createdAt: new Date().toISOString()
       }
-    ],
-    comments: []
+    ]
   },
   {
     id: uuidv4(),
@@ -75,15 +74,7 @@ const initialTodos: Todo[] = [
     priority: 'Thấp',
     dueDate: '20-01-2025',
     createdAt: new Date().toISOString(),
-    results: [
-      {
-        id: uuidv4(),
-        type: 'image',
-        content: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-        createdAt: new Date().toISOString()
-      }
-    ],
-    comments: []
+    message: []
   }
 ]
 
@@ -93,7 +84,7 @@ type ActionType =
   | { type: 'TOGGLE_TODO'; payload: string }
   | { type: 'UPDATE_TODO'; payload: Todo }
   | { type: 'DELETE_TODO'; payload: string }
-  | { type: 'ADD_COMMENT'; payload: { todoId: string; content: string } }
+  | { type: 'ADD_COMMENT'; payload: { todoId: string; content: string[]; type: 'text' | 'image' } }
   | { type: 'DELETE_COMMENT'; payload: { todoId: string; commentId: string } }
   | { type: 'ADD_RESULT'; payload: { todoId: string; type: 'text' | 'image'; content: string } }
   | { type: 'DELETE_RESULT'; payload: { todoId: string; resultId: string } };
@@ -108,8 +99,7 @@ const todoReducer = (state: Todo[], action: ActionType): Todo[] => {
         ...action.payload,
         id: uuidv4(),
         createdAt: new Date().toISOString(),
-        results: [],
-        comments: []
+        message: []
       }
     ]
 
@@ -131,10 +121,11 @@ const todoReducer = (state: Todo[], action: ActionType): Todo[] => {
       todo.id === action.payload.todoId
         ? {
           ...todo,
-          comments: [
-            ...todo.comments,
+          message: [
+            ...todo.message,
             {
               id: uuidv4(),
+              type: action.payload.type,
               content: action.payload.content,
               createdAt: new Date().toISOString()
             }
@@ -148,38 +139,8 @@ const todoReducer = (state: Todo[], action: ActionType): Todo[] => {
       todo.id === action.payload.todoId
         ? {
           ...todo,
-          comments: todo.comments.filter(
+          message: todo.message.filter(
             (comment) => comment.id !== action.payload.commentId
-          )
-        }
-        : todo
-    )
-
-  case 'ADD_RESULT':
-    return state.map((todo) =>
-      todo.id === action.payload.todoId
-        ? {
-          ...todo,
-          results: [
-            ...todo.results,
-            {
-              id: uuidv4(),
-              type: action.payload.type,
-              content: action.payload.content,
-              createdAt: new Date().toISOString()
-            }
-          ]
-        }
-        : todo
-    )
-
-  case 'DELETE_RESULT':
-    return state.map((todo) =>
-      todo.id === action.payload.todoId
-        ? {
-          ...todo,
-          results: todo.results.filter(
-            (result) => result.id !== action.payload.resultId
           )
         }
         : todo
@@ -197,10 +158,8 @@ interface TodoContextProps {
   toggleTodo: (id: string) => void;
   updateTodo: (todo: Todo) => void;
   deleteTodo: (id: string) => void;
-  addComment: (todoId: string, content: string) => void;
+  addComment: (todoId: string, content: string[], type: 'text' | 'image') => void;
   deleteComment: (todoId: string, commentId: string) => void;
-  addResult: (todoId: string, type: 'text' | 'image', content: string) => void;
-  deleteResult: (todoId: string, resultId: string) => void;
   selectedTodo: Todo | null;
   setSelectedTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   filterCompleted: boolean;
@@ -234,20 +193,12 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'DELETE_TODO', payload: id })
   }
 
-  const addComment = (todoId: string, content: string) => {
-    dispatch({ type: 'ADD_COMMENT', payload: { todoId, content } })
+  const addComment = (todoId: string, content: string[], type: 'text' | 'image') => {
+    dispatch({ type: 'ADD_COMMENT', payload: { todoId, content, type } })
   }
 
   const deleteComment = (todoId: string, commentId: string) => {
     dispatch({ type: 'DELETE_COMMENT', payload: { todoId, commentId } })
-  }
-
-  const addResult = (todoId: string, type: 'text' | 'image', content: string) => {
-    dispatch({ type: 'ADD_RESULT', payload: { todoId, type, content } })
-  }
-
-  const deleteResult = (todoId: string, resultId: string) => {
-    dispatch({ type: 'DELETE_RESULT', payload: { todoId, resultId } })
   }
 
   // Update selected todo when the todos change
@@ -268,8 +219,6 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteTodo,
         addComment,
         deleteComment,
-        addResult,
-        deleteResult,
         selectedTodo,
         setSelectedTodo,
         filterCompleted,

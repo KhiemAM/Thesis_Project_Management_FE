@@ -1,5 +1,6 @@
 import { useDropzone } from 'react-dropzone'
-import React, { useState, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
@@ -17,20 +18,47 @@ import { Iconify } from 'src/components/iconify'
 
 import { useTodo } from './todo-context'
 
-import type { Result, Comment } from './types'
+import type { Message } from './types'
 
 interface ResultSectionProps {
   todoId: string;
-  results: Result[];
-  comments: Comment[];
+  messages: Message[];
 }
 
-const MessageSection: React.FC<ResultSectionProps> = ({ todoId, results, comments }) => {
+const MessageSection: React.FC<ResultSectionProps> = ({ todoId, messages }) => {
   const theme = useTheme()
-  const { addResult, deleteResult, addComment, deleteComment } = useTodo()
+  const { addComment, deleteComment } = useTodo()
   const [input, setInput] = useState('')
   const [isImageMode, setIsImageMode] = useState(false)
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null)
+  const textFieldRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      const items = event.clipboardData?.items
+      if (!items) return
+      for (const item of items) {
+        if (item.type.indexOf('image') === 0) {
+          const file = item.getAsFile()
+          if (file) {
+            const url = URL.createObjectURL(file)
+            setPreviewUrls((prev) => [...prev, url])
+            setIsImageMode(true)
+          }
+        }
+      }
+    }
+    const inputImg = textFieldRef.current
+    if (inputImg) {
+      inputImg.addEventListener('paste', handlePaste)
+    }
+    return () => {
+      if (inputImg) {
+        inputImg.removeEventListener('paste', handlePaste)
+      }
+    }
+  }, [])
 
   const handleDrop = useCallback((acceptedFiles: File[]) => {
     const objectUrls = acceptedFiles.map((file) => URL.createObjectURL(file))
@@ -49,22 +77,25 @@ const MessageSection: React.FC<ResultSectionProps> = ({ todoId, results, comment
 
   const handleSubmitResultMessage = (e: React.FormEvent) => {
     e.preventDefault()
+
     if (input.trim()) {
-      if (isImageMode) {
-        addResult(todoId, 'image', input)
+      if (isImageMode && previewUrls.length > 0) {
+      // Gửi kết quả dạng ảnh kèm mô tả (dạng mảng: [text, ...images])
+        addComment(todoId, [input, ...previewUrls], 'image')
       } else {
-        addComment(todoId, input)
+      // Gửi kết quả dạng chỉ văn bản
+        addComment(todoId, [input], 'text')
       }
+
+      // Reset trạng thái
       setInput('')
       setIsImageMode(false)
       setPreviewUrls([])
     }
   }
 
-  const handleDelete = (item: Result | Comment) => {
+  const handleDelete = (item: Message) => {
     if ('type' in item) {
-      deleteResult(todoId, item.id)
-    } else {
       deleteComment(todoId, item.id)
     }
   }
@@ -85,22 +116,7 @@ const MessageSection: React.FC<ResultSectionProps> = ({ todoId, results, comment
     })
   }
 
-  const getInitials = (id: string) => id.slice(0, 2).toUpperCase()
-
-  const stringToColor = (string: string) => {
-    let hash = 0
-    for (let i = 0; i < string.length; i++) {
-      hash = string.charCodeAt(i) + ((hash * 32) - hash)
-    }
-    let color = '#'
-    for (let i = 0; i < 3; i++) {
-      const value = Math.floor(hash / Math.pow(256, i)) % 256
-      color += ('00' + value.toString(16)).substr(-2)
-    }
-    return color
-  }
-
-  const allItems = [...results, ...comments].sort((a, b) =>
+  const allItems = [...messages].sort((a, b) =>
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   )
 
@@ -131,6 +147,7 @@ const MessageSection: React.FC<ResultSectionProps> = ({ todoId, results, comment
             }}
           >
             <TextField
+              inputRef={textFieldRef}
               multiline
               placeholder='Thêm nhận xét...'
               value={input}
@@ -227,10 +244,9 @@ const MessageSection: React.FC<ResultSectionProps> = ({ todoId, results, comment
       </Box>
 
       {/* Result message  */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         {allItems.map((item) => {
-          const isComment = !('type' in item)
-          const avatarColor = stringToColor(item.id)
+          const isComment = item.type === 'text'
 
           return (
             <Paper
@@ -240,60 +256,63 @@ const MessageSection: React.FC<ResultSectionProps> = ({ todoId, results, comment
                 display: 'flex',
                 gap: 1.5,
                 p: 2,
-                backgroundColor: '#f8fafc',
                 position: 'relative'
               }}
             >
-              <Avatar
-                sx={{
-                  width: 32,
-                  height: 32,
-                  bgcolor: avatarColor,
-                  fontSize: '0.875rem'
-                }}
-              >
-                {getInitials(item.id)}
+              <Avatar src={_myAccount.photoURL} alt={_myAccount.displayName} sx={{ width: 40, height: 40 }}>
+                {_myAccount.displayName.charAt(0).toUpperCase()}
               </Avatar>
 
               <Box sx={{ flex: 1 }}>
                 <Box
                   sx={{
-                    backgroundColor: 'white',
                     borderRadius: 2,
                     p: 1.5,
-                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+                    backgroundColor: theme.vars.palette.background.neutral,
+                    border: `1px solid ${theme.vars.palette.divider}`
                   }}
                 >
-                  <Typography
-                    variant="subtitle2"
-                    component="span"
-                    sx={{ fontWeight: 600, mr: 1 }}
-                  >
-                    {isComment ? 'User' : 'Result'}
+                  <Typography variant="subtitle2" >
+                    {_myAccount.displayName}
                   </Typography>
 
+                  {/* Nếu là comment hoặc kiểu text thì hiển thị bình thường */}
                   {isComment ? (
                     <Typography variant="body2" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
-                      {item.content}
+                      {Array.isArray(item.content) ? item.content[0] : item.content}
                     </Typography>
                   ) : (
-                    item.type === 'image' ? (
-                      <CardMedia
-                        component="img"
-                        image={item.content}
-                        alt="Result image"
-                        sx={{
-                          mt: 1,
-                          borderRadius: 1,
-                          maxHeight: 300,
-                          objectFit: 'cover'
-                        }}
-                      />
-                    ) : (
-                      <Typography variant="body2" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
-                        {item.content}
-                      </Typography>
-                    )
+                    <>
+                      {/* Tách phần mô tả và ảnh */}
+                      {Array.isArray(item.content) && (
+                        <>
+                          <Typography variant="body2" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
+                            {item.content[0]}
+                          </Typography>
+
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                            {item.content.slice(1).map((url: string, idx: number) => (
+                              <CardMedia
+                                key={idx}
+                                component="img"
+                                image={url}
+                                alt={`Result image ${idx + 1}`}
+                                onClick={() => setEnlargedImage(url)}
+                                sx={{
+                                  width: 120,
+                                  height: 120,
+                                  borderRadius: 1,
+                                  objectFit: 'cover',
+                                  cursor: 'pointer',
+                                  transition: 'transform 0.3s',
+                                  '&:hover': { transform: 'scale(1.02)' }
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        </>
+                      )}
+                    </>
                   )}
                 </Box>
 
@@ -310,6 +329,7 @@ const MessageSection: React.FC<ResultSectionProps> = ({ todoId, results, comment
                 </Typography>
               </Box>
 
+
               <IconButton
                 size="small"
                 onClick={() => handleDelete(item)}
@@ -321,23 +341,60 @@ const MessageSection: React.FC<ResultSectionProps> = ({ todoId, results, comment
                   '&:hover': { opacity: 1 }
                 }}
               >
-                <Iconify icon='solar:pen-bold' />
+                <Iconify icon='solar:trash-bin-trash-bold' />
               </IconButton>
             </Paper>
           )
         })}
+
+        <AnimatePresence>
+          {enlargedImage && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setEnlargedImage(null)}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 1300,
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'zoom-out'
+              }}
+            >
+              <motion.img
+                src={enlargedImage}
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.8 }}
+                style={{
+                  maxWidth: '90%',
+                  maxHeight: '90%',
+                  borderRadius: '8px',
+                  boxShadow: '0 0 20px rgba(0,0,0,0.5)'
+                }}
+                onClick={(e) => e.stopPropagation()} // tránh đóng khi click vào ảnh
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {allItems.length === 0 && (
           <Box
             sx={{
               p: 3,
               textAlign: 'center',
-              backgroundColor: '#f8fafc',
               borderRadius: 2
             }}
           >
             <Typography variant="body2" color="text.secondary">
-              No comments yet. Be the first to comment!
+              Chưa có nhận xét nào
             </Typography>
           </Box>
         )}

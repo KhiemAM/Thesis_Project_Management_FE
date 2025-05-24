@@ -100,9 +100,9 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
     >
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {isEditing ? (
-          <Typography variant="h6">Chỉnh sửa công việc</Typography>
+          <Typography variant="h6" component='span'>Chỉnh sửa công việc</Typography>
         ) : (
-          <Typography variant="h6">Chi tiết công việc</Typography>
+          <Typography variant="h6" component='span'>Chi tiết công việc</Typography>
         )}
         <Box>
           {!isEditing && (
@@ -238,8 +238,7 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
             <Box>
               <MessageSection
                 todoId={selectedTodo.id}
-                results={selectedTodo.results}
-                comments={selectedTodo.comments}
+                messages={selectedTodo.message}
               />
             </Box>
           </>

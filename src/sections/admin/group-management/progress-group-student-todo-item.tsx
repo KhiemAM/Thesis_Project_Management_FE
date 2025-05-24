@@ -120,15 +120,9 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Label color={getColorByPriority(todo.priority)}>{todo.priority}</Label>
 
-            {todo.results.length > 0 && (
-              <Label startIcon={<Iconify icon='solar:document-text-bold' />}>
-                {todo.results.length}
-              </Label>
-            )}
-
-            {todo.comments.length > 0 && (
+            {todo.message.length > 0 && (
               <Label startIcon={<Iconify icon='solar:chat-round-line-bold' />}>
-                {todo.comments.length}
+                {todo.message.length}
               </Label>
             )}
 

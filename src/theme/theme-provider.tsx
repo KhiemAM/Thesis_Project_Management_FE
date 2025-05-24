@@ -18,7 +18,6 @@ export function ThemeProvider({ themeOverrides, children, ...other }: ThemeProvi
   const theme = createTheme({
     themeOverrides
   })
-  console.log('🚀 ~ ThemeProvider ~ theme:', theme)
 
   return (
     <ThemeVarsProvider disableTransitionOnChange theme={theme} {...other}>

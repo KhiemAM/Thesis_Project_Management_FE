@@ -1,13 +1,7 @@
-export interface Comment {
-  id: string;
-  content: string;
-  createdAt: string;
-}
-
-export interface Result {
+export interface Message {
   id: string;
   type: 'text' | 'image';
-  content: string;
+  content: string[];
   createdAt: string;
 }
 
@@ -19,6 +13,5 @@ export interface Todo {
   priority: string;
   dueDate: string | null;
   createdAt: string;
-  results: Result[];
-  comments: Comment[];
+  message: Message[];
 }
