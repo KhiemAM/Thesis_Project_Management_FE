@@ -93,7 +93,7 @@ export function PostItem({
       }}
     >
       {[
-        { title: 'Xem thông tin nhóm', icon: 'solar:eye-bold', href: '' },
+        { title: 'Xem thông tin nhóm', icon: 'solar:eye-bold', href: `/group/information/${post.id}` },
         { title: 'Xem tiến độ nhóm', icon: 'solar:checklist-minimalistic-bold-duotone', href: `/group/progress/${post.id}` }
       ].map((info, _index) => (
         <Box

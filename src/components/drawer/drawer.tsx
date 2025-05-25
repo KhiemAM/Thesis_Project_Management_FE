@@ -20,7 +20,7 @@ export function Drawer({ children, ...other } : DrawerProps) {
   )
 }
 
-export const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
+export const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'drawerWidth' })<{
   open?: boolean;
   drawerWidth: number;
 }>(({ theme, drawerWidth }) => ({

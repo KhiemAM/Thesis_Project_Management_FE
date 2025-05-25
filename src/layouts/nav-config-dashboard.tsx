@@ -109,7 +109,11 @@ export const navData = [
         path: '/group/list'
       },
       {
-        title: 'Quản lý tiến độ nhóm',
+        title: 'Thông tin nhóm sinh viên',
+        path: `/group/information/${DEFAULT_GROUP_ID}` //Default group ID
+      },
+      {
+        title: 'Tiến độ nhóm sinh viên',
         path: `/group/progress/${DEFAULT_GROUP_ID}` //Default group ID
       }
     ]
