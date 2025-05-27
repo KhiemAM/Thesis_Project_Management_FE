@@ -1,7 +1,7 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
 import { v4 as uuidv4 } from 'uuid'
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -11,7 +11,8 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _function, _instructor } from 'src/_mock'
+import { useLoading } from 'src/context'
+import functionsApi from 'src/axios/functions'
 import { DashboardContent } from 'src/layouts/student'
 
 import ChipsArrayFilter from 'src/components/chip'
@@ -28,20 +29,14 @@ import { emptyRows, applyFilter, getComparator } from '../utils'
 import type { FunctionProps } from '../function-table-row'
 
 // ----------------------------------------------------------------------
-const getUniqueInstructors = (): string[] => {
-  const uniqueInstructors = new Set<string>()
-  for (let i = 0; i < 24; i++) {
-    uniqueInstructors.add(_instructor(i))
-  }
-  return Array.from(uniqueInstructors)
-}
 
 export function ListFunctionView() {
+  const { setIsLoading } = useLoading()
   const table = useTable()
   const id = uuidv4()
+  const [_function, setFunction] = useState<FunctionProps[]>([])
   const [filterName, setFilterName] = useState('')
   const [filterStatus, setFilterStatus] = useState('Tất cả')
-  const [filterInstructor, setFilterInstructor] = useState<string[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -54,12 +49,25 @@ export function ListFunctionView() {
       }
     ],
     filterSelect: {
-      display: 'Giáo viên hướng dẫn',
+      display: '',
       data: []
     }
   })
-console.log('🚀 ~ _function:', _function)
 
+  const fetchFunctions = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await functionsApi.getAllFunctions()
+      setFunction(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  , [setIsLoading])
+
+  useEffect(() => {
+    fetchFunctions()
+  }, [fetchFunctions])
 
   const dataFiltered: FunctionProps[] = applyFilter({
     inputData: _function,
@@ -82,13 +90,12 @@ console.log('🚀 ~ _function:', _function)
         }
       ],
       filterSelect: {
-        display: 'Giáo viên hướng dẫn',
+        display: '',
         data: []
       }
     })
     setFilterName('')
     setFilterStatus('Tất cả')
-    setFilterInstructor([])
   }, [])
 
   const handleDeleteChipData = useCallback((newChipsFilter: ChipsFilter) => {
@@ -110,11 +117,6 @@ console.log('🚀 ~ _function:', _function)
             }
           }
         })
-      }
-
-      // Xử lý cho filterSelect
-      if (key === 'filterSelect' && section && 'data' in section && Array.isArray(section.data)) {
-        setFilterInstructor(section.data.map((item) => item.label))
       }
     })
   }, [])
@@ -145,18 +147,6 @@ console.log('🚀 ~ _function:', _function)
     setFilterStatus(newValue)
   }, [id])
 
-  const handleFilterPath = useCallback((newValue: string[]) => {
-    setChipsFilter((pvev) => ({
-      ...pvev,
-      filterSelect: {
-        ...pvev.filterSelect,
-        data: newValue.map((item, index) => ({ key: id + index, label: item }))
-      }
-    }))
-    setFilterInstructor(newValue)
-  }
-  , [id])
-
   return (
     <DashboardContent>
       <Box
@@ -178,9 +168,6 @@ console.log('🚀 ~ _function:', _function)
           numSelected={table.selected.length}
           filterName={filterName}
           onFilterName={handleFilterName}
-          valueMultipleSelect={getUniqueInstructors()}
-          filterInstructor={filterInstructor}
-          onFilterInstructor={handleFilterPath}
         />
 
         <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>
@@ -201,11 +188,14 @@ console.log('🚀 ~ _function:', _function)
                   )
                 }
                 headLabel={[
-                  { id: 'function', label: 'Chức năng', minWidth: 200 },
+                  { id: 'name', label: 'Chức năng', minWidth: 300 },
+                  { id: 'description', label: 'Mô tả', minWidth: 300 },
                   { id: 'path', label: 'Đường dẫn', minWidth: 200 },
                   { id: 'parentFunction', label: 'Chức năng cha', minWidth: 200 },
-                  { id: 'type', label: 'Loại chức năng', align: 'center', minWidth: 100 },
-                  { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 100 },
+                  { id: 'type', label: 'Loại chức năng', align: 'center', minWidth: 200 },
+                  { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 200 },
+                  { id: 'create_datetime', label: 'Ngày tạo', align: 'center', minWidth: 200 },
+                  { id: 'update_datetime', label: 'Ngày cập nhật', align: 'center', minWidth: 200 },
                   { id: '' }
                 ]}
               />
@@ -221,6 +211,7 @@ console.log('🚀 ~ _function:', _function)
                       row={row}
                       selected={table.selected.includes(row.id)}
                       onSelectRow={() => table.onSelectRow(row.id)}
+                      onRefresh={fetchFunctions}
                     />
                   ))}
 

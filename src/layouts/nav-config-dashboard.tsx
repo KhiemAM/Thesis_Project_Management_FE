@@ -2,6 +2,7 @@ import { SvgColor } from 'src/components/svg-color'
 
 // ----------------------------------------------------------------------
 const DEFAULT_GROUP_ID = 'e99f09a7-dd88-49d5-b1c8-1daf80c2d7b0'
+const DEFAULT_FUNCTION_ID = 'b1c8e99f-09a7-dd88-49d5-1daf80c2d7b0'
 const icon = (name: string) => <SvgColor src={`/assets/icons/navbar/admin/${name}.svg`} />
 
 type NavItemChildren = {
@@ -57,7 +58,7 @@ export const navData = [
       },
       {
         title: 'Cập nhật chức năng',
-        path: '/function/update'
+        path: `/function/update/${DEFAULT_FUNCTION_ID}` //Default function ID
       }
     ]
   },
@@ -119,8 +120,19 @@ export const navData = [
     ]
   },
   {
-    title: 'Tiến độ',
-    path: '/progress',
+    title: 'Quản lý hội đồng',
+    path: '/committee',
+    icon: icon('solar--clipboard-list-bold-duotone'),
+    children: [
+      {
+        title: 'Danh sách hội đồng',
+        path: '/committee/list'
+      }
+    ]
+  },
+  {
+    title: 'Thông tin khác',
+    path: '/other-info',
     icon: icon('tabler-progress-check')
   }
 ]

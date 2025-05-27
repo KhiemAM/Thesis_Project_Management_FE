@@ -1,8 +1,8 @@
-import type { Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs'
 
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import relativeTime from 'dayjs/plugin/relativeTime';
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
 
 // ----------------------------------------------------------------------
 
@@ -28,8 +28,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
  *
  */
 
-dayjs.extend(duration);
-dayjs.extend(relativeTime);
+dayjs.extend(duration)
+dayjs.extend(relativeTime)
 
 // ----------------------------------------------------------------------
 
@@ -41,16 +41,16 @@ export const formatPatterns = {
   time: 'h:mm a', // 12:00 am
   split: {
     dateTime: 'DD/MM/YYYY h:mm a', // 17/04/2022 12:00 am
-    date: 'DD/MM/YYYY', // 17/04/2022
+    date: 'DD/MM/YYYY' // 17/04/2022
   },
   paramCase: {
     dateTime: 'DD-MM-YYYY h:mm a', // 17-04-2022 12:00 am
-    date: 'DD-MM-YYYY', // 17-04-2022
-  },
-};
+    date: 'DD-MM-YYYY' // 17-04-2022
+  }
+}
 
 const isValidDate = (date: DatePickerFormat) =>
-  date !== null && date !== undefined && dayjs(date).isValid();
+  date !== null && date !== undefined && dayjs(date).isValid()
 
 // ----------------------------------------------------------------------
 
@@ -59,23 +59,23 @@ const isValidDate = (date: DatePickerFormat) =>
  */
 export function fDateTime(date: DatePickerFormat, template?: string): string {
   if (!isValidDate(date)) {
-    return 'Invalid date';
+    return 'Invalid date'
   }
 
-  return dayjs(date).format(template ?? formatPatterns.dateTime);
+  return dayjs(date).format(template ?? formatPatterns.dateTime)
 }
 
 // ----------------------------------------------------------------------
 
 /**
- * @output 17 Apr 2022
+ * @output 17/04/2022
  */
 export function fDate(date: DatePickerFormat, template?: string): string {
   if (!isValidDate(date)) {
-    return 'Invalid date';
+    return 'Invalid date'
   }
 
-  return dayjs(date).format(template ?? formatPatterns.date);
+  return dayjs(date).format(template ?? formatPatterns.split.date)
 }
 
 // ----------------------------------------------------------------------
@@ -85,8 +85,8 @@ export function fDate(date: DatePickerFormat, template?: string): string {
  */
 export function fToNow(date: DatePickerFormat): string {
   if (!isValidDate(date)) {
-    return 'Invalid date';
+    return 'Invalid date'
   }
 
-  return dayjs(date).toNow(true);
+  return dayjs(date).toNow(true)
 }

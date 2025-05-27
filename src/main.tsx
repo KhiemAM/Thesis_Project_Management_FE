@@ -8,6 +8,7 @@ import { Outlet, RouterProvider, createBrowserRouter } from 'react-router'
 import { store } from 'src/redux/stores.js'
 
 import App from './app'
+import LoadingProvider from './context'
 import { routesSection } from './routes/sections'
 import { ErrorBoundary } from './routes/components'
 
@@ -32,8 +33,10 @@ root.render(
   // <StrictMode>
   <Provider store={store}>
     <PersistGate persistor={persistor}>
-      <RouterProvider router={router} />
-      <ToastContainer position="bottom-left" theme="colored"/>
+      <LoadingProvider>
+        <RouterProvider router={router} />
+        <ToastContainer position="bottom-left" theme="colored"/>
+      </LoadingProvider>
     </PersistGate>
   </Provider>
   // </StrictMode>

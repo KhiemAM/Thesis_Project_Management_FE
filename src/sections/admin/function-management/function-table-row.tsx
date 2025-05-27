@@ -1,4 +1,8 @@
+import type { Dayjs } from 'dayjs'
+
+import { toast } from 'react-toastify'
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import Popover from '@mui/material/Popover'
@@ -10,9 +14,13 @@ import TableCell from '@mui/material/TableCell'
 import IconButton from '@mui/material/IconButton'
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
 
+import { fDate } from 'src/utils/format-time'
+
+import functionsApi from 'src/axios/functions'
+
 import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
-import { AlertConfirmNavigate } from 'src/components/sweetalert2'
+import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
 import { getColorByStatus } from './utils'
 
@@ -23,11 +31,14 @@ const MotionTableRow = motion.create(styled(TableRow)({}))
 
 export type FunctionProps = {
   id: string;
-  function: string;
+  name: string;
+  description: string;
   path: string;
-  parentFunction: string;
+  parent_name: string;
   type: string;
   status: string;
+  create_datetime: Dayjs;
+  update_datetime: Dayjs;
   children?: FunctionProps[];
 };
 
@@ -36,9 +47,11 @@ type UserTableRowProps = {
   selected: boolean;
   onSelectRow: () => void;
   level?: number;
+  onRefresh?: () => void; // Optional prop for refreshing the table
 };
 
-export function FunctionTableRow({ row, selected, onSelectRow, level = 0 }: UserTableRowProps) {
+export function FunctionTableRow({ row, selected, onSelectRow, level = 0, onRefresh }: UserTableRowProps) {
+  const navigate = useNavigate()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [expanded, setExpanded] = useState(false)
 
@@ -50,18 +63,28 @@ export function FunctionTableRow({ row, selected, onSelectRow, level = 0 }: User
     setOpenPopover(null)
   }, [])
 
-  const handleDeleteFunction = () => {
-    AlertConfirmNavigate({
+  // This function should call the API to delete the function
+  const handleDeleteFunction = useCallback(() => {
+    AlertConfirmCallAPI({
       title: 'Bạn có chắc chắn',
       text: 'Bạn có muốn xóa không?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!',
-      router: () => {}
+      confirmButtonText: 'Xóa!',
+      cancelButtonText: 'Hủy',
+      api: async() => {
+        await functionsApi.deleteFunction(row.id)
+        onRefresh?.()
+        toast.success('Xóa chức năng thành công!')
+      }
     })
-  }
+  }, [row.id, onRefresh])
+
+  const handleUpdateFunction = useCallback(() => {
+    navigate(`function/update/${row.id}`)
+  }, [navigate, row.id])
 
   const toggleExpand = () => {
     setExpanded(!expanded)
@@ -84,7 +107,7 @@ export function FunctionTableRow({ row, selected, onSelectRow, level = 0 }: User
         </TableCell>
 
         <TableCell sx={{ pl: 3 + 3 * level }}>
-          {row.function}
+          {row.name}
           {(row.children?.length ?? 0) > 0 && (
             <IconButton onClick={toggleExpand} size="small">
               <Iconify icon={expanded ? 'solar:alt-arrow-down-line-duotone' : 'solar:alt-arrow-right-line-duotone'} />
@@ -92,12 +115,15 @@ export function FunctionTableRow({ row, selected, onSelectRow, level = 0 }: User
           )}
         </TableCell>
 
+        <TableCell>{row.description}</TableCell>
         <TableCell>{row.path}</TableCell>
-        <TableCell>{row.parentFunction}</TableCell>
-        <TableCell>{row.type}</TableCell>
+        <TableCell>{row.parent_name}</TableCell>
+        <TableCell align='center'>{row.type}</TableCell>
         <TableCell align='center'>
           <Label color={getColorByStatus(row.status)}>{row.status}</Label>
         </TableCell>
+        <TableCell align='center'>{fDate(row.create_datetime)}</TableCell>
+        <TableCell align='center'>{fDate(row.update_datetime)}</TableCell>
         <TableCell align="right">
           <IconButton onClick={handleOpenPopover}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -140,7 +166,7 @@ export function FunctionTableRow({ row, selected, onSelectRow, level = 0 }: User
             }
           }}
         >
-          <MenuItem onClick={handleClosePopover} sx={{ color: 'primary.main' }}>
+          <MenuItem onClick={() => { handleClosePopover(); handleUpdateFunction() }} sx={{ color: 'primary.main' }}>
             <Iconify icon="solar:pen-bold" />
             Cập nhật
           </MenuItem>
