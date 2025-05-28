@@ -1,1 +1,1 @@
-export * from './list-checkbox'
+export * from './universal-checkbox-tree'

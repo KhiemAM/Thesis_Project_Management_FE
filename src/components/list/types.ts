@@ -1,6 +1,9 @@
-import type { FunctionProps } from 'src/sections/admin/function-management/function-table-row'
-
-export interface CheckboxListProps {
-  items: FunctionProps[];
-  label: keyof FunctionProps;
+export interface UniversalCheckboxTreeProps<T extends Record<string, any>> {
+  items: T[];
+  label: keyof T | ((item: T) => React.ReactNode);
+  valueKey?: keyof T;
+  childrenKey?: keyof T;
+  defaultChecked?: string[];
+  checkedIds?: string[];
+  onChange?: (checkedIds: string[], checkedItems: T[]) => void;
 }

@@ -15,8 +15,8 @@ import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 import { _function } from 'src/_mock'
 import { DashboardContent } from 'src/layouts/dashboard'
 
-import { CheckboxList } from 'src/components/list'
 import { Scrollbar } from 'src/components/scrollbar'
+import { UniversalCheckboxTree } from 'src/components/list'
 
 // ----------------------------------------------------------------------
 
@@ -161,7 +161,7 @@ export function CreateRoleView() {
                 <Divider />
 
                 <Scrollbar sx={{ maxHeight: 400, overflow: 'auto' }}>
-                  <CheckboxList items={_function} label='function'/>
+                  <UniversalCheckboxTree items={_function} label='function'/>
                 </Scrollbar>
               </Card>
             </Grid>
