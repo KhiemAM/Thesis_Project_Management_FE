@@ -9,9 +9,11 @@ import { store } from 'src/redux/stores.js'
 
 import App from './app'
 import LoadingProvider from './context'
+import { injectStore } from './axios/config'
 import { routesSection } from './routes/sections'
 import { ErrorBoundary } from './routes/components'
 
+injectStore(store)
 const persistor = persistStore(store)
 // ----------------------------------------------------------------------
 

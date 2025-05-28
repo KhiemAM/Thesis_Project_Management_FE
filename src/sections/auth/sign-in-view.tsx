@@ -41,7 +41,7 @@ export function SignInView() {
   const handleSignIn: SubmitHandler<IFormInputLogin> = useCallback(async(data) => {
     toast.promise(
       dispatch(loginUserAPI(data)).unwrap(),
-      { pending: 'Đang đăng nhập...' }
+      { pending: 'Đang đăng nhập...', success: 'Đăng nhập thành công!' }
     ).then((res) => {
       if (!res.error) {
         navigate('/student')

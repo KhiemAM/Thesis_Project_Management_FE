@@ -1,4 +1,3 @@
-import type { PayloadAction } from '@reduxjs/toolkit'
 
 import { toast } from 'react-toastify'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
@@ -37,17 +36,18 @@ export const loginUserAPI = createAsyncThunk<IUser, IFormInputLogin>(
   }
 )
 
-// // Thunk để đăng xuất
-// export const logoutUserAPI = createAsyncThunk(
-//   'user/logoutUserAPI',
-//   async (showSuccessMessage = true) => {
-//     const response = await instance.delete('/v1/users/logout')
-//     if (showSuccessMessage) {
-//       toast.success('Logged out successfully!')
-//     }
-//     return response.data
-//   }
-// )
+// Thunk để đăng xuất
+export const logoutUserAPI = createAsyncThunk(
+  'user/logoutUserAPI',
+  async (payload?: { showSuccessMessage?: boolean }) => {
+    const showSuccessMessage = payload?.showSuccessMessage ?? true
+    const response = await instance.post('/auth/logout')
+    if (showSuccessMessage) {
+      toast.success('Đăng xuất thành công!')
+    }
+    return response.data
+  }
+)
 
 // Thunk để cập nhật người dùng
 export const updateUserAPI = createAsyncThunk(
@@ -68,9 +68,9 @@ export const userSlice = createSlice({
       state.currentUser = action.payload
     })
 
-    // builder.addCase(logoutUserAPI.fulfilled, (state) => {
-    //   state.currentUser = null
-    // })
+    builder.addCase(logoutUserAPI.fulfilled, (state) => {
+      state.currentUser = null
+    })
 
     builder.addCase(updateUserAPI.fulfilled, (state, action) => {
       state.currentUser = action.payload

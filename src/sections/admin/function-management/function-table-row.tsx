@@ -83,7 +83,7 @@ export function FunctionTableRow({ row, selected, onSelectRow, level = 0, onRefr
   }, [row.id, onRefresh])
 
   const handleUpdateFunction = useCallback(() => {
-    navigate(`function/update/${row.id}`)
+    navigate(`/function/update/${row.id}`)
   }, [navigate, row.id])
 
   const toggleExpand = () => {

@@ -1,4 +1,7 @@
+import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
+import { useState, useEffect, useCallback } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -10,11 +13,14 @@ import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import ListSubheader from '@mui/material/ListSubheader'
+import FormHelperText from '@mui/material/FormHelperText'
 
 import { RouterLink } from 'src/routes/components'
 
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
+import { useLoading } from 'src/context'
+import functionsApi from 'src/axios/functions'
 import { DashboardContent } from 'src/layouts/dashboard'
 
 import { Iconify } from 'src/components/iconify'
@@ -34,35 +40,85 @@ const _type = [
 
 const _status = [
   {
-    value: 'ACTIVATE',
+    value: '1',
     label: 'Hoạt động'
   },
   {
-    value: 'DEACTIVATE',
+    value: '0',
     label: 'Ngừng hoạt động'
   }
 ]
 
-interface IFormInputUpdateFunction {
-  function: string;
+interface IFormInputCreateFunction {
+  name: string;
+  description: string;
   path: string;
-  parentFunction: string;
+  parent_id: string;
   type: string;
   status: string;
 }
 
 export function UpdateFunctionView() {
   const theme = useTheme()
-  const { register, handleSubmit, formState: { errors } } = useForm<IFormInputUpdateFunction>()
+  const { register, handleSubmit, formState: { errors }, watch, reset } = useForm<IFormInputCreateFunction>()
+  const selectedType = watch('type')
+  const [isLoadingButton, setIsLoadingButton] = useState(false)
+  const [_parentName, setParentName] = useState<{ value: string; label: string }[]>([])
+  const [functionDetail, setFunctionDetail] = useState<IFormInputCreateFunction | null>(null)
+  const { setIsLoading } = useLoading()
+  const { id } = useParams()
+  const navigate = useNavigate()
+
+  const fetchFunctions = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const resFunctionsParent = await functionsApi.getAllFunctionsParent()
+      const resFunctionDetail = await functionsApi.getFunctionById(id as string)
+      setParentName(resFunctionsParent.data.map((item: { id: string; name: string }) => ({
+        value: item.id,
+        label: item.name
+      })))
+      setFunctionDetail(resFunctionDetail.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [id, setIsLoading])
+
+  useEffect(() => {
+    fetchFunctions()
+  }, [fetchFunctions])
+
+  useEffect(() => {
+    if (functionDetail) {
+      reset({
+        name: functionDetail.name,
+        description: functionDetail.description,
+        path: functionDetail.path,
+        parent_id: functionDetail.parent_id,
+        type: functionDetail.type,
+        status: functionDetail.status
+      })
+    }
+  }, [functionDetail, reset])
+
+  const submitCreateFunction = async (data: IFormInputCreateFunction) => {
+    try {
+      setIsLoadingButton(true)
+      await functionsApi.updateFunction(id as string, data)
+      toast.success('Cập nhật chức năng thành công!')
+      // Reset form after successful submission
+      navigate('/function/list')
+    } finally {
+      setIsLoadingButton(false)
+    }
+  }
 
   return (
-    <form onSubmit={handleSubmit((data) => {
-      console.log(data)
-    })}>
+    <form onSubmit={handleSubmit(submitCreateFunction)}>
       <DashboardContent>
         <Box
           component={RouterLink}
-          href='/user/list'
+          href='/function/list'
           sx={{
             mb: 5,
             display: 'flex',
@@ -90,20 +146,42 @@ export function UpdateFunctionView() {
               <TextField
                 fullWidth
                 label="Tên chức năng *"
-                error={!!errors['function']}
+                error={!!errors['name']}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
                 sx={{ mb: 3 }}
-                {...register('function', {
+                {...register('name', {
                   required: FIELD_REQUIRED_MESSAGE
                 })}
               />
-              {errors['function'] && (
-                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['function']?.message)}</Alert>
+              {errors['name'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['name']?.message)}</Alert>
+              )}
+
+              <TextField
+                fullWidth
+                label="Mô tả *"
+                error={!!errors['description']}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
+                sx={{ mb: 3 }}
+                {...register('description', {
+                  required: FIELD_REQUIRED_MESSAGE
+                })}
+              />
+              {errors['description'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['description']?.message)}</Alert>
               )}
 
               <TextField
                 fullWidth
                 label="Đường dẫn *"
                 error={!!errors['path']}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
                 sx={{ mb: 3 }}
                 {...register('path', {
                   required: FIELD_REQUIRED_MESSAGE
@@ -116,11 +194,23 @@ export function UpdateFunctionView() {
               <TextField
                 fullWidth
                 select
+
                 label="Chọn loại chức năng *"
                 error={!!errors['type']}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
                 sx={{ mb: 3 }}
+                value={watch('type') || 'GROUP'}
                 {...register('type', {
-                  required: FIELD_REQUIRED_MESSAGE
+                  required: FIELD_REQUIRED_MESSAGE,
+                  onChange: (e) => {
+                    const value = e.target.value
+                    reset((prev) => ({
+                      ...prev,
+                      type: value
+                    }))
+                  }
                 })}
               >
                 <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
@@ -148,13 +238,73 @@ export function UpdateFunctionView() {
                 <Alert severity="error" sx={{ mb: 3 }}>{String(errors['type']?.message)}</Alert>
               )}
 
+              {/* If the function type is API, the parent function selection appears. */}
+              {selectedType === 'API' && (
+                <>
+                  <FormHelperText sx={{ mb: 1, ml: 1 }}>
+                    * Trường này chỉ hiển thị khi loại chức năng là <b>API</b>
+                  </FormHelperText>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Chọn chức năng cha *"
+                    error={!!errors['parent_id']}
+                    sx={{ mb: 3 }}
+                    value={watch('parent_id') || null}
+                    {...register('parent_id', {
+                      required: FIELD_REQUIRED_MESSAGE,
+                      onChange: (e) => {
+                        const value = e.target.value
+                        reset((prev) => ({
+                          ...prev,
+                          parent_id: value
+                        }))
+                      }
+                    })}
+                  >
+                    <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
+                        <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                          Giá trị
+                        </Typography>
+                        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                        <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                          Nhãn
+                        </Typography>
+                      </Box>
+                    </ListSubheader>
+                    {_parentName.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                          <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.value}</Typography>
+                          <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                          <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  {errors['parent_id'] && (
+                    <Alert severity="error" sx={{ mb: 3 }}>{String(errors['parent_id']?.message)}</Alert>
+                  )}
+                </>
+              )}
+
               <TextField
                 fullWidth
                 select
-                label="Chọn trạng thái"
+                label="Chọn trạng thái *"
                 sx={{ mb: 3 }}
-                defaultValue='ACTIVATE'
-                {...register('status')}
+                value={watch('status') || '1'}
+                {...register('status', {
+                  required: FIELD_REQUIRED_MESSAGE,
+                  onChange: (e) => {
+                    const value = e.target.value
+                    reset((prev) => ({
+                      ...prev,
+                      status: value
+                    }))
+                  }
+                })}
               >
                 <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
@@ -179,6 +329,8 @@ export function UpdateFunctionView() {
               </TextField>
 
               <Button
+                loading={isLoadingButton}
+                loadingPosition='start'
                 fullWidth
                 size="large"
                 type="submit"
@@ -189,7 +341,7 @@ export function UpdateFunctionView() {
                   ml: { sm: 'none', md: 'auto' }
                 }}
               >
-                Cập nhật
+                Cập nhật
               </Button>
             </Box>
           </Scrollbar>

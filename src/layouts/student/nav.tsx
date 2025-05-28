@@ -13,11 +13,12 @@ import { RouterLink } from 'src/routes/components'
 import { useRouter, usePathname } from 'src/routes/hooks'
 
 import { useAppDispatch } from 'src/redux/hook'
+import { logoutUserAPI } from 'src/redux/user/user-slice'
 
 import { Logo } from 'src/components/logo'
 import { Drawer } from 'src/components/drawer'
 import { Scrollbar } from 'src/components/scrollbar'
-import { AlertConfirmNavigate } from 'src/components/sweetalert2'
+import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
 import type { NavItem } from '../nav-config-student'
 
@@ -113,15 +114,19 @@ export function NavContent({ navData, navBottomData, slots, sx }: NavContentProp
   const dispatch = useAppDispatch()
 
   const handleLogout = () => {
-    AlertConfirmNavigate({
+    AlertConfirmCallAPI({
       title: 'Bạn có chắc chắn',
       text: 'Bạn có muốn đăng xuất không?',
       icon:'warning',
       showCancelButton: true,
       confirmButtonColor:'#3085d6',
       cancelButtonColor:'#d33',
-      confirmButtonText:'Yes, delete it!',
-      router: () => router.push('/login')
+      confirmButtonText:'Oke, đăng xuất',
+      cancelButtonText:'Không',
+      api: () => {
+        dispatch(logoutUserAPI())
+        router.push('/login')
+      }
     })
   }
 

@@ -4,8 +4,8 @@ const authApi = {
   register(payload) {
     return instance.post('/auth/register', payload)
   },
-  login(payload) {
-    return instance.post('/auth/login', payload)
+  refreshToken(payload) {
+    return instance.post('/auth/refresh', payload)
   }
 }
 

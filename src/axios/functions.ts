@@ -11,6 +11,9 @@ const functionsApi = {
   getAllFunctionsParent(): Promise<any> {
     return instance.get('/functions')
   },
+  getFunctionById(id: string): Promise<any> {
+    return instance.get(`/functions/get_by_id/${id}`)
+  },
   createFunction(payload: FunctionsPayload): Promise<any> {
     return instance.post('/functions', payload)
   },
