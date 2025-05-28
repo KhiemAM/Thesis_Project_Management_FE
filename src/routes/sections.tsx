@@ -35,6 +35,7 @@ export const ApproveTopicProposalPage = lazy(() => import('src/pages/admin/topic
 export const ListGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/list-group-student'))
 export const ProgressGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/progress-group-student'))
 export const InformationGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/information-group-student'))
+export const ListCommitteePage = lazy(() => import('src/pages/admin/committeeManagement/list-committee'))
 
 // ----------------------Student------------------------------------------------
 export const DashboardStudentPage = lazy(() => import('src/pages/student/dashboard-student'))
@@ -138,6 +139,14 @@ const MainRoutes = () => [
           { path: 'list', element: <ListGroupStudentPage /> },
           { path: 'information/:id', element: <InformationGroupStudentPage /> },
           { path: 'progress/:id', element: <ProgressGroupStudentPage /> }
+        ]
+      },
+      {
+        path: 'committee',
+        element: <Outlet />,
+        children: [
+          { path: 'list', element: <ListCommitteePage /> },
+          { path: 'create', element: <InformationGroupStudentPage /> }
         ]
       }
       // { path: 'products', element: <ProductsPage /> },

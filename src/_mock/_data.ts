@@ -22,6 +22,8 @@ import {
   _studentClass,
   _fullNameTopic,
   _studentGender,
+  _nameCommittee,
+  _majorCommittee,
   _roleDescription,
   _studentBirthday,
   _groupDescription
@@ -132,6 +134,25 @@ export const _groupStudent = [...Array(23)].map((_, index) => ({
     avatarUrl: `/assets/images/avatar/avatar-${index + 1}.webp`
   }
 }))
+
+function getRandomTopics(topics: any[], count: number) {
+  const shuffled = [...topics].sort(() => 0.5 - Math.random())
+  return shuffled.slice(0, count)
+}
+
+export const _committee = [...Array(7)].map((_, index) => {
+  const quantityTopic = Math.floor(Math.random() * 3) + 3 // ngẫu nhiên từ 3 đến 5
+  const selectedTopics = getRandomTopics(_topic, quantityTopic)
+
+  return {
+    id: _id(index),
+    name: _nameCommittee(index),
+    major: _majorCommittee(index),
+    quantityTopic: selectedTopics,
+    quantityTeacher: 3,
+    status: index % 2 ? 'Hoạt động' : 'Ngừng hoạt động'
+  }
+})
 
 // ----------------------------------------------------------------------
 

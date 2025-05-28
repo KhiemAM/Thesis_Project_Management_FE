@@ -492,3 +492,26 @@ export const _groupDescription = (index: number) =>
     'Nhóm 22 là nhóm thứ hai mươi hai trong lớp học',
     'Nhóm 23 là nhóm thứ hai mươi ba trong lớp học'
   ][index]
+
+
+export const _nameCommittee = (index: number) =>
+  [
+    'Hội đồng 01',
+    'Hội đồng 02',
+    'Hội đồng 03',
+    'Hội đồng 04',
+    'Hội đồng 05',
+    'Hội đồng 06',
+    'Hội đồng 07'
+  ][index]
+
+export const _majorCommittee = (index: number) =>
+  [
+    'Công nghệ thông tin',
+    'An toàn thông tin',
+    'Công nghệ thông tin',
+    'An toàn thông tin',
+    'Công nghệ thông tin',
+    'An toàn thông tin',
+    'Công nghệ thông tin'
+  ][index]
