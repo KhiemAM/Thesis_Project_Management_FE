@@ -34,7 +34,11 @@ export const navData = [
         path: '/user/list'
       },
       {
-        title: 'Thêm tài khoản',
+        title: 'Thông tin tài khoản',
+        path: '/user/information'
+      },
+      {
+        title: 'Tạo tài khoản',
         path: '/user/create'
       },
       {

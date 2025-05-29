@@ -26,7 +26,9 @@ import {
   _majorCommittee,
   _roleDescription,
   _studentBirthday,
-  _groupDescription
+  _groupDescription,
+  _userNameAdmin,
+  _userTypeAdmin
 } from './_mock'
 
 // ----------------------------------------------------------------------
@@ -153,6 +155,15 @@ export const _committee = [...Array(7)].map((_, index) => {
     status: index % 2 ? 'Hoạt động' : 'Ngừng hoạt động'
   }
 })
+
+export const _usersAdmin = [...Array(24)].map((_, index) => ({
+  id: _id(index),
+  user_name: _userNameAdmin(index),
+  is_active: _boolean(index),
+  user_type: _userTypeAdmin(index),
+  create_datetime: '2023-10-01T12:00:00Z',
+  update_datetime: index % 4 ? '2023-10-02T12:00:00Z' : '2023-10-03T12:00:00Z'
+}))
 
 // ----------------------------------------------------------------------
 

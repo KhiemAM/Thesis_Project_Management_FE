@@ -15,7 +15,8 @@ const authorizedAxiosInstance = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': '69420'
+    'ngrok-skip-browser-warning': '69420',
+    'Cache-Control': 'no-cache'
   }
 })
 
@@ -32,6 +33,10 @@ authorizedAxiosInstance.interceptors.response.use((response) =>
   response
 , (error) => {
 
+  if (error.response?.status === 401) {
+    axiosReduxStore.dispatch(logoutUserAPI())
+  }
+
   const originalRequests = error.config
   if (error.response?.status === 410 && !originalRequests._retry) {
     originalRequests._retry = true
@@ -39,7 +44,7 @@ authorizedAxiosInstance.interceptors.response.use((response) =>
     if (!refreshTokenPromise) {
       const state = axiosReduxStore.getState()
       refreshTokenPromise = authApi.refreshToken(state.user.currentUser.refresh_token)
-        .then(data => data?.accessToken)
+        .then(data => data?.access_token)
         .catch((err) => {
           axiosReduxStore.dispatch(logoutUserAPI())
           return Promise.reject(err)
@@ -50,10 +55,6 @@ authorizedAxiosInstance.interceptors.response.use((response) =>
     }
 
     return refreshTokenPromise.then((accessToken) => authorizedAxiosInstance(originalRequests))
-  }
-
-  if (error.response?.status === 401) {
-    axiosReduxStore.dispatch(logoutUserAPI())
   }
 
   let errorMessage = error?.message

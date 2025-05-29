@@ -515,3 +515,60 @@ export const _majorCommittee = (index: number) =>
     'An toàn thông tin',
     'Công nghệ thông tin'
   ][index]
+
+export const _userNameAdmin = (index: number) =>
+  [
+    'admin',
+    'user1',
+    'user2',
+    'user3',
+    'user4',
+    'user5',
+    'user6',
+    'user7',
+    'user8',
+    'user9',
+    'user10',
+    'user11',
+    'user12',
+    'user13',
+    'user14',
+    'user15',
+    'user16',
+    'user17',
+    'user18',
+    'user19',
+    'user20',
+    'user21',
+    'user22',
+    'user23',
+    'user24'
+  ][index]
+
+export const _userTypeAdmin = (index: number) =>
+  [
+    'Admin',
+    'Student',
+    'Lecturer',
+    'Student',
+    'Lecturer',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student',
+    'Student'
+  ][index]

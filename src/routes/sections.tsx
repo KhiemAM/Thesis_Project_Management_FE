@@ -22,6 +22,7 @@ export const ProductsPage = lazy(() => import('src/pages/products'))
 export const Page404 = lazy(() => import('src/pages/page-not-found'))
 
 // -----------------------Admin Management--------------------------------------
+export const ListUserPage = lazy(() => import('src/pages/admin/userManagement/list-user'))
 export const ListFunctionPage = lazy(() => import('src/pages/admin/functionManagement/list-function'))
 export const CreateFunctionPage = lazy(() => import('src/pages/admin/functionManagement/create-function'))
 export const UpdateFunctionPage = lazy(() => import('src/pages/admin/functionManagement/update-function'))
@@ -100,7 +101,7 @@ const MainRoutes = () => [
         path: 'user',
         element: <Outlet />,
         children: [
-          { path: 'list', element: <UserPage /> },
+          { path: 'list', element: <ListUserPage /> },
           { path: 'create', element: <UserPage /> }
         ]
       },
