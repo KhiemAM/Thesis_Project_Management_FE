@@ -32,16 +32,13 @@ authorizedAxiosInstance.interceptors.response.use((response) =>
   response
 , (error) => {
 
-  if (error.response?.status === 401) {
-    axiosReduxStore.dispatch(logoutUserAPI(false))
-  }
-
   const originalRequests = error.config
   if (error.response?.status === 410 && !originalRequests._retry) {
     originalRequests._retry = true
 
     if (!refreshTokenPromise) {
-      refreshTokenPromise = authApi.refreshToken()
+      const state = axiosReduxStore.getState()
+      refreshTokenPromise = authApi.refreshToken(state.user.currentUser.refresh_token)
         .then(data => data?.accessToken)
         .catch((err) => {
           axiosReduxStore.dispatch(logoutUserAPI(false))
@@ -53,6 +50,10 @@ authorizedAxiosInstance.interceptors.response.use((response) =>
     }
 
     return refreshTokenPromise.then((accessToken) => authorizedAxiosInstance(originalRequests))
+  }
+
+  if (error.response?.status === 401) {
+    axiosReduxStore.dispatch(logoutUserAPI(false))
   }
 
   let errorMessage = error?.message
