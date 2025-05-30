@@ -1,18 +1,28 @@
 import { useState, useCallback } from 'react'
 
+import Table from '@mui/material/Table'
+import Dialog from '@mui/material/Dialog'
 import Popover from '@mui/material/Popover'
 import Checkbox from '@mui/material/Checkbox'
 import MenuList from '@mui/material/MenuList'
 import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
+import TableBody from '@mui/material/TableBody'
 import IconButton from '@mui/material/IconButton'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import TableContainer from '@mui/material/TableContainer'
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
 
 import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
+import { Scrollbar } from 'src/components/scrollbar'
 import { AlertConfirmNavigate } from 'src/components/sweetalert2'
 
 import { getColorByStatus } from './utils'
+import { RoleTableHeadNoSort } from './role-table-head-no-sort'
+import { type FunctionProps } from '../function-management/function-table-row'
+import { FunctionTableRowDialog } from '../function-management/function-table-row-dialog'
 
 // ----------------------------------------------------------------------
 
@@ -22,7 +32,7 @@ export type RoleProps = {
   roleName: string;
   description: string;
   status: string;
-  function: string;
+  function: FunctionProps[];
 };
 
 type UserTableRowProps = {
@@ -33,6 +43,7 @@ type UserTableRowProps = {
 
 export function RoleTableRow({ row, selected, onSelectRow }: UserTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
+  const [openDialog, setOpenDialog] = useState(false)
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     setOpenPopover(event.currentTarget)
@@ -40,6 +51,14 @@ export function RoleTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
 
   const handleClosePopover = useCallback(() => {
     setOpenPopover(null)
+  }, [])
+
+  const handleOpenDialog = useCallback(() => {
+    setOpenDialog(true)
+  }, [])
+
+  const handleCloseDialog = useCallback(() => {
+    setOpenDialog(false)
   }, [])
 
   const handleDeleteFunction = () => {
@@ -73,9 +92,11 @@ export function RoleTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
         </TableCell>
 
         <TableCell align="center">
-          <IconButton onClick={handleOpenPopover} sx={{ color: 'primary.main' }}>
-            <Iconify icon="solar:eye-bold" />
-          </IconButton>
+          {row.function.length > 0 && (
+            <IconButton onClick={handleOpenDialog} sx={{ color: 'primary.main' }}>
+              <Iconify icon="solar:eye-bold" />
+            </IconButton>
+          )}
         </TableCell>
 
         <TableCell align="right">
@@ -124,6 +145,57 @@ export function RoleTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
           </MenuItem>
         </MenuList>
       </Popover>
+
+      <Dialog
+        fullWidth
+        maxWidth="lg"
+        onClose={handleCloseDialog}
+        aria-labelledby="customized-dialog-title"
+        open={openDialog}
+      >
+        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+          Danh sách chức năng
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleCloseDialog}
+          sx={(theme) => ({
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme.palette.grey[500]
+          })}
+        >
+          <Iconify icon='mingcute:close-line' />
+        </IconButton>
+        <DialogContent dividers>
+          <Scrollbar>
+            <TableContainer sx={{ overflow: 'unset' }}>
+              <Table sx={{ minWidth: 800 }}>
+                <RoleTableHeadNoSort
+                  headLabel={[
+                    { id: 'name', label: 'Chức năng', minWidth: 300 },
+                    { id: 'description', label: 'Mô tả', minWidth: 300 },
+                    { id: 'path', label: 'Đường dẫn', minWidth: 200 },
+                    { id: 'parentFunction', label: 'Chức năng cha', minWidth: 200 },
+                    { id: 'type', label: 'Loại chức năng', align: 'center', minWidth: 200 },
+                    { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 200 }
+                  ]}
+                />
+                <TableBody>
+                  {row.function
+                    .map((rowFunction) => (
+                      <FunctionTableRowDialog
+                        key={rowFunction.id}
+                        row={rowFunction}
+                      />
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Scrollbar>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

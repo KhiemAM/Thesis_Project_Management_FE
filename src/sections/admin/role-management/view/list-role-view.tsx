@@ -1,7 +1,7 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
 import { v4 as uuidv4 } from 'uuid'
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -11,7 +11,9 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _role, _instructor } from 'src/_mock'
+import rolesApi from 'src/axios/roles'
+import { _instructor } from 'src/_mock'
+import { useLoading } from 'src/context'
 import { DashboardContent } from 'src/layouts/student'
 
 import ChipsArrayFilter from 'src/components/chip'
@@ -37,8 +39,10 @@ const getUniqueInstructors = (): string[] => {
 }
 
 export function ListRoleView() {
+  const { setIsLoading } = useLoading()
   const table = useTable()
   const id = uuidv4()
+  const [_role, setRole] = useState<RoleProps[]>([])
   const [filterName, setFilterName] = useState('')
   const [filterStatus, setFilterStatus] = useState('Tất cả')
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
@@ -54,10 +58,25 @@ export function ListRoleView() {
       }
     ],
     filterSelect: {
-      display: 'Giáo viên hướng dẫn',
+      display: '',
       data: []
     }
   })
+
+  const fetchFunctions = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await rolesApi.getAllRoles()
+      setRole(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  , [setIsLoading])
+
+  useEffect(() => {
+    fetchFunctions()
+  }, [fetchFunctions])
 
   const dataFiltered: RoleProps[] = applyFilter({
     inputData: _role,
@@ -80,7 +99,7 @@ export function ListRoleView() {
         }
       ],
       filterSelect: {
-        display: 'Giáo viên hướng dẫn',
+        display: '',
         data: []
       }
     })
@@ -236,7 +255,7 @@ export function ListRoleView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_role.length}
+          count={dataFiltered.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}

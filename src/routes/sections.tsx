@@ -120,7 +120,7 @@ const MainRoutes = () => [
         children: [
           { path: 'list', element: <ListRolePage /> },
           { path: 'create', element: <CreateRolePage /> },
-          { path: 'update', element: <UpdateRolePage /> }
+          { path: 'update/:id', element: <UpdateRolePage /> }
         ]
       },
       {
