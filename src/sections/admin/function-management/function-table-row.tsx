@@ -101,12 +101,26 @@ export function FunctionTableRow({ row, selected, onSelectRow, level = 0, onRefr
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -10, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        sx={
+          level === 0
+            ? {
+              '&.MuiTableRow-root': {
+                borderBottom: '1px solid',
+                borderTop: '1px solid',
+                backgroundColor: (theme) => theme.vars.palette.action.selected,
+                '&:hover': {
+                  backgroundColor: (theme) => theme.vars.palette.action.focus
+                }
+              }
+            }
+            : {}
+        }
       >
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ pl: 3 + 3 * level }}>
+        <TableCell sx={{ pl: 3 + 5 * level }}>
           {row.name}
           {(row.children?.length ?? 0) > 0 && (
             <IconButton onClick={toggleExpand} size="small">
