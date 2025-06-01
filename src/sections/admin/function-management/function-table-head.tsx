@@ -14,6 +14,16 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.vars.palette.background.paper,
     '& .MuiSvgIcon-root': {
       color: theme.vars.palette.background.paper
+    },
+    '&.MuiTableSortLabel-root.Mui-active .MuiTableSortLabel-icon': {
+      color: theme.vars.palette.background.paper,
+      opacity: 1
+    },
+    '&.MuiTableSortLabel-root.Mui-active': {
+      color: theme.vars.palette.background.paper
+    },
+    '&:hover': {
+      color: theme.vars.palette.background.paper
     }
   },
   [`&.${tableCellClasses.head}`]: {

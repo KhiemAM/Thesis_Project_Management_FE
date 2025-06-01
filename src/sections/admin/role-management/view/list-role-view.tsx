@@ -21,7 +21,7 @@ import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
 import { RoleTableRow } from '../role-table-row'
-import { UserTableHead } from '../user-table-head'
+import { UserTableHead } from '../role-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
 import { RoleTabsFilter } from '../role-tabs-filter'
 import { UserTableToolbar } from '../user-table-toolbar'

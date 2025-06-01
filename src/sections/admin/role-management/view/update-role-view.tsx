@@ -1,4 +1,8 @@
+import _ from 'lodash'
+import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
+import { useState, useEffect, useCallback } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -10,11 +14,16 @@ import Typography from '@mui/material/Typography'
 import ListSubheader from '@mui/material/ListSubheader'
 import { Grid, Stack, Button, useTheme } from '@mui/material'
 
+import { RouterLink } from 'src/routes/components'
+
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
-import { _function } from 'src/_mock'
+import rolesApi from 'src/axios/roles'
+import { useLoading } from 'src/context'
+import functionsApi from 'src/axios/functions'
 import { DashboardContent } from 'src/layouts/dashboard'
 
+import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 import { UniversalCheckboxTree } from 'src/components/list'
 
@@ -22,40 +31,118 @@ import { UniversalCheckboxTree } from 'src/components/list'
 
 const _status = [
   {
-    value: 'ACTIVATE',
+    value: '1',
     label: 'Hoạt động'
   },
   {
-    value: 'DEACTIVATE',
+    value: '0',
     label: 'Ngừng hoạt động'
   }
 ]
 
-interface IFormInputCreateRole {
-  roleId: string;
-  roleName: string;
+interface IFormInputUpdateRole {
+  role_code: string;
+  role_name: string;
   description: string;
   status: string;
 }
 
+interface RoleDetail {
+    roleId: string;
+    roleName: string;
+    description: string;
+    status: string;
+    // Add other properties if needed
+  }
+
 export function UpdateRoleView() {
   const theme = useTheme()
-  const { register, handleSubmit, formState: { errors } } = useForm<IFormInputCreateRole>()
+  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<IFormInputUpdateRole>()
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { setIsLoading } = useLoading()
+  const [roleDetail, setRoleDetail] = useState<RoleDetail | null>(null)
+  const [functions, setFunctions] = useState([])
+  const [checkedIds, setCheckedIds] = useState<string[]>([])
+  const [isLoadingButton, setIsLoadingButton] = useState(false)
+
+  const flattenFunctionIds = useCallback((functionList: any[]): string[] => _(functionList)
+    .flatMap((f) => {
+      if (!f || typeof f.id === 'undefined') return [] // bỏ qua nếu không hợp lệ
+      const children = Array.isArray(f.children) ? f.children : []
+      return [f, ...flattenFunctionIds(children)]
+    })
+    .map((f) => String(f.id))
+    .filter((functionId) => functionId !== 'undefined') // Bỏ các giá trị 'undefined' string
+    .value(), [])
+
+
+  const fetchFunctions = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const resFunctionDetail = await rolesApi.getRoleById(id as string)
+      const resFunctions = await functionsApi.getAllFunctions()
+      setFunctions(resFunctions.data)
+      setRoleDetail(resFunctionDetail.data)
+      setCheckedIds(flattenFunctionIds(resFunctionDetail.data.function))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [id, setIsLoading, flattenFunctionIds])
+
+  useEffect(() => {
+    fetchFunctions()
+  }, [fetchFunctions])
+
+  useEffect(() => {
+    if (roleDetail) {
+      reset({
+        role_code: roleDetail.roleId,
+        role_name: roleDetail.roleName,
+        description: roleDetail.description,
+        status: roleDetail.status
+      })
+    }
+  }, [roleDetail, reset])
+
+  const submitUpdateRole = async (data: IFormInputUpdateRole) => {
+    try {
+      setIsLoadingButton(true)
+      const newData = {
+        ...data,
+        function_ids: checkedIds
+      }
+      await rolesApi.updateRole(id as string, newData)
+      toast.success('Cập nhật vai trò thành công!')
+      // Reset form after successful submission
+      navigate('/role/list')
+    } finally {
+      setIsLoadingButton(false)
+    }
+  }
+
+  const handleChangeChecked = (ids: string[]) => {
+    setCheckedIds(ids)
+  }
 
   return (
-    <form onSubmit={handleSubmit((data) => {
-      console.log(data)
-    })}>
+    <form onSubmit={handleSubmit(submitUpdateRole)}>
       <DashboardContent>
         <Box
+          component={RouterLink}
+          href='/role/list'
           sx={{
             mb: 5,
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            color: 'text.primary',
+            textDecoration: 'none'
           }}
+          gap={1}
         >
-          <Typography variant="h4" sx={{ flexGrow: 1 }}>
-            Cập nhật vai trò
+          <Iconify icon='solar:alt-arrow-left-line-duotone'/>
+          <Typography variant="h4" sx={{ flexGrow: 1 }} >
+            Cập nhật vai trò
           </Typography>
         </Box>
 
@@ -72,34 +159,44 @@ export function UpdateRoleView() {
                     }}
                   >
                     <TextField
+                      disabled
                       fullWidth
                       label="Mã vai trò *"
-                      error={!!errors['roleId']}
+                      error={!!errors['role_code']}
+                      slotProps={{
+                        inputLabel: { shrink: true }
+                      }}
                       sx={{ mb: 3 }}
-                      {...register('roleId', {
+                      {...register('role_code', {
                         required: FIELD_REQUIRED_MESSAGE
                       })}
                     />
-                    {errors['roleId'] && (
-                      <Alert severity="error" sx={{ mb: 3 }}>{String(errors['roleId']?.message)}</Alert>
+                    {errors['role_code'] && (
+                      <Alert severity="error" sx={{ mb: 3 }}>{String(errors['role_code']?.message)}</Alert>
                     )}
 
                     <TextField
                       fullWidth
                       label="Tên vai trò *"
-                      error={!!errors['roleName']}
+                      error={!!errors['role_name']}
+                      slotProps={{
+                        inputLabel: { shrink: true }
+                      }}
                       sx={{ mb: 3 }}
-                      {...register('roleName', {
+                      {...register('role_name', {
                         required: FIELD_REQUIRED_MESSAGE
                       })}
                     />
-                    {errors['roleName'] && (
-                      <Alert severity="error" sx={{ mb: 3 }}>{String(errors['roleName']?.message)}</Alert>
+                    {errors['role_name'] && (
+                      <Alert severity="error" sx={{ mb: 3 }}>{String(errors['role_name']?.message)}</Alert>
                     )}
 
                     <TextField
                       fullWidth
                       label="Mô tả vai trò"
+                      slotProps={{
+                        inputLabel: { shrink: true }
+                      }}
                       sx={{ mb: 3 }}
                       {...register('description')}
                     />
@@ -107,19 +204,28 @@ export function UpdateRoleView() {
                     <TextField
                       fullWidth
                       select
-                      label="Chọn trạng thái"
+                      label="Chọn trạng thái *"
                       sx={{ mb: 3 }}
-                      defaultValue='ACTIVATE'
-                      {...register('status')}
+                      value={watch('status') || '1'}
+                      {...register('status', {
+                        required: FIELD_REQUIRED_MESSAGE,
+                        onChange: (e) => {
+                          const value = e.target.value
+                          reset((prev) => ({
+                            ...prev,
+                            status: value
+                          }))
+                        }
+                      })}
                     >
                       <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
                           <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Giá trị
+                            Giá trị
                           </Typography>
                           <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
                           <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Nhãn
+                            Nhãn
                           </Typography>
                         </Box>
                       </ListSubheader>
@@ -135,6 +241,8 @@ export function UpdateRoleView() {
                     </TextField>
 
                     <Button
+                      loading={isLoadingButton}
+                      loadingPosition='start'
                       fullWidth
                       size="large"
                       type="submit"
@@ -161,7 +269,12 @@ export function UpdateRoleView() {
                 <Divider />
 
                 <Scrollbar sx={{ maxHeight: 400, overflow: 'auto' }}>
-                  <UniversalCheckboxTree items={_function} label='function'/>
+                  <UniversalCheckboxTree
+                    items={functions}
+                    label='name'
+                    checkedIds={checkedIds}
+                    onChange={handleChangeChecked}
+                  />
                 </Scrollbar>
               </Card>
             </Grid>

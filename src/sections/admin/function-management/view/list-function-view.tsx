@@ -162,7 +162,7 @@ export function ListFunctionView() {
       </Box>
 
       <Card>
-        <FunctionTabsFilter value={filterStatus} setValue={handleFilterStatus}/>
+        <FunctionTabsFilter data={_function} value={filterStatus} setValue={handleFilterStatus}/>
 
         <UserTableToolbar
           numSelected={table.selected.length}
@@ -229,7 +229,7 @@ export function ListFunctionView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_function.length}
+          count={dataFiltered.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}
@@ -244,7 +244,7 @@ export function ListFunctionView() {
 
 export function useTable() {
   const [page, setPage] = useState(0)
-  const [orderBy, setOrderBy] = useState('function')
+  const [orderBy, setOrderBy] = useState('name')
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [selected, setSelected] = useState<string[]>([])
   const [order, setOrder] = useState<'asc' | 'desc'>('asc')

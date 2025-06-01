@@ -1,4 +1,6 @@
+import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -12,7 +14,9 @@ import { Grid, Stack, Button, useTheme } from '@mui/material'
 
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
-import { _function } from 'src/_mock'
+import rolesApi from 'src/axios/roles'
+import { useLoading } from 'src/context'
+import functionsApi from 'src/axios/functions'
 import { DashboardContent } from 'src/layouts/dashboard'
 
 import { Scrollbar } from 'src/components/scrollbar'
@@ -22,30 +26,66 @@ import { UniversalCheckboxTree } from 'src/components/list'
 
 const _status = [
   {
-    value: 'ACTIVATE',
+    value: '1',
     label: 'Hoạt động'
   },
   {
-    value: 'DEACTIVATE',
+    value: '0',
     label: 'Ngừng hoạt động'
   }
 ]
 
 interface IFormInputCreateRole {
-  roleId: string;
-  roleName: string;
+  role_code: string;
+  role_name: string;
   description: string;
   status: string;
 }
 
 export function CreateRoleView() {
   const theme = useTheme()
-  const { register, handleSubmit, formState: { errors } } = useForm<IFormInputCreateRole>()
+  const [isLoadingButton, setIsLoadingButton] = useState(false)
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<IFormInputCreateRole>()
+  const { setIsLoading } = useLoading()
+  const [functions, setFunctions] = useState([])
+  const [checkedIds, setCheckedIds] = useState<string[]>([])
+
+  const fetchFunctions = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const resFunctions = await functionsApi.getAllFunctions()
+      setFunctions(resFunctions.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  useEffect(() => {
+    fetchFunctions()
+  }, [fetchFunctions])
+
+  const submitCreateRole = async (data: IFormInputCreateRole) => {
+    try {
+      setIsLoadingButton(true)
+      const newData = {
+        ...data,
+        function_ids: checkedIds
+      }
+      await rolesApi.createRole(newData)
+      toast.success('Thêm vai trò thành công!')
+      // Reset form after successful submission
+      reset()
+    } finally {
+      setIsLoadingButton(false)
+    }
+  }
+
+  const handleChangeChecked = (ids: string[]) => {
+    setCheckedIds(ids)
+  }
 
   return (
-    <form onSubmit={handleSubmit((data) => {
-      console.log(data)
-    })}>
+    <form onSubmit={handleSubmit(submitCreateRole)}>
       <DashboardContent>
         <Box
           sx={{
@@ -74,27 +114,27 @@ export function CreateRoleView() {
                     <TextField
                       fullWidth
                       label="Mã vai trò *"
-                      error={!!errors['roleId']}
+                      error={!!errors['role_code']}
                       sx={{ mb: 3 }}
-                      {...register('roleId', {
+                      {...register('role_code', {
                         required: FIELD_REQUIRED_MESSAGE
                       })}
                     />
-                    {errors['roleId'] && (
-                      <Alert severity="error" sx={{ mb: 3 }}>{String(errors['roleId']?.message)}</Alert>
+                    {errors['role_code'] && (
+                      <Alert severity="error" sx={{ mb: 3 }}>{String(errors['role_code']?.message)}</Alert>
                     )}
 
                     <TextField
                       fullWidth
                       label="Tên vai trò *"
-                      error={!!errors['roleName']}
+                      error={!!errors['role_name']}
                       sx={{ mb: 3 }}
-                      {...register('roleName', {
+                      {...register('role_name', {
                         required: FIELD_REQUIRED_MESSAGE
                       })}
                     />
-                    {errors['roleName'] && (
-                      <Alert severity="error" sx={{ mb: 3 }}>{String(errors['roleName']?.message)}</Alert>
+                    {errors['role_name'] && (
+                      <Alert severity="error" sx={{ mb: 3 }}>{String(errors['role_name']?.message)}</Alert>
                     )}
 
                     <TextField
@@ -109,17 +149,17 @@ export function CreateRoleView() {
                       select
                       label="Chọn trạng thái"
                       sx={{ mb: 3 }}
-                      defaultValue='ACTIVATE'
+                      defaultValue='1'
                       {...register('status')}
                     >
                       <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
                           <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Giá trị
+                            Giá trị
                           </Typography>
                           <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
                           <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Nhãn
+                            Nhãn
                           </Typography>
                         </Box>
                       </ListSubheader>
@@ -135,6 +175,8 @@ export function CreateRoleView() {
                     </TextField>
 
                     <Button
+                      loading={isLoadingButton}
+                      loadingPosition="start"
                       fullWidth
                       size="large"
                       type="submit"
@@ -145,7 +187,7 @@ export function CreateRoleView() {
                         ml: { sm: 'none', md: 'auto' }
                       }}
                     >
-                  Thêm mới
+                      Thêm mới
                     </Button>
                   </Box>
                 </Scrollbar>
@@ -161,7 +203,12 @@ export function CreateRoleView() {
                 <Divider />
 
                 <Scrollbar sx={{ maxHeight: 400, overflow: 'auto' }}>
-                  <UniversalCheckboxTree items={_function} label='function'/>
+                  <UniversalCheckboxTree
+                    items={functions}
+                    label='name'
+                    checkedIds={checkedIds}
+                    onChange={handleChangeChecked}
+                  />
                 </Scrollbar>
               </Card>
             </Grid>

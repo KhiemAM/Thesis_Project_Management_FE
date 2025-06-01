@@ -8,17 +8,17 @@ const rolesApi = {
   getAllRoles(): Promise<any> {
     return instance.get('/roles')
   },
-  getAllFunctionsParent(): Promise<any> {
-    return instance.get('/functions')
+  getRoleById(id: string): Promise<any> {
+    return instance.get(`/roles/${id}`)
   },
-  getFunctionById(id: string): Promise<any> {
-    return instance.get(`/functions/get_by_id/${id}`)
+  // getRoleFunctionsAssignPermission(): Promise<any> {
+  //   return instance.get('/roles/assign/permission')
+  // },
+  createRole(payload: RolesPayload): Promise<any> {
+    return instance.post('/roles/create-with-functions', payload)
   },
-  createFunction(payload: RolesPayload): Promise<any> {
-    return instance.post('/functions', payload)
-  },
-  updateFunction(id: string, payload: RolesPayload): Promise<any> {
-    return instance.put(`/functions/${id}`, payload)
+  updateRole(id: string, payload: RolesPayload): Promise<any> {
+    return instance.put(`/roles/${id}`, payload)
   },
   deleteFunction(id: string): Promise<any> {
     return instance.delete(`/functions/${id}`)

@@ -114,3 +114,10 @@ export const getColorByStatus = (department: string) => {
     return 'default'
   }
 }
+
+export const getDataFilterByTabs = (data: FunctionProps[], key: keyof FunctionProps, value: string) => {
+  if (value === 'Tất cả') {
+    return data
+  }
+  return data.filter((item) => (item as any)[key] === value)
+}

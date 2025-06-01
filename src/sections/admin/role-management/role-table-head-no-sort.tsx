@@ -1,8 +1,18 @@
+import { styled } from '@mui/material'
 import TableRow from '@mui/material/TableRow'
 import TableHead from '@mui/material/TableHead'
-import TableCell from '@mui/material/TableCell'
+import TableCell, { tableCellClasses } from '@mui/material/TableCell'
 
 
+// ----------------------------------------------------------------------
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  '&.MuiTableCell-root': {
+    color: theme.vars.palette.background.paper,
+  },
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.vars.palette.primary.main
+  }
+}))
 // ----------------------------------------------------------------------
 
 type RoleTableHeadNoSortProps = {
@@ -16,13 +26,13 @@ export function RoleTableHeadNoSort({
     <TableHead>
       <TableRow>
         {headLabel.map((headCell) => (
-          <TableCell
+          <StyledTableCell
             key={headCell.id}
             align={headCell.align || 'left'}
             sx={{ width: headCell.width, minWidth: headCell.minWidth }}
           >
             {headCell.label}
-          </TableCell>
+          </StyledTableCell>
         ))}
       </TableRow>
     </TableHead>

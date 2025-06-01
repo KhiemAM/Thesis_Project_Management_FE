@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import Table from '@mui/material/Table'
 import Dialog from '@mui/material/Dialog'
@@ -42,6 +43,7 @@ type UserTableRowProps = {
 };
 
 export function RoleTableRow({ row, selected, onSelectRow }: UserTableRowProps) {
+  const navigate = useNavigate()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
 
@@ -74,9 +76,28 @@ export function RoleTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
     })
   }
 
+  const handleUpdateRole = useCallback(() => {
+    navigate(`/role/update/${row.id}`)
+  }, [navigate, row.id])
+
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+      <TableRow
+        hover
+        tabIndex={-1}
+        role="checkbox"
+        selected={selected}
+        sx={{
+          '&.MuiTableRow-root': {
+            borderBottom: '1px solid',
+            borderTop: '1px solid',
+            backgroundColor: (theme) => theme.vars.palette.action.selected,
+            '&:hover': {
+              backgroundColor: (theme) => theme.vars.palette.action.focus
+            }
+          }
+        }}
+      >
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={onSelectRow} />
         </TableCell>
@@ -130,7 +151,7 @@ export function RoleTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
           }}
         >
           <MenuItem
-            onClick={() => { handleClosePopover() }}
+            onClick={() => { handleClosePopover(); handleUpdateRole() }}
             sx={{ color: 'primary.main' }}
           >
             <Iconify icon="solar:pen-bold" />
