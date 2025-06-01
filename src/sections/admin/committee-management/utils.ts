@@ -77,25 +77,23 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
     )
   }
 
-  // if (Array.isArray(filter.filterTab) && filter.filterTab.length > 0) {
-  //   // Hàm lấy các label hợp lệ từ filterTab
-  //   const getLabels = (type: string) =>
-  //     filter.filterTab
-  //       .filter((item) => item.display === type)
-  //       .flatMap((item) => item.data)
-  //       .map((chip) => chip.label)
-  //       .filter((label) => label !== 'Tất cả')
+  if (Array.isArray(filter.filterTab) && filter.filterTab.length > 0) {
+    // Hàm lấy các label hợp lệ từ filterTab
+    const getLabels = (type: string) =>
+      filter.filterTab
+        .filter((item) => item.display === type)
+        .flatMap((item) => item.data)
+        .map((chip) => chip.label)
+        .filter((label) => label !== 'Tất cả')
 
-  //   // Lấy danh sách labels cho department và status
-  //   const departmentLabels = getLabels('Bộ môn')
-  //   const statusLabels = getLabels('Trạng thái')
+    // Lấy danh sách labels cho department và status
+    const statusLabels = getLabels('Trạng thái')
 
-  //   // Lọc inputData theo cả department và status
-  //   inputData = inputData.filter((item) =>
-  //     (!departmentLabels.length || departmentLabels.includes(item.department)) &&
-  //   (!statusLabels.length || statusLabels.includes(item.status))
-  //   )
-  // }
+    // Lọc inputData theo cả department và status
+    inputData = inputData.filter((item) =>
+      (!statusLabels.length || statusLabels.includes(item.status))
+    )
+  }
 
   // if (filter.filterSelect.data.length > 0) {
   //   const instructorLabels = filter.filterSelect.data.map((item) => item.label)
@@ -130,4 +128,11 @@ export const getColorByStatus = (status: string) => {
   default:
     return 'default'
   }
+}
+
+export const getDataFilterByTabs = (data: CommitteeProps[], key: keyof CommitteeProps, value: string) => {
+  if (value === 'Tất cả') {
+    return data
+  }
+  return data.filter((item) => (item as any)[key] === value)
 }

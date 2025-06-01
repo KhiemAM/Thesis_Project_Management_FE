@@ -18,13 +18,12 @@ import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
-import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
-import { TopicTabsFilter } from '../topic-tabs-filter'
+import { UserTableHead } from '../committee-table-head'
 import { UserTableToolbar } from '../user-table-toolbar'
 import { CommitteeTableRow } from '../committee-table-row'
 import { emptyRows, applyFilter, getComparator } from '../utils'
-import { TopicProposalTabsStatusFilter } from '../topic-proposal-tabs-status-filter'
+import { CommitteeTabsStatusFilter } from '../committee-tabs-status-filter'
 
 import type { CommitteeProps } from '../committee-table-row'
 
@@ -192,14 +191,12 @@ export function ListCommitteeView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Danh sách đề xuất đề tài
+          Danh sách hội đồng
         </Typography>
       </Box>
 
       <Card>
-        <TopicTabsFilter value={filterDepartment} setValue={handleFilterDepartment}/>
-
-        <TopicProposalTabsStatusFilter value={filterStatus} setValue={handleFilterStatus}/>
+        <CommitteeTabsStatusFilter data={_committee} value={filterStatus} setValue={handleFilterStatus}/>
 
         <UserTableToolbar
           numSelected={table.selected.length}
@@ -265,7 +262,7 @@ export function ListCommitteeView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_committee.length}
+          count={dataFiltered.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}
