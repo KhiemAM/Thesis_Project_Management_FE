@@ -37,7 +37,7 @@ type UserTableRowProps = {
   onSelectRow: () => void;
 };
 
-export function TopicTableRow({ row, selected, onSelectRow }: UserTableRowProps) {
+export function TopicProposalTableRow({ row, selected, onSelectRow }: UserTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openTopicDetail, setOpenTopicDetail] = useState(false)
 
@@ -59,7 +59,22 @@ export function TopicTableRow({ row, selected, onSelectRow }: UserTableRowProps)
 
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+      <TableRow
+        hover
+        tabIndex={-1}
+        role="checkbox"
+        selected={selected}
+        sx={{
+          '&.MuiTableRow-root': {
+            borderBottom: '1px solid',
+            borderTop: '1px solid',
+            backgroundColor: (theme) => theme.vars.palette.action.selected,
+            '&:hover': {
+              backgroundColor: (theme) => theme.vars.palette.action.focus
+            }
+          }
+        }}
+      >
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={onSelectRow} />
         </TableCell>

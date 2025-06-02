@@ -114,7 +114,22 @@ export function ApproveTopicProposalTableRow({ row, selected, onSelectRow }: Use
 
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+      <TableRow
+        hover
+        tabIndex={-1}
+        role="checkbox"
+        selected={selected}
+        sx={{
+          '&.MuiTableRow-root': {
+            borderBottom: '1px solid',
+            borderTop: '1px solid',
+            backgroundColor: (theme) => theme.vars.palette.action.selected,
+            '&:hover': {
+              backgroundColor: (theme) => theme.vars.palette.action.focus
+            }
+          }
+        }}
+      >
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={onSelectRow} />
         </TableCell>

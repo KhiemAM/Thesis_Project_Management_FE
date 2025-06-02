@@ -1,6 +1,6 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
-import type { TopicProps } from './topic-table-row'
+import type { TopicProps } from './topic-proposal-table-row'
 
 // ----------------------------------------------------------------------
 

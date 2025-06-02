@@ -19,7 +19,7 @@ import { Iconify } from 'src/components/iconify'
 
 import { getColorByStatus } from './utils'
 
-import type { TopicProps } from '../topic-proposal-management/topic-table-row'
+import type { TopicProps } from '../topic-proposal-management/topic-proposal-table-row'
 
 // ----------------------------------------------------------------------
 

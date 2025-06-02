@@ -18,15 +18,15 @@ import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
-import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
 import { TopicTabsFilter } from '../topic-tabs-filter'
 import { UserTableToolbar } from '../user-table-toolbar'
+import { UserTableHead } from '../topic-proposal-table-head'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 import { ApproveTopicProposalTableRow } from '../approve-topic-proposal-table-row'
 import { ApproveTopicProposalTabsStatusFilter } from '../approve-topic-proposal-tabs-status-filter'
 
-import type { TopicProps } from '../topic-table-row'
+import type { TopicProps } from '../topic-proposal-table-row'
 
 // ----------------------------------------------------------------------
 const getUniqueInstructors = (): string[] => {
