@@ -1,7 +1,7 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
 import { v4 as uuidv4 } from 'uuid'
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -11,7 +11,9 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _topic, _instructor } from 'src/_mock'
+import { _instructor } from 'src/_mock'
+import { useLoading } from 'src/context'
+import thesesApi from 'src/axios/theses'
 import { DashboardContent } from 'src/layouts/student'
 
 import ChipsArrayFilter from 'src/components/chip'
@@ -38,12 +40,14 @@ const getUniqueInstructors = (): string[] => {
 }
 
 export function ListTopicProposalView() {
+  const { setIsLoading } = useLoading()
   const table = useTable()
   const id = uuidv4()
   const [filterName, setFilterName] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('Tất cả')
   const [filterStatus, setFilterStatus] = useState('Tất cả')
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
+  const [_topic, setTopic] = useState<TopicProps[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -64,6 +68,22 @@ export function ListTopicProposalView() {
       data: []
     }
   })
+
+  const fetchTheses = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.getAllTheses()
+      console.log('🚀 ~ fetchTheses ~ res:', res)
+      setTopic(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  , [setIsLoading])
+
+  useEffect(() => {
+    fetchTheses()
+  }, [fetchTheses])
 
   const dataFiltered: TopicProps[] = applyFilter({
     inputData: _topic,

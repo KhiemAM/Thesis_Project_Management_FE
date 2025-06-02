@@ -6,7 +6,7 @@ import OutlinedInput from '@mui/material/OutlinedInput'
 import InputAdornment from '@mui/material/InputAdornment'
 
 import { Iconify } from 'src/components/iconify'
-import MultipleSelectFilter from 'src/components/select'
+import MultipleSelectFilter from 'src/components/select/multiple-select-filter'
 
 // ----------------------------------------------------------------------
 

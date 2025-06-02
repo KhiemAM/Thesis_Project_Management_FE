@@ -16,7 +16,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { Iconify } from 'src/components/iconify'
 import ChipsArrayFilter from 'src/components/chip'
 import { IOSSwitches } from 'src/components/switch'
-import MultipleSelectFilter from 'src/components/select'
+import MultipleSelectFilter from 'src/components/select/multiple-select-filter'
 
 import { useTodo } from './todo-context'
 import AddTodo from './progress-group-student-add-todo'
