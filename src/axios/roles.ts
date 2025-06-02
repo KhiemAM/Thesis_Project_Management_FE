@@ -20,8 +20,8 @@ const rolesApi = {
   updateRole(id: string, payload: RolesPayload): Promise<any> {
     return instance.put(`/roles/${id}`, payload)
   },
-  deleteFunction(id: string): Promise<any> {
-    return instance.delete(`/functions/${id}`)
+  deleteRole(id: string): Promise<any> {
+    return instance.delete(`/roles/${id}`)
   }
 }
 

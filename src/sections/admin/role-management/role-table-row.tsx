@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify'
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -15,10 +16,12 @@ import DialogContent from '@mui/material/DialogContent'
 import TableContainer from '@mui/material/TableContainer'
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
 
+import rolesApi from 'src/axios/roles'
+
 import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
-import { AlertConfirmNavigate } from 'src/components/sweetalert2'
+import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
 import { getColorByStatus } from './utils'
 import { RoleTableHeadNoSort } from './role-table-head-no-sort'
@@ -40,9 +43,10 @@ type UserTableRowProps = {
   row: RoleProps;
   selected: boolean;
   onSelectRow: () => void;
+  onRefresh?: () => void; // Optional prop for refreshing the table
 };
 
-export function RoleTableRow({ row, selected, onSelectRow }: UserTableRowProps) {
+export function RoleTableRow({ row, selected, onSelectRow, onRefresh }: UserTableRowProps) {
   const navigate = useNavigate()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
@@ -64,15 +68,20 @@ export function RoleTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
   }, [])
 
   const handleDeleteFunction = () => {
-    AlertConfirmNavigate({
+    AlertConfirmCallAPI({
       title: 'Bạn có chắc chắn',
       text: 'Bạn có muốn xóa không?',
       icon:'warning',
       showCancelButton: true,
       confirmButtonColor:'#3085d6',
       cancelButtonColor:'#d33',
-      confirmButtonText:'Yes, delete it!',
-      router: () => {}
+      confirmButtonText:'Xóa!',
+      cancelButtonText:'Hủy',
+      api: async() => {
+        await rolesApi.deleteRole(row.id)
+        onRefresh?.()
+        toast.success('Xóa vai trò thành công!')
+      }
     })
   }
 

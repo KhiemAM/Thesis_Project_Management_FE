@@ -63,7 +63,7 @@ export function ListRoleView() {
     }
   })
 
-  const fetchFunctions = useCallback(async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       setIsLoading(true)
       const res = await rolesApi.getAllRoles()
@@ -75,8 +75,8 @@ export function ListRoleView() {
   , [setIsLoading])
 
   useEffect(() => {
-    fetchFunctions()
-  }, [fetchFunctions])
+    fetchRoles()
+  }, [fetchRoles])
 
   const dataFiltered: RoleProps[] = applyFilter({
     inputData: _role,
@@ -238,6 +238,7 @@ export function ListRoleView() {
                       row={row}
                       selected={table.selected.includes(row.id)}
                       onSelectRow={() => table.onSelectRow(row.id)}
+                      onRefresh={fetchRoles}
                     />
                   ))}
 
