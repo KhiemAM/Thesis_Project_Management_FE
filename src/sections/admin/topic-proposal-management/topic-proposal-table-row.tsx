@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
+import { useTheme } from '@mui/material'
 import Popover from '@mui/material/Popover'
 import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
@@ -38,6 +39,7 @@ type UserTableRowProps = {
 };
 
 export function TopicProposalTableRow({ row, selected, onSelectRow }: UserTableRowProps) {
+  const theme = useTheme()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openTopicDetail, setOpenTopicDetail] = useState(false)
 
@@ -68,9 +70,9 @@ export function TopicProposalTableRow({ row, selected, onSelectRow }: UserTableR
           '&.MuiTableRow-root': {
             borderBottom: '1px solid',
             borderTop: '1px solid',
-            backgroundColor: (theme) => theme.vars.palette.action.selected,
+            backgroundColor: theme.vars.palette.action.selected,
             '&:hover': {
-              backgroundColor: (theme) => theme.vars.palette.action.focus
+              backgroundColor: theme.vars.palette.action.focus
             }
           }
         }}
@@ -95,7 +97,14 @@ export function TopicProposalTableRow({ row, selected, onSelectRow }: UserTableR
           <Label color={getColorByDepartment(row.department)}>{row.department}</Label>
         </TableCell>
 
-        <TableCell align="right">
+        <TableCell
+          align="center"
+          sx={{
+            position: 'sticky',
+            right: 0,
+            backgroundColor: theme.vars.palette.background.paper
+          }}
+        >
           <IconButton onClick={handleOpenPopover}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>

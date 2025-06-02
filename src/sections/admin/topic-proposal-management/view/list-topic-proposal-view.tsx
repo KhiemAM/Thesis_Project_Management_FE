@@ -234,7 +234,7 @@ export function ListTopicProposalView() {
                   { id: 'instructor', label: 'Giáo viên hướng dẫn', minWidth: 200 },
                   { id: 'email', label: 'Email', minWidth: 300 },
                   { id: 'department', label: 'Bộ môn', align: 'center', minWidth: 150 },
-                  { id: '' }
+                  { id: '', label: 'Thao tác', alight: 'center', minWidth: 100 }
                 ]}
               />
               <TableBody>

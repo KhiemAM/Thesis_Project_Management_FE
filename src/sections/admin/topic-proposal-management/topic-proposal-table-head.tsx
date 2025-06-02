@@ -1,8 +1,8 @@
 import Box from '@mui/material/Box'
-import { styled } from '@mui/material'
 import TableRow from '@mui/material/TableRow'
 import Checkbox from '@mui/material/Checkbox'
 import TableHead from '@mui/material/TableHead'
+import { styled, useTheme } from '@mui/material'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import TableCell, { tableCellClasses } from '@mui/material/TableCell'
 
@@ -51,6 +51,8 @@ export function UserTableHead({
   numSelected,
   onSelectAllRows
 }: UserTableHeadProps) {
+  const theme = useTheme()
+
   return (
     <TableHead>
       <TableRow>
@@ -69,7 +71,14 @@ export function UserTableHead({
             key={headCell.id}
             align={headCell.align || 'left'}
             sortDirection={orderBy === headCell.id ? order : false}
-            sx={{ width: headCell.width, minWidth: headCell.minWidth }}
+            sx={{
+              width: headCell.width,
+              minWidth: headCell.minWidth,
+              ...(headCell.id === '' && {
+                position: 'sticky',
+                right: 0
+              })
+            }}
           >
             <TableSortLabel
               hideSortIcon

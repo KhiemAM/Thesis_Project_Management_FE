@@ -1,20 +1,22 @@
-import type { IconButtonProps } from '@mui/material/IconButton';
+import type { IconButtonProps } from '@mui/material/IconButton'
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react'
 
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import Popover from '@mui/material/Popover';
-import Divider from '@mui/material/Divider';
-import MenuList from '@mui/material/MenuList';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Avatar from '@mui/material/Avatar'
+import Popover from '@mui/material/Popover'
+import Divider from '@mui/material/Divider'
+import MenuList from '@mui/material/MenuList'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
 
-import { useRouter, usePathname } from 'src/routes/hooks';
+import { useRouter, usePathname } from 'src/routes/hooks'
 
-import { _myAccount } from 'src/_mock';
+import { _myAccount } from 'src/_mock'
+import { useAppDispatch } from 'src/redux/hook'
+import { logoutUserAPI } from 'src/redux/user/user-slice'
 
 // ----------------------------------------------------------------------
 
@@ -28,27 +30,32 @@ export type AccountPopoverProps = IconButtonProps & {
 };
 
 export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps) {
-  const router = useRouter();
-
-  const pathname = usePathname();
-
-  const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
+  const dispatch = useAppDispatch()
+  const router = useRouter()
+  const pathname = usePathname()
+  const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    setOpenPopover(event.currentTarget);
-  }, []);
+    setOpenPopover(event.currentTarget)
+  }, [])
 
   const handleClosePopover = useCallback(() => {
-    setOpenPopover(null);
-  }, []);
+    setOpenPopover(null)
+  }, [])
 
   const handleClickItem = useCallback(
     (path: string) => {
-      handleClosePopover();
-      router.push(path);
+      handleClosePopover()
+      router.push(path)
     },
     [handleClosePopover, router]
-  );
+  )
+
+  const handleLogout = useCallback(() => {
+    dispatch(logoutUserAPI())
+    setOpenPopover(null)
+    router.push('/login')
+  }, [router, dispatch])
 
   return (
     <>
@@ -60,7 +67,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
           height: 40,
           background: (theme) =>
             `conic-gradient(${theme.vars.palette.primary.light}, ${theme.vars.palette.warning.light}, ${theme.vars.palette.primary.light})`,
-          ...sx,
+          ...sx
         }}
         {...other}
       >
@@ -77,8 +84,8 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         slotProps={{
           paper: {
-            sx: { width: 200 },
-          },
+            sx: { width: 200 }
+          }
         }}
       >
         <Box sx={{ p: 2, pb: 1.5 }}>
@@ -109,9 +116,9 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
               [`&.${menuItemClasses.selected}`]: {
                 color: 'text.primary',
                 bgcolor: 'action.selected',
-                fontWeight: 'fontWeightSemiBold',
-              },
-            },
+                fontWeight: 'fontWeightSemiBold'
+              }
+            }
           }}
         >
           {data.map((option) => (
@@ -129,11 +136,11 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Box sx={{ p: 1 }}>
-          <Button fullWidth color="error" size="medium" variant="text">
-            Logout
+          <Button fullWidth color="error" size="medium" variant="text" onClick={handleLogout}>
+            Đăng xuất
           </Button>
         </Box>
       </Popover>
     </>
-  );
+  )
 }

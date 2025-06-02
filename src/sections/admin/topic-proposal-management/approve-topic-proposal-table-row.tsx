@@ -5,6 +5,7 @@ import { useState, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Alert from '@mui/material/Alert'
+import { useTheme } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 import Button from '@mui/material/Button'
 import Popover from '@mui/material/Popover'
@@ -57,6 +58,7 @@ interface IFormInputApprovveTopicProposal {
 }
 
 export function ApproveTopicProposalTableRow({ row, selected, onSelectRow }: UserTableRowProps) {
+  const theme = useTheme()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openTopicDetail, setOpenTopicDetail] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
@@ -123,9 +125,9 @@ export function ApproveTopicProposalTableRow({ row, selected, onSelectRow }: Use
           '&.MuiTableRow-root': {
             borderBottom: '1px solid',
             borderTop: '1px solid',
-            backgroundColor: (theme) => theme.vars.palette.action.selected,
+            backgroundColor: theme.vars.palette.action.selected,
             '&:hover': {
-              backgroundColor: (theme) => theme.vars.palette.action.focus
+              backgroundColor: theme.vars.palette.action.focus
             }
           }
         }}
@@ -150,7 +152,17 @@ export function ApproveTopicProposalTableRow({ row, selected, onSelectRow }: Use
           <Label color={getColorByDepartment(row.department)}>{row.department}</Label>
         </TableCell>
 
-        <TableCell align="right" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <TableCell
+          align="right"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            position: 'sticky',
+            right: 0,
+            backgroundColor: theme.vars.palette.background.paper
+          }}
+        >
           <IconButton onClick={handleOpenPopover}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>

@@ -34,7 +34,7 @@ authorizedAxiosInstance.interceptors.response.use((response) =>
 , (error) => {
 
   if (error.response?.status === 401) {
-    axiosReduxStore.dispatch(logoutUserAPI())
+    axiosReduxStore.dispatch(logoutUserAPI({ showSuccessMessage: false }))
   }
 
   const originalRequests = error.config
@@ -46,7 +46,7 @@ authorizedAxiosInstance.interceptors.response.use((response) =>
       refreshTokenPromise = authApi.refreshToken(state.user.currentUser.refresh_token)
         .then(data => data?.access_token)
         .catch((err) => {
-          axiosReduxStore.dispatch(logoutUserAPI())
+          axiosReduxStore.dispatch(logoutUserAPI({ showSuccessMessage: false }))
           return Promise.reject(err)
         })
         .finally(() => {
