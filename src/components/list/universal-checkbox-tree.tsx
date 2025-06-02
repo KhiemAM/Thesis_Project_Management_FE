@@ -20,7 +20,6 @@ export function UniversalCheckboxTree<T extends Record<string, any>>({
 }: UniversalCheckboxTreeProps<T>) {
   const isControlled = checkedIds !== undefined
   const [internalChecked, setInternalChecked] = React.useState<string[]>(defaultChecked)
-
   const checked = isControlled ? checkedIds! : internalChecked
 
   const getValue = (item: T): string => String(item[valueKey])
@@ -28,20 +27,59 @@ export function UniversalCheckboxTree<T extends Record<string, any>>({
   const getLabel = (item: T): React.ReactNode =>
     typeof label === 'function' ? label(item) : String(item[label])
 
+  // Dùng để flatten toàn bộ cây
   const flatten = (item: T): T[] => {
     const children = getChildren(item)
     return [item, ...children.flatMap(flatten)]
   }
 
+  // 🌳 Tạo parentMap để tối ưu
+  const parentMapRef = React.useRef(new Map<string, string | null>())
+
+  React.useEffect(() => {
+    const buildParentMap = (nodes: T[], parent: T | null = null) => {
+      nodes.forEach((node) => {
+        const id = getValue(node)
+        parentMapRef.current.set(id, parent ? getValue(parent) : null)
+        buildParentMap(getChildren(node), node)
+      })
+    }
+
+    parentMapRef.current.clear()
+    buildParentMap(items)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items])
+
+  const getAncestors = (id: string): string[] => {
+    const result: string[] = []
+    let current = parentMapRef.current.get(id)
+    while (current) {
+      result.push(current)
+      current = parentMapRef.current.get(current)
+    }
+    return result
+  }
+
+  const getDescendants = (item: T): string[] =>
+    flatten(item).map(getValue)
+
   const handleToggle = (item: T) => () => {
     const value = getValue(item)
-    const currentIndex = checked.indexOf(value)
-    const newChecked = [...checked]
+    const isChecked = checked.includes(value)
+    let newChecked = [...checked]
 
-    if (currentIndex === -1) {
-      newChecked.push(value)
+    if (isChecked) {
+      // ❌ Bỏ check: bỏ chính nó và toàn bộ con
+      const allToRemove = getDescendants(item)
+      newChecked = newChecked.filter((id) => !allToRemove.includes(id))
     } else {
-      newChecked.splice(currentIndex, 1)
+      // ✅ Check: check chính nó và toàn bộ con
+      const toAdd = getDescendants(item)
+      newChecked = Array.from(new Set([...newChecked, ...toAdd]))
+
+      // ✅ Đồng thời thêm cha
+      const ancestors = getAncestors(value)
+      newChecked = Array.from(new Set([...newChecked, ...ancestors]))
     }
 
     if (!isControlled) {
