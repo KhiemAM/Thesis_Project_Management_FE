@@ -8,6 +8,9 @@ const thesesApi = {
   getAllTheses(): Promise<any> {
     return instance.get('/theses')
   },
+  getAllMajor(): Promise<any> {
+    return instance.get('/theses/getall/major')
+  },
   getTheseById(id: string): Promise<any> {
     return instance.get(`/theses/${id}`)
   },

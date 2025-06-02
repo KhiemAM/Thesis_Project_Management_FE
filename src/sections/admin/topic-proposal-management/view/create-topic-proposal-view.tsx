@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
@@ -22,27 +22,9 @@ import academyApi from 'src/axios/academy'
 import { DashboardContent } from 'src/layouts/dashboard'
 
 import { Scrollbar } from 'src/components/scrollbar'
+import { MultipleSelectTextField } from 'src/components/select'
 
 // ----------------------------------------------------------------------
-const _department = [
-  {
-    value: '1',
-    label: 'KTPM'
-  },
-  {
-    value: '2',
-    label: 'HTTT'
-  },
-  {
-    value: '3',
-    label: 'KHDL&TTNT'
-  },
-  {
-    value: '4',
-    label: 'MMT-ATTT'
-  }
-]
-
 const _thesis_type = [
   {
     value: '1',
@@ -61,20 +43,38 @@ interface IFormInputCreateThese {
   title: string;
   description: string;
   thesis_type: string;
-  lecturer_ids: string;
+  major_id: string;
+  lecturer_ids: string[];
 }
 
 export function CreateTopicProposalView() {
   const theme = useTheme()
   const { setIsLoading } = useLoading()
   const [isLoadingButton, setIsLoadingButton] = useState(false)
-  const { register, handleSubmit, formState: { errors }, watch, reset } = useForm<IFormInputCreateThese>()
+  const { register, handleSubmit, formState: { errors }, watch, reset, control } = useForm<IFormInputCreateThese>({
+    defaultValues: {
+      lecturer_ids: []
+    }
+  })
   const [academyYears, setAcademyYears] = useState<{ value: string; label: string }[]>([])
   const [academySemestes, setAcademySemestes] = useState<{ value: string; label: string }[]>([])
-  const [academyBatches, setAcademyBatches] = useState<{ value: string; label: string }[]>([])
+  const [academyBatches, setAcademyBatches] = useState<{
+    value: string
+    label: string
+    start_date: string
+    end_date: string
+  }[]>([])
   const [userLecturers, setUserLecturers] = useState<{ value: string; label: string }[]>([])
+  const [major, setMajor] = useState<{ value: string; label: string }[]>([])
+  const [selectedBatchInfo, setSelectedBatchInfo] = useState<{
+    value: string
+    label: string
+    start_date: string
+    end_date: string
+  } | null>(null)
   const selectedAcademyYear = watch('academy_years')
   const selectedAcademySemester = watch('academy_semesters')
+  const selectedBatchId = watch('batch_id')
 
   const fetchAcademyYears = useCallback(async () => {
     try {
@@ -101,10 +101,22 @@ export function CreateTopicProposalView() {
   }
   , [setIsLoading])
 
+  const fetchMajor = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.getAllMajor()
+      setMajor(res.data.map((item: { id: string, name: string }) => ({ value: item.id, label: item.name })))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  , [setIsLoading])
+
   useEffect(() => {
     fetchAcademyYears()
     fetchUserLecturers()
-  }, [fetchAcademyYears, fetchUserLecturers])
+    fetchMajor()
+  }, [fetchMajor, fetchAcademyYears, fetchUserLecturers])
 
   const fetchAcademySemestes = useCallback(async (id: string) => {
     try {
@@ -129,7 +141,12 @@ export function CreateTopicProposalView() {
     try {
       setIsLoading(true)
       const res = await academyApi.getAcademyBatches(id)
-      setAcademyBatches(res.data.map((year: { id: string, name: string }) => ({ value: year.id, label: year.name })))
+      setAcademyBatches(res.data.map((item: { id: string, name: string, start_date: string, end_date: string }) => ({
+        value: item.id,
+        label: item.name,
+        start_date: item.start_date,
+        end_date: item.end_date
+      })))
     } catch {
       setAcademyBatches([])
     } finally {
@@ -144,12 +161,26 @@ export function CreateTopicProposalView() {
     }
   }, [selectedAcademySemester, fetchAcademyBatches])
 
+  useEffect(() => {
+    const selected = academyBatches.find((batch) => batch.value === selectedBatchId)
+    if (selected) {
+      setSelectedBatchInfo(selected)
+    }
+  }, [selectedBatchId, academyBatches])
+
   const submitCreateThese = async (data: IFormInputCreateThese) => {
-    console.log('🚀 ~ submitCreateThese ~ data:', data)
     try {
       setIsLoadingButton(true)
       const newData = {
-        ...data
+        batch_id: data.batch_id,
+        title: data.title,
+        description: data.description,
+        thesis_type: data.thesis_type,
+        lecturer_ids: data.lecturer_ids,
+        status: 3,
+        major_id: data.major_id,
+        start_date: selectedBatchInfo?.start_date,
+        end_date: selectedBatchInfo?.end_date
       }
       await thesesApi.createThese(newData)
       toast.success('Thêm đề tài thành công!')
@@ -355,6 +386,53 @@ export function CreateTopicProposalView() {
               <TextField
                 fullWidth
                 select
+                label="Chuyên ngành *"
+                defaultValue=''
+                error={!!errors['major_id']}
+                sx={{ mb: 3 }}
+                {...register('major_id', {
+                  required: FIELD_REQUIRED_MESSAGE
+                })}
+              >
+                <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
+                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                      Giá trị
+                    </Typography>
+                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                      Nhãn
+                    </Typography>
+                  </Box>
+                </ListSubheader>
+                {major.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                      <Typography
+                        variant='body1'
+                        sx={{
+                          flex: 1,
+                          textAlign: 'center',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {option.value}
+                      </Typography>
+                      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors['major_id'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['major_id']?.message)}</Alert>
+              )}
+
+              <TextField
+                fullWidth
+                select
                 label="Loại đề tài *"
                 defaultValue='1'
                 error={!!errors['thesis_type']}
@@ -399,48 +477,20 @@ export function CreateTopicProposalView() {
                 <Alert severity="error" sx={{ mb: 3 }}>{String(errors['thesis_type']?.message)}</Alert>
               )}
 
-              <TextField
-                fullWidth
-                select
-                label="Giáo viên hướng dẫn *"
-                error={!!errors['lecturer_ids']}
-                sx={{ mb: 3 }}
-                {...register('lecturer_ids', {
-                  required: FIELD_REQUIRED_MESSAGE
-                })}
-              >
-                <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
-                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Giá trị
-                    </Typography>
-                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Nhãn
-                    </Typography>
-                  </Box>
-                </ListSubheader>
-                {userLecturers.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                      <Typography
-                        variant='body1'
-                        sx={{
-                          flex: 1,
-                          textAlign: 'center',
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis'
-                        }}
-                      >
-                        {option.value}
-                      </Typography>
-                      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
-                    </Box>
-                  </MenuItem>
-                ))}
-              </TextField>
+              <Controller
+                name="lecturer_ids"
+                rules={{ required: FIELD_REQUIRED_MESSAGE }}
+                control={control}
+                render={({ field }) => (
+                  <MultipleSelectTextField
+                    data={userLecturers}
+                    inputLabel='Giáo viên hướng dẫn'
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={!!errors['lecturer_ids']}
+                  />
+                )}
+              />
               {errors['lecturer_ids'] && (
                 <Alert severity="error" sx={{ mb: 3 }}>{String(errors['lecturer_ids']?.message)}</Alert>
               )}
