@@ -155,27 +155,32 @@ export function ApproveTopicProposalTableRow({ row, selected, onSelectRow }: Use
         <TableCell
           align="right"
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
             position: 'sticky',
             right: 0,
             backgroundColor: theme.vars.palette.background.paper
           }}
         >
-          <IconButton onClick={handleOpenPopover}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-          <Tooltip title="Từ chối" arrow>
-            <IconButton onClick={handleOpenDialog} sx={{ color: 'error.main' }}>
-              <Iconify icon="solar:close-circle-broken" />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            <Tooltip title="Duyệt đề tài" arrow>
+              <IconButton onClick={handleApproveTopicProposal} sx={{ color: 'success.main' }}>
+                <Iconify icon="solar:check-circle-broken" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Từ chối" arrow>
+              <IconButton onClick={handleOpenDialog} sx={{ color: 'error.main' }}>
+                <Iconify icon="solar:close-circle-broken" />
+              </IconButton>
+            </Tooltip>
+            <IconButton onClick={handleOpenPopover}>
+              <Iconify icon="eva:more-vertical-fill" />
             </IconButton>
-          </Tooltip>
-          <Tooltip title="Duyệt đề tài" arrow>
-            <IconButton onClick={handleApproveTopicProposal} sx={{ color: 'success.main' }}>
-              <Iconify icon="solar:check-circle-broken" />
-            </IconButton>
-          </Tooltip>
+          </Box>
         </TableCell>
       </TableRow>
 

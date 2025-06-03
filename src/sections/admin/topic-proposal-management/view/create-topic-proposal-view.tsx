@@ -505,7 +505,8 @@ export function CreateTopicProposalView() {
                 variant="contained"
                 sx={{
                   width: { sm: '100%', md: '30%' },
-                  ml: { sm: 'none', md: 'auto' }
+                  ml: { sm: 'none', md: 'auto' },
+                  mt: 3
                 }}
               >
                 Lập đề xuất
