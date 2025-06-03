@@ -32,7 +32,7 @@ import type { ApproveTopicProps } from '../approve-topic-proposal-table-row'
 
 // ----------------------------------------------------------------------
 
-export function ApproveTopicProposalView() {
+export function ApproveFacultyTopicProposalView() {
   const { setIsLoading } = useLoading()
   const table = useTable()
   const id = uuidv4()
@@ -89,7 +89,7 @@ export function ApproveTopicProposalView() {
   }, [fetchTheses, fetchUserLecturers])
 
   const dataFiltered: ApproveTopicProps[] = applyFilter({
-    inputData: _topic.filter((topic) => topic.instructors[0].department_name !== 'Từ chối'),
+    inputData: _topic.filter((topic) => topic.status !== 'Từ chối'),
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
   })
