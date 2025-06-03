@@ -125,7 +125,7 @@ export default function ChipsArrayFilter({ chipData, handleDeleteChipData, handl
         startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
         onClick={handleClearFilter}
       >
-        Hủy bỏ
+        Hủy lọc
       </Button>
     </>
   )

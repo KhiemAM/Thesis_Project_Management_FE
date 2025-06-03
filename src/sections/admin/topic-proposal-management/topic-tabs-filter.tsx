@@ -4,12 +4,17 @@ import Tabs from '@mui/material/Tabs'
 
 import { Label } from 'src/components/label'
 
+import { getDataFilterByTabs } from './utils'
+
+import type { TopicProps } from './topic-proposal-table-row'
+
 interface TopicTabsFilterProps {
+  data: TopicProps[]
   value: string
   setValue: (newValue: string) => void
 }
 
-export function TopicTabsFilter({ value, setValue }: TopicTabsFilterProps) {
+export function TopicTabsFilter({ data, value, setValue }: TopicTabsFilterProps) {
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
@@ -23,11 +28,9 @@ export function TopicTabsFilter({ value, setValue }: TopicTabsFilterProps) {
         indicatorColor="primary"
         aria-label="topic department tabs"
       >
-        <Tab value="Tất cả" label="Tất cả" icon={<Label color='default'>24</Label>} iconPosition='end'/>
-        <Tab value="KTPM" label="KTPM" icon={<Label color='primary'>9</Label>} iconPosition='end'/>
-        <Tab value="HTTT" label="HTTT" icon={<Label color='warning'>5</Label>} iconPosition='end'/>
-        <Tab value="KHDL&TTNT" label="KHDL&TTNT" icon={<Label color='error'>3</Label>} iconPosition='end'/>
-        <Tab value="MMT-ATTT" label="MMT-ATTT" icon={<Label color='success'>10</Label>} iconPosition='end'/>
+        <Tab value="Tất cả" label="Tất cả" icon={<Label color='default'>{data.length}</Label>} iconPosition='end'/>
+        <Tab value="Khóa luận" label="Khóa luận" icon={<Label color='primary'>{getDataFilterByTabs(data, 'name_thesis_type', 'Khóa luận').length}</Label>} iconPosition='end'/>
+        <Tab value="Đồ án" label="Đồ án" icon={<Label color='secondary'>{getDataFilterByTabs(data, 'name_thesis_type', 'Đồ án').length}</Label>} iconPosition='end'/>
       </Tabs>
     </Box>
   )

@@ -6,16 +6,20 @@ import { useState, useEffect, useCallback } from 'react'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
+import Button from '@mui/material/Button'
 import TableBody from '@mui/material/TableBody'
 import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _instructor } from 'src/_mock'
+import { RouterLink } from 'src/routes/components'
+
+import userApi from 'src/axios/user'
 import { useLoading } from 'src/context'
 import thesesApi from 'src/axios/theses'
 import { DashboardContent } from 'src/layouts/student'
 
+import { Iconify } from 'src/components/iconify'
 import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
@@ -31,13 +35,6 @@ import { TopicProposalTabsStatusFilter } from '../topic-proposal-tabs-status-fil
 import type { TopicProps } from '../topic-proposal-table-row'
 
 // ----------------------------------------------------------------------
-const getUniqueInstructors = (): string[] => {
-  const uniqueInstructors = new Set<string>()
-  for (let i = 0; i < 24; i++) {
-    uniqueInstructors.add(_instructor(i))
-  }
-  return Array.from(uniqueInstructors)
-}
 
 export function ListTopicProposalView() {
   const { setIsLoading } = useLoading()
@@ -48,6 +45,7 @@ export function ListTopicProposalView() {
   const [filterStatus, setFilterStatus] = useState('Tất cả')
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
   const [_topic, setTopic] = useState<TopicProps[]>([])
+  const [instructor, setInstructor] = useState<string[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -55,7 +53,7 @@ export function ListTopicProposalView() {
     },
     filterTab: [
       {
-        display: 'Bộ môn',
+        display: 'Loại đề tài',
         data: []
       },
       {
@@ -73,17 +71,26 @@ export function ListTopicProposalView() {
     try {
       setIsLoading(true)
       const res = await thesesApi.getAllTheses()
-      console.log('🚀 ~ fetchTheses ~ res:', res)
       setTopic(res.data)
     } finally {
       setIsLoading(false)
     }
-  }
-  , [setIsLoading])
+  }, [setIsLoading])
+
+  const fetchUserLecturers = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await userApi.getUserLectures()
+      setInstructor(res.data.map((item: any) => `${item.first_name} ${item.last_name}`))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
 
   useEffect(() => {
+    fetchUserLecturers()
     fetchTheses()
-  }, [fetchTheses])
+  }, [fetchTheses, fetchUserLecturers])
 
   const dataFiltered: TopicProps[] = applyFilter({
     inputData: _topic,
@@ -101,7 +108,7 @@ export function ListTopicProposalView() {
       },
       filterTab: [
         {
-          display: 'Bộ môn',
+          display: 'Loại đề tài',
           data: []
         },
         {
@@ -134,7 +141,7 @@ export function ListTopicProposalView() {
       if (key === 'filterTab' && Array.isArray(section)) {
         section.forEach((item) => {
           if (Array.isArray(item.data) && item.data.length === 0) {
-            if (item.display === 'Bộ môn') {
+            if (item.display === 'Loại đề tài') {
               setFilterDepartment('Tất cả')
             }
             if (item.display === 'Trạng thái') {
@@ -167,8 +174,8 @@ export function ListTopicProposalView() {
   const handleFilterDepartment = useCallback((newValue: string) => {
     setChipsFilter((prev) => {
       const updatedFilterTab = prev.filterTab.map((item) =>
-        item.display === 'Bộ môn'
-          ? { ...item, data: newValue ? [{ key: id, label: newValue }] : [] }
+        item.display === 'Loại đề tài'
+          ? { ...item, data: newValue !== 'Tất cả' ? [{ key: id, label: newValue }] : [] }
           : item
       )
 
@@ -181,7 +188,7 @@ export function ListTopicProposalView() {
     setChipsFilter((prev) => {
       const updatedFilterTab = prev.filterTab.map((item) =>
         item.display === 'Trạng thái'
-          ? { ...item, data: newValue ? [{ key: id, label: newValue }] : [] }
+          ? { ...item, data: newValue !== 'Tất cả' ? [{ key: id, label: newValue }] : [] }
           : item
       )
 
@@ -214,18 +221,27 @@ export function ListTopicProposalView() {
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Danh sách đề xuất đề tài
         </Typography>
+        <Button
+          component={RouterLink}
+          href='/topic-proposal/create'
+          variant="contained"
+          color="inherit"
+          startIcon={<Iconify icon="mingcute:add-line" />}
+        >
+          Lập đề xuất đề tài
+        </Button>
       </Box>
 
       <Card>
-        <TopicTabsFilter value={filterDepartment} setValue={handleFilterDepartment}/>
+        <TopicTabsFilter data={_topic} value={filterDepartment} setValue={handleFilterDepartment}/>
 
-        <TopicProposalTabsStatusFilter value={filterStatus} setValue={handleFilterStatus}/>
+        <TopicProposalTabsStatusFilter data={_topic} value={filterStatus} setValue={handleFilterStatus}/>
 
         <UserTableToolbar
           numSelected={table.selected.length}
           filterName={filterName}
           onFilterName={handleFilterName}
-          valueMultipleSelect={getUniqueInstructors()}
+          valueMultipleSelect={instructor}
           filterInstructor={filterInstructor}
           onFilterInstructor={handleFilterInstructor}
         />
@@ -248,12 +264,12 @@ export function ListTopicProposalView() {
                   )
                 }
                 headLabel={[
-                  { id: 'topicNumber', label: 'STT đề tài', minWidth: 130 },
-                  { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 150 },
                   { id: 'name', label: 'Tên đề tài', minWidth: 350 },
-                  { id: 'instructor', label: 'Giáo viên hướng dẫn', minWidth: 200 },
+                  { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 150 },
+                  { id: 'instructors', label: 'Giáo viên hướng dẫn', minWidth: 200 },
                   { id: 'email', label: 'Email', minWidth: 300 },
-                  { id: 'department', label: 'Bộ môn', align: 'center', minWidth: 150 },
+                  { id: 'department_name', label: 'Bộ môn', align: 'center', minWidth: 150 },
+                  { id: 'name_thesis_type', label: 'Loại đề tài', align: 'center', minWidth: 150 },
                   { id: '', label: 'Thao tác', alight: 'center', minWidth: 100 }
                 ]}
               />
@@ -269,6 +285,7 @@ export function ListTopicProposalView() {
                       row={row}
                       selected={table.selected.includes(row.id)}
                       onSelectRow={() => table.onSelectRow(row.id)}
+                      onRefresh={fetchTheses}
                     />
                   ))}
 
@@ -286,7 +303,7 @@ export function ListTopicProposalView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_topic.length}
+          count={dataFiltered.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}

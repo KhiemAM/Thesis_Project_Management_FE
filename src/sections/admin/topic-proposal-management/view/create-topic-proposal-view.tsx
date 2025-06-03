@@ -28,11 +28,11 @@ import { MultipleSelectTextField } from 'src/components/select'
 const _thesis_type = [
   {
     value: '1',
-    label: 'Đồ án tốt nghiệp'
+    label: 'Khóa luận kỹ sư'
   },
   {
     value: '2',
-    label: 'Khóa luận kỹ sư'
+    label: 'Đồ án tốt nghiệp'
   }
 ]
 
