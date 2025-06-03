@@ -89,7 +89,10 @@ export function SignInView() {
             )
           }
         }}
-        sx={{ mb: 3 }}
+        sx={{
+          mb: 3,
+          '& input::-ms-reveal': { display: 'none' }
+        }}
         {...register('password', {
           required: FIELD_REQUIRED_MESSAGE
         })}
