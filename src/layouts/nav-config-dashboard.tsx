@@ -100,6 +100,10 @@ export const navData = [
         path: '/topic-proposal/create'
       },
       {
+        title: 'Import đề xuất đề tài',
+        path: '/topic-proposal/import'
+      },
+      {
         title: 'Duyệt đề tài cấp bộ môn',
         path: '/topic-proposal/approve'
       },
