@@ -22,21 +22,28 @@ export const ProductsPage = lazy(() => import('src/pages/products'))
 export const Page404 = lazy(() => import('src/pages/page-not-found'))
 
 // -----------------------Admin Management--------------------------------------
+//----------------------- User Management--------------------------------------
 export const ListUserPage = lazy(() => import('src/pages/admin/userManagement/list-user'))
+export const ProfileUserPage = lazy(() => import('src/pages/admin/userManagement/profile-user'))
+//----------------------- Function Management--------------------------------------
 export const ListFunctionPage = lazy(() => import('src/pages/admin/functionManagement/list-function'))
 export const CreateFunctionPage = lazy(() => import('src/pages/admin/functionManagement/create-function'))
 export const UpdateFunctionPage = lazy(() => import('src/pages/admin/functionManagement/update-function'))
+//----------------------- Role Management--------------------------------------
 export const ListRolePage = lazy(() => import('src/pages/admin/roleManagement/list-role'))
 export const CreateRolePage = lazy(() => import('src/pages/admin/roleManagement/create-role'))
 export const UpdateRolePage = lazy(() => import('src/pages/admin/roleManagement/update-role'))
+//----------------------- Topic Proposal Management--------------------------------------
 export const ListTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/list-topic-proposal'))
 export const CreateTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/create-topic-proposal'))
 export const ApproveTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/approve-topic-proposal'))
 export const ApproveFacultyTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/approve-faculty-topic-proposal'))
 export const ImportTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/import-topic-proposal'))
+//----------------------- Group Management--------------------------------------
 export const ListGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/list-group-student'))
 export const ProgressGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/progress-group-student'))
 export const InformationGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/information-group-student'))
+//----------------------- Committee Management--------------------------------------
 export const ListCommitteePage = lazy(() => import('src/pages/admin/committeeManagement/list-committee'))
 
 // ----------------------Student------------------------------------------------
@@ -104,7 +111,8 @@ const MainRoutes = () => [
         element: <Outlet />,
         children: [
           { path: 'list', element: <ListUserPage /> },
-          { path: 'create', element: <UserPage /> }
+          { path: 'create', element: <UserPage /> },
+          { path: 'information', element: <ProfileUserPage /> }
         ]
       },
       {

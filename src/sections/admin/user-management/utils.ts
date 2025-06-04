@@ -1,6 +1,6 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
-import type { UserProps } from './function-table-row'
+import type { UserProps } from './user-table-row'
 
 // ----------------------------------------------------------------------
 

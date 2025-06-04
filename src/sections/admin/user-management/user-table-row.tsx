@@ -35,8 +35,7 @@ export type UserProps = {
   user_name: string;
   is_active: boolean;
   user_type: string;
-  create_datetime: Dayjs | string;
-  update_datetime: Dayjs | string;
+  user_type_name: string;
 };
 
 type UserTableRowProps = {
@@ -47,7 +46,7 @@ type UserTableRowProps = {
   onRefresh?: () => void; // Optional prop for refreshing the table
 };
 
-export function FunctionTableRow({ row, selected, onSelectRow, level = 0, onRefresh }: UserTableRowProps) {
+export function UserTableRow({ row, selected, onSelectRow, level = 0, onRefresh }: UserTableRowProps) {
   const theme = useTheme()
   const navigate = useNavigate()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
@@ -99,18 +98,33 @@ export function FunctionTableRow({ row, selected, onSelectRow, level = 0, onRefr
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -10, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        sx={
+          level === 0
+            ? {
+              '&.MuiTableRow-root': {
+                borderBottom: '1px solid',
+                borderTop: '1px solid',
+                backgroundColor: theme.vars.palette.action.selected,
+                '&:hover': {
+                  backgroundColor: theme.vars.palette.action.focus
+                }
+              }
+            }
+            : {}
+        }
       >
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={onSelectRow} />
         </TableCell>
 
         <TableCell>{row.user_name}</TableCell>
-        <TableCell>{row.user_type}</TableCell>
+
+        <TableCell>{row.user_type_name}</TableCell>
+
         <TableCell align='center'>
           <Label color={getColorByIsActive(row.is_active)}>{row.is_active ? 'Hoạt động' : 'Ngừng hoạt động'}</Label>
         </TableCell>
-        <TableCell align='center'>{fDate(row.create_datetime)}</TableCell>
-        <TableCell align='center'>{fDate(row.update_datetime)}</TableCell>
+
         <TableCell align="center" sx={{
           position: 'sticky',
           right: 0,
@@ -147,11 +161,7 @@ export function FunctionTableRow({ row, selected, onSelectRow, level = 0, onRefr
         >
           <MenuItem onClick={() => { handleClosePopover(); handleUpdateFunction() }} sx={{ color: 'primary.main' }}>
             <Iconify icon="solar:pen-bold" />
-            Cập nhật
-          </MenuItem>
-          <MenuItem onClick={() => { handleClosePopover(); handleDeleteFunction() }} sx={{ color: 'error.main' }}>
-            <Iconify icon="solar:trash-bin-trash-bold"/>
-            Xóa
+            Xem thông tin
           </MenuItem>
         </MenuList>
       </Popover>

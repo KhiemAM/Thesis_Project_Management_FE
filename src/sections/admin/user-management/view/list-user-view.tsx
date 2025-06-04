@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
+import userApi from 'src/axios/user'
 import { _usersAdmin } from 'src/_mock'
 import { useLoading } from 'src/context'
 import { DashboardContent } from 'src/layouts/student'
@@ -19,14 +20,14 @@ import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
+import { UserTableRow } from '../user-table-row'
 import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
 import { UserTabsFilter } from '../user-tabs-filter'
-import { FunctionTableRow } from '../function-table-row'
 import { UserTableToolbar } from '../function-table-toolbar'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 
-import type { UserProps } from '../function-table-row'
+import type { UserProps } from '../user-table-row'
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +35,6 @@ export function ListUserView() {
   const { setIsLoading } = useLoading()
   const table = useTable()
   const id = uuidv4()
-  const [_user, setUser] = useState<UserProps[]>([])
   const [filterName, setFilterName] = useState('')
   const [filterStatus, setFilterStatus] = useState('Tất cả')
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
@@ -53,25 +53,25 @@ export function ListUserView() {
       data: []
     }
   })
+  const [_users, setUsers] = useState<UserProps[]>([])
 
-  // const fetchFunctions = useCallback(async () => {
-  //   try {
-  //     setIsLoading(true)
-  //     const res = await functionsApi.getAllFunctions()
-  //     setFunction(res.data)
-  //   } finally {
-  //     setIsLoading(false)
-  //   }
-  // }
-  // , [setIsLoading])
+  const fetchUsers = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await userApi.getAllUser()
+      setUsers(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  , [setIsLoading])
 
   useEffect(() => {
-    // fetchFunctions()
-    setUser(_usersAdmin)
-  }, [])
+    fetchUsers()
+  }, [fetchUsers])
 
   const dataFiltered: UserProps[] = applyFilter({
-    inputData: _user,
+    inputData: _users,
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
   })
@@ -139,7 +139,7 @@ export function ListUserView() {
     setChipsFilter((prev) => {
       const updatedFilterTab = prev.filterTab.map((item) =>
         item.display === 'Trạng thái'
-          ? { ...item, data: newValue ? [{ key: id, label: newValue }] : [] }
+          ? { ...item, data: newValue !== 'Tất cả' ? [{ key: id, label: newValue }] : [] }
           : item
       )
 
@@ -179,21 +179,19 @@ export function ListUserView() {
               <UserTableHead
                 order={table.order}
                 orderBy={table.orderBy}
-                rowCount={_user.length}
+                rowCount={_users.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
-                    _user.map((item) => item.id)
+                    _users.map((item) => item.id)
                   )
                 }
                 headLabel={[
                   { id: 'user_name', label: 'Tên tài khoản', minWidth: 300 },
-                  { id: 'user_type', label: 'Loại tài khoản', minWidth: 200 },
-                  { id: 'is_active', label: 'Trạng thái', minWidth: 300 },
-                  { id: 'create_datetime', label: 'Ngày tạo', align: 'center', minWidth: 200 },
-                  { id: 'update_datetime', label: 'Ngày cập nhật', align: 'center', minWidth: 200 },
+                  { id: 'user_type_name', label: 'Loại tài khoản', minWidth: 200 },
+                  { id: 'is_active', label: 'Trạng thái', align: 'center', minWidth: 300 },
                   { id: '', label: 'Thao tác', minWidth: 100, align: 'center' }
                 ]}
               />
@@ -204,7 +202,7 @@ export function ListUserView() {
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
                   .map((row) => (
-                    <FunctionTableRow
+                    <UserTableRow
                       key={row.id}
                       row={row}
                       selected={table.selected.includes(row.id)}
@@ -215,7 +213,7 @@ export function ListUserView() {
 
                 <TableEmptyRows
                   height={68}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, _user.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, _users.length)}
                 />
 
                 {notFound && <TableNoData searchQuery={filterName} />}
