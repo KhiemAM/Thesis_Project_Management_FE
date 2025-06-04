@@ -49,6 +49,7 @@ export type StudentProfileProps = {
     student_code: string;
     class_name: string;
     major_id: string;
+    major_name: string;
     id: string;
     user_id: string;
     create_datetime: Dayjs | string; // hoặc Date nếu bạn parse dữ liệu
@@ -59,6 +60,7 @@ export type StudentProfileProps = {
 
 interface ProfileStudentInformationProps {
   initialValues: StudentProfileProps | null;
+  onRefresh?: () => void; // Hàm callback để làm mới dữ liệu sau khi cập nhật
 }
 
 interface IFormInput {
@@ -74,7 +76,8 @@ interface IFormInput {
 }
 
 const ProfileStudentInformation = ({
-  initialValues = null
+  initialValues = null,
+  onRefresh
 } : ProfileStudentInformationProps) => {
   const theme = useTheme()
   const { setIsLoading } = useLoading()
@@ -152,6 +155,7 @@ const ProfileStudentInformation = ({
         toast.success('Tạo thông tin sinh viên thành công!')
       }
     } finally {
+      onRefresh?.()
       setIsLoadingButton(false)
     }
   }
@@ -198,50 +202,60 @@ const ProfileStudentInformation = ({
           }
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <TextField
-            fullWidth
-            select
-            label="Chuyên ngành *"
-            disabled={!isEditing}
-            error={!!errors['major_id']}
-            defaultValue=''
-            slotProps={{
-              inputLabel: { shrink: true }
-            }}
-            {...register('major_id')}
-          >
-            <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
-                <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                  Giá trị
-                </Typography>
-                <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                  Nhãn
-                </Typography>
-              </Box>
-            </ListSubheader>
-            {_major.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                  <Typography
-                    variant='body1'
-                    sx={{
-                      flex: 1,
-                      textAlign: 'center',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis'
-                    }}
-                  >
-                    {option.value}
-                  </Typography>
-                  <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                  <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
-                </Box>
-              </MenuItem>
-            ))}
-          </TextField>
+          <Controller
+            name="major_id"
+            control={control}
+            rules={{ required: FIELD_REQUIRED_MESSAGE }}
+            defaultValue=""
+            render={({ field }) => (
+              <TextField
+                fullWidth
+                select
+                label="Chuyên ngành *"
+                disabled={!isEditing}
+                error={!!errors['major_id']}
+                {...field}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
+              >
+                <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
+                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                      Giá trị
+                    </Typography>
+                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                      Nhãn
+                    </Typography>
+                  </Box>
+                </ListSubheader>
+
+                {_major.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          flex: 1,
+                          textAlign: 'center',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {option.value}
+                      </Typography>
+                      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                      <Typography variant="body1" sx={{ flex: 1, textAlign: 'center' }}>
+                        {option.label}
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+          />
           {errors['major_id'] && (
             <Alert severity="error" sx={{ mt: 3 }}>{String(errors['major_id']?.message)}</Alert>
           )}
@@ -317,38 +331,45 @@ const ProfileStudentInformation = ({
           )}
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <TextField
-            fullWidth
-            select
-            label="Giới tính"
-            disabled={!isEditing}
-            slotProps={{
-              inputLabel: { shrink: true }
-            }}
-            defaultValue='1'
-            {...register('gender')}
-          >
-            <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
-                <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                  Giá trị
-                </Typography>
-                <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                  Nhãn
-                </Typography>
-              </Box>
-            </ListSubheader>
-            {_gender.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                  <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.value}</Typography>
-                  <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                  <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
-                </Box>
-              </MenuItem>
-            ))}
-          </TextField>
+          <Controller
+            name="gender"
+            control={control}
+            defaultValue="1" // giá trị mặc định nếu chưa có
+            render={({ field }) => (
+              <TextField
+                fullWidth
+                select
+                label="Giới tính"
+                disabled={!isEditing}
+                {...field} // bao gồm value + onChange
+                error={!!errors['gender']}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
+              >
+                <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
+                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                      Giá trị
+                    </Typography>
+                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                      Nhãn
+                    </Typography>
+                  </Box>
+                </ListSubheader>
+                {_gender.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.value}</Typography>
+                      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+          />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField

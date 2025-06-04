@@ -1,8 +1,13 @@
+import type { SubmitHandler } from 'react-hook-form'
+
 import { useCallback } from 'react'
-// import { useDispatch } from 'react-redux'
+import { toast } from 'react-toastify'
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 
 import Box from '@mui/material/Box'
 import Link from '@mui/material/Link'
+import { Alert } from '@mui/material'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import TextField from '@mui/material/TextField'
@@ -12,45 +17,59 @@ import Typography from '@mui/material/Typography'
 import { useRouter } from 'src/routes/hooks'
 import { RouterLink } from 'src/routes/components'
 
+import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
+
 import authApi from 'src/axios/auth'
 
 import { Iconify } from 'src/components/iconify'
 
 // ----------------------------------------------------------------------
 
+interface IFormInputRegister {
+  user_name: string;
+}
+
 export function RegisterView() {
   const router = useRouter()
-  // const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { register, handleSubmit, formState: { errors } } = useForm<IFormInputRegister>()
 
-  const handleRegister = useCallback(async() => {
-    const response = await authApi.register(
-      {
-        'user_name': 'khiem2',
-        'password': '123456',
-        'is_active': true,
-        'user_type': 2
+  const handleRegister: SubmitHandler<IFormInputRegister> = useCallback(async(data) => {
+    const newData = {
+      user_name: data.user_name.trim(),
+      password: '',
+      is_active: true,
+      user_type: 2
+    }
+    toast.promise(
+      authApi.register(newData),
+      { pending: 'Đang đăng ký...', success: 'Đăng ký thành công!' }
+    ).then((res) => {
+      if (res.status === 200 || res.status === 201) {
+        navigate('/login')
       }
-    )
-    console.log('🚀 ~ handleRegister ~ response:', response)
-  }, [])
+    })
+  }, [router])
 
   const renderForm = (
     <Box
       sx={{
         display: 'flex',
-        alignItems: 'flex-end',
         flexDirection: 'column'
       }}
     >
       <TextField
         fullWidth
-        name="email"
-        label="Mã số sinh viên"
+        label="Mã số sinh viên *"
+        error={!!errors['user_name']}
         sx={{ mb: 3 }}
-        slotProps={{
-          // inputLabel: { shrink: true }
-        }}
+        {...register('user_name', {
+          required: FIELD_REQUIRED_MESSAGE
+        })}
       />
+      {errors['user_name'] && (
+        <Alert severity="error" sx={{ mb: 3 }}>{String(errors['user_name']?.message)}</Alert>
+      )}
 
       <Button
         fullWidth
@@ -58,7 +77,6 @@ export function RegisterView() {
         type="submit"
         color="inherit"
         variant="contained"
-        onClick={handleRegister}
       >
         Đăng ký
       </Button>
@@ -66,7 +84,7 @@ export function RegisterView() {
   )
 
   return (
-    <>
+    <form onSubmit={handleSubmit(handleRegister)}>
       <Box
         sx={{
           gap: 1.5,
@@ -109,6 +127,6 @@ export function RegisterView() {
           <Iconify width={22} icon="socials:google" />
         </IconButton>
       </Box>
-    </>
+    </form>
   )
 }

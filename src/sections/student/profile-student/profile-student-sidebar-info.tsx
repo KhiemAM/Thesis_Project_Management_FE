@@ -10,7 +10,11 @@ import Divider from '@mui/material/Divider'
 import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
+import { fDate } from 'src/utils/format-time'
+
 import { Iconify } from 'src/components/iconify'
+
+import type { StudentProfileProps } from './profile-student-information'
 
 interface LabelInfoProps {
   label: string;
@@ -30,15 +34,13 @@ const LabelInfo = ({ label, value, icon }: LabelInfoProps) => (
 )
 
 interface ProfileStudentSidebarInfoProps {
-  name?: string;
-  company?: string;
+  initialValues: StudentProfileProps | null;
   profileImage?: string;
   isDrawer?: boolean;
 }
 
 const ProfileStudentSidebarInfo: React.FC<ProfileStudentSidebarInfoProps> = ({
-  name = 'Huỳnh Quang Khiêm',
-  company = '2001210783',
+  initialValues,
   profileImage = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
   isDrawer = false
 }) => {
@@ -67,7 +69,7 @@ const ProfileStudentSidebarInfo: React.FC<ProfileStudentSidebarInfoProps> = ({
       <Box sx={{ position: 'relative', mb: 2 }}>
         <Avatar
           src={profileImage}
-          alt={name}
+          alt='Profile Image'
           sx={{
             width: 96,
             height: 96,
@@ -114,22 +116,22 @@ const ProfileStudentSidebarInfo: React.FC<ProfileStudentSidebarInfoProps> = ({
 
       <Tooltip title="Họ tên" placement="left">
         <Typography variant="h6" gutterBottom>
-          {name}
+          {`${initialValues?.information.last_name} ${initialValues?.information.first_name}`}
         </Typography>
       </Tooltip>
       <Tooltip title="Mã số sinh viên" placement="left">
         <Typography variant="body1" color="text.secondary" gutterBottom>
-          {company}
+          {initialValues?.student_info.student_code}
         </Typography>
       </Tooltip>
 
       <Divider sx={{ width: '100%', my: 2 }} />
 
       <Box sx={{ width: '100%' }}>
-        <LabelInfo label="Giới tính" value="Nam" icon="tabler:gender-male" />
-        <LabelInfo label="Ngày sinh" value="09/02/2003" icon="solar:calendar-bold" />
-        <LabelInfo label="Lớp học" value="12DHTH03" icon="tabler:gender-male" />
-        <LabelInfo label="Chuyên ngành" value="Công nghệ thông tin" icon="tabler:gender-male" />
+        <LabelInfo label="Giới tính" value={initialValues?.information.gender === '1' ? 'Nam' : 'Nữ'} icon="tabler:gender-male" />
+        <LabelInfo label="Ngày sinh" value={fDate(initialValues?.information.date_of_birth)} icon="solar:calendar-bold" />
+        <LabelInfo label="Lớp học" value={initialValues?.student_info.class_name || ''} icon="solar:book-2-bold" />
+        <LabelInfo label="Chuyên ngành" value={initialValues?.student_info.major_name || ''} icon="solar:book-bookmark-bold" />
       </Box>
     </Paper>
   )

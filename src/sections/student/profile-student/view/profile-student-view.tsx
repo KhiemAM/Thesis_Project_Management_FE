@@ -64,11 +64,11 @@ export function ProfileStudentView() {
   const renderTabContent = () => {
     switch (activeTab) {
     case 'information':
-      return <ProfileStudentInformation initialValues={studentInfo}/>
+      return <ProfileStudentInformation initialValues={studentInfo} onRefresh={fetchStudentInfo}/>
     case 'account':
       return <ProfileStudentAccount />
     default:
-      return <ProfileStudentInformation initialValues={studentInfo}/>
+      return <ProfileStudentInformation initialValues={studentInfo} onRefresh={fetchStudentInfo}/>
     }
   }
 
@@ -101,7 +101,7 @@ export function ProfileStudentView() {
             <ProfileStudentCoverImage />
             <Grid container sx={{ bgcolor: 'background.paper' }}>
               <Grid size={{ xs: 12, md: 3, lg: 3 }}>
-                <ProfileStudentSidebarInfo />
+                <ProfileStudentSidebarInfo initialValues={studentInfo}/>
               </Grid>
               <Grid size={{ xs: 12, md: 9, lg: 9 }}>
                 <ContentWrapper>
