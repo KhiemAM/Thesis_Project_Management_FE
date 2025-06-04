@@ -127,9 +127,9 @@ const ProfileStudentSidebarInfo: React.FC<ProfileStudentSidebarInfoProps> = ({
 
       <Box sx={{ width: '100%' }}>
         <LabelInfo label="Giới tính" value="Nam" icon="tabler:gender-male" />
-        <LabelInfo label="Ngày sinh" value="09/02/2003" icon="tabler:gender-male" />
+        <LabelInfo label="Ngày sinh" value="09/02/2003" icon="solar:calendar-bold" />
         <LabelInfo label="Lớp học" value="12DHTH03" icon="tabler:gender-male" />
-        <LabelInfo label="Ngành" value="Công nghệ thông tin" icon="tabler:gender-male" />
+        <LabelInfo label="Chuyên ngành" value="Công nghệ thông tin" icon="tabler:gender-male" />
       </Box>
     </Paper>
   )

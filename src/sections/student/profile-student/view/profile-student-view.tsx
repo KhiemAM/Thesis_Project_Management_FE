@@ -1,6 +1,6 @@
 import type { SyntheticEvent } from 'react'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -9,18 +9,21 @@ import { styled } from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
+import { useLoading } from 'src/context'
+import profileApi from 'src/axios/profile'
 import { DashboardContent } from 'src/layouts/student'
 
 import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import ProfileStudentTabs from '../profile-student-tabs'
-import AccountSettings from '../profile-student-information'
 import ProfileStudentAccount from '../profile-student-account'
 import ProfileStudentCoverImage from '../profile-student-cover-image'
+import ProfileStudentInformation from '../profile-student-information'
 import ProfileStudentSidebarInfo from '../profile-student-sidebar-info'
 
 import type { ProfileStudentTabValue } from '../profile-student-tabs'
+import type { StudentProfileProps } from '../profile-student-information'
 // ----------------------------------------------------------------------
 
 const ContentWrapper = styled(Paper)(({ theme }) => ({
@@ -36,7 +39,23 @@ const ContentWrapper = styled(Paper)(({ theme }) => ({
 }))
 
 export function ProfileStudentView() {
+  const { setIsLoading } = useLoading()
   const [activeTab, setActiveTab] = useState<ProfileStudentTabValue>('information')
+  const [studentInfo, setStudentInfo] = useState<StudentProfileProps | null>(null)
+
+  const fetchStudentInfo = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await profileApi.getStudentProfile()
+      setStudentInfo(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  useEffect(() => {
+    fetchStudentInfo()
+  }, [fetchStudentInfo])
 
   const handleTabChange = (event: SyntheticEvent, newValue: ProfileStudentTabValue) => {
     setActiveTab(newValue)
@@ -45,11 +64,11 @@ export function ProfileStudentView() {
   const renderTabContent = () => {
     switch (activeTab) {
     case 'information':
-      return <AccountSettings />
+      return <ProfileStudentInformation initialValues={studentInfo}/>
     case 'account':
       return <ProfileStudentAccount />
     default:
-      return <AccountSettings />
+      return <ProfileStudentInformation initialValues={studentInfo}/>
     }
   }
 

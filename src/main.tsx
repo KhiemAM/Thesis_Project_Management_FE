@@ -37,7 +37,7 @@ root.render(
     <PersistGate persistor={persistor}>
       <LoadingProvider>
         <RouterProvider router={router} />
-        <ToastContainer position="bottom-left" theme="colored"/>
+        <ToastContainer position="bottom-left" theme="colored" autoClose={3000}/>
       </LoadingProvider>
     </PersistGate>
   </Provider>
