@@ -116,22 +116,49 @@ const ProfileStudentSidebarInfo: React.FC<ProfileStudentSidebarInfoProps> = ({
 
       <Tooltip title="Họ tên" placement="left">
         <Typography variant="h6" gutterBottom>
-          {`${initialValues?.information.last_name} ${initialValues?.information.first_name}`}
+          {`${initialValues?.information?.last_name || ''} ${initialValues?.information?.first_name || ''}`.trim() || 'Chưa có họ tên'}
         </Typography>
       </Tooltip>
+
       <Tooltip title="Mã số sinh viên" placement="left">
         <Typography variant="body1" color="text.secondary" gutterBottom>
-          {initialValues?.student_info.student_code}
+          {initialValues?.student_info?.student_code || 'Chưa có mã số sinh viên'}
         </Typography>
       </Tooltip>
 
       <Divider sx={{ width: '100%', my: 2 }} />
 
       <Box sx={{ width: '100%' }}>
-        <LabelInfo label="Giới tính" value={initialValues?.information.gender === '1' ? 'Nam' : 'Nữ'} icon="tabler:gender-male" />
-        <LabelInfo label="Ngày sinh" value={fDate(initialValues?.information.date_of_birth)} icon="solar:calendar-bold" />
-        <LabelInfo label="Lớp học" value={initialValues?.student_info.class_name || ''} icon="solar:book-2-bold" />
-        <LabelInfo label="Chuyên ngành" value={initialValues?.student_info.major_name || ''} icon="solar:book-bookmark-bold" />
+        <LabelInfo
+          label="Giới tính"
+          value={
+            String(initialValues?.information?.gender) === '1'
+              ? 'Nam'
+              : String(initialValues?.information?.gender) === '2'
+                ? 'Nữ'
+                : 'Không rõ'
+          }
+          icon="tabler:gender-male"
+        />
+        <LabelInfo
+          label="Ngày sinh"
+          value={
+            initialValues?.information?.date_of_birth
+              ? fDate(initialValues.information.date_of_birth)
+              : 'Không có'
+          }
+          icon="solar:calendar-bold"
+        />
+        <LabelInfo
+          label="Lớp học"
+          value={initialValues?.student_info?.class_name || 'Không có'}
+          icon="solar:book-2-bold"
+        />
+        <LabelInfo
+          label="Chuyên ngành"
+          value={initialValues?.student_info?.major_name || 'Không có'}
+          icon="solar:book-bookmark-bold"
+        />
       </Box>
     </Paper>
   )

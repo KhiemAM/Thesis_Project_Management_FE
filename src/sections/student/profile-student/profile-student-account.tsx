@@ -2,8 +2,8 @@ import 'dayjs/locale/vi'
 
 import type { SubmitHandler } from 'react-hook-form'
 
-import dayjs from 'dayjs'
 import { useState } from 'react'
+import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 
 import Box from '@mui/material/Box'
@@ -15,13 +15,14 @@ import { IconButton, InputAdornment } from '@mui/material'
 
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
+import authApi from 'src/axios/auth'
+
 import { Iconify } from 'src/components/iconify'
 
-dayjs.locale('vi')
 //-------------------------------------------------------------------------
 
 interface IFormInput {
-  password: string
+  old_password: string
   new_password: string
   confirm_password: string
 }
@@ -30,11 +31,19 @@ const ProfileStudentAccount = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [loadingButton, setLoadingButton] = useState(false)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>()
+  const { register, handleSubmit, formState: { errors }, getValues, reset } = useForm<IFormInput>()
 
   const onSubmit: SubmitHandler<IFormInput> = async(data) => {
-    console.log('🚀 ~ constonSubmit:SubmitHandler<IFormInput>=async ~ data:', data)
+    try {
+      setLoadingButton(true)
+      await authApi.changePassword({ old_password: data.old_password, new_password: data.new_password })
+      toast.success('Đổi mật khẩu thành công!')
+    } finally {
+      reset()
+      setLoadingButton(false)
+    }
   }
 
   return (
@@ -44,7 +53,7 @@ const ProfileStudentAccount = () => {
           <TextField
             fullWidth
             label="Nhập mật khẩu cũ *"
-            error={!!errors['password']}
+            error={!!errors['old_password']}
             type={showPassword ? 'text' : 'password'}
             slotProps={{
               input: {
@@ -61,12 +70,12 @@ const ProfileStudentAccount = () => {
               mb: 3,
               '& input::-ms-reveal': { display: 'none' }
             }}
-            {...register('password', {
+            {...register('old_password', {
               required: FIELD_REQUIRED_MESSAGE
             })}
           />
-          {errors['password'] && (
-            <Alert severity="error" sx={{ mb: 3 }}>{String(errors['password']?.message)}</Alert>
+          {errors['old_password'] && (
+            <Alert severity="error" sx={{ mb: 3 }}>{String(errors['old_password']?.message)}</Alert>
           )}
         </Grid>
 
@@ -122,7 +131,9 @@ const ProfileStudentAccount = () => {
               '& input::-ms-reveal': { display: 'none' }
             }}
             {...register('confirm_password', {
-              required: FIELD_REQUIRED_MESSAGE
+              required: FIELD_REQUIRED_MESSAGE,
+              validate: (value) =>
+                value === getValues('new_password') || 'Mật khẩu xác nhận không khớp với mật khẩu mới'
             })}
           />
           {errors['confirm_password'] && (
@@ -133,6 +144,8 @@ const ProfileStudentAccount = () => {
         <Grid size={{ xs: 12 }}>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button
+              loading={loadingButton}
+              loadingPosition='start'
               type="submit"
               size='large'
               variant="contained"

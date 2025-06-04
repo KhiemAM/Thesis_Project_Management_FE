@@ -6,6 +6,12 @@ const authApi = {
   },
   refreshToken(payload) {
     return instance.post('/auth/refresh', payload)
+  },
+  changePassword(payload) {
+    return instance.post('/auth/change-password', payload)
+  },
+  changePasswordByAdmin(payload) {
+    return instance.post('/auth/change-password-by-admin', payload)
   }
 }
 

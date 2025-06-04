@@ -401,6 +401,8 @@ const ProfileStudentInformation = ({
               isEditing ? (
                 <>
                   <Button
+                    loading={isLoadingButton}
+                    loadingPosition='start'
                     type="submit"
                     size="large"
                     variant="contained"
@@ -425,8 +427,6 @@ const ProfileStudentInformation = ({
                 </>
               ) : (
                 <Button
-                  loading={isLoadingButton}
-                  loadingPosition='start'
                   type="button"
                   size="large"
                   variant="contained"
