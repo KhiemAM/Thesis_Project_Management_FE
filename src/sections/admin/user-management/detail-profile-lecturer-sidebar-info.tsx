@@ -14,7 +14,7 @@ import { fDate } from 'src/utils/format-time'
 
 import { Iconify } from 'src/components/iconify'
 
-import type { StudentProfileProps } from './profile-user-information'
+import type { DetailProfileUserProps } from './view'
 
 interface LabelInfoProps {
   label: string;
@@ -33,13 +33,13 @@ const LabelInfo = ({ label, value, icon }: LabelInfoProps) => (
   </Box>
 )
 
-interface ProfileUserSidebarInfoProps {
-  initialValues: StudentProfileProps | null;
+interface DetailProfileLecturerSidebarInfoProps {
+  initialValues: DetailProfileUserProps | null;
   profileImage?: string;
   isDrawer?: boolean;
 }
 
-const ProfileUserSidebarInfo: React.FC<ProfileUserSidebarInfoProps> = ({
+const DetailProfileLecturerSidebarInfo: React.FC<DetailProfileLecturerSidebarInfoProps> = ({
   initialValues,
   profileImage = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
   isDrawer = false
@@ -164,4 +164,4 @@ const ProfileUserSidebarInfo: React.FC<ProfileUserSidebarInfoProps> = ({
   )
 }
 
-export default ProfileUserSidebarInfo
+export default DetailProfileLecturerSidebarInfo

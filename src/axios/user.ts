@@ -14,6 +14,9 @@ const userApi = {
   getUserLectures(): Promise<any> {
     return instance.get('/users/lecturers')
   },
+  getUserFullProfile(id: string): Promise<any> {
+    return instance.get(`/users/full-profile/${id}`)
+  },
   createUser(payload: UserPayload): Promise<any> {
     return instance.post('/users', payload)
   },

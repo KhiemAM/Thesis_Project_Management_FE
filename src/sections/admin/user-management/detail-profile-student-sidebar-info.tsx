@@ -14,7 +14,7 @@ import { fDate } from 'src/utils/format-time'
 
 import { Iconify } from 'src/components/iconify'
 
-import type { StudentProfileProps } from './profile-user-information'
+import type { DetailProfileUserProps } from './view'
 
 interface LabelInfoProps {
   label: string;
@@ -33,13 +33,13 @@ const LabelInfo = ({ label, value, icon }: LabelInfoProps) => (
   </Box>
 )
 
-interface ProfileUserSidebarInfoProps {
-  initialValues: StudentProfileProps | null;
+interface DetailProfileStudentSidebarInfoProps {
+  initialValues: DetailProfileUserProps | null;
   profileImage?: string;
   isDrawer?: boolean;
 }
 
-const ProfileUserSidebarInfo: React.FC<ProfileUserSidebarInfoProps> = ({
+const DetailProfileStudentSidebarInfo: React.FC<DetailProfileStudentSidebarInfoProps> = ({
   initialValues,
   profileImage = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
   isDrawer = false
@@ -116,13 +116,13 @@ const ProfileUserSidebarInfo: React.FC<ProfileUserSidebarInfoProps> = ({
 
       <Tooltip title="Họ tên" placement="left">
         <Typography variant="h6" gutterBottom>
-          {`${initialValues?.lecturer_info?.title}. ${initialValues?.information?.last_name || ''} ${initialValues?.information?.first_name || ''}`.trim() || 'Chưa có họ tên'}
+          {`${initialValues?.information?.last_name || ''} ${initialValues?.information?.first_name || ''}`.trim() || 'Chưa có họ tên'}
         </Typography>
       </Tooltip>
 
-      <Tooltip title="Mã số giảng viên" placement="left">
+      <Tooltip title="Mã số sinh viên" placement="left">
         <Typography variant="body1" color="text.secondary" gutterBottom>
-          {initialValues?.lecturer_info?.lecturer_code || 'Chưa có mã số giảng viên'}
+          {initialValues?.student_info?.student_code || 'Chưa có mã số sinh viên'}
         </Typography>
       </Tooltip>
 
@@ -136,7 +136,7 @@ const ProfileUserSidebarInfo: React.FC<ProfileUserSidebarInfoProps> = ({
               ? 'Nam'
               : String(initialValues?.information?.gender) === '2'
                 ? 'Nữ'
-                : 'Không xác định'
+                : 'Không rõ'
           }
           icon="tabler:gender-male"
         />
@@ -150,13 +150,13 @@ const ProfileUserSidebarInfo: React.FC<ProfileUserSidebarInfoProps> = ({
           icon="solar:calendar-bold"
         />
         <LabelInfo
-          label="Bộ môn"
-          value={initialValues?.lecturer_info?.department_name || 'Không có'}
+          label="Lớp học"
+          value={initialValues?.student_info?.class_name || 'Không có'}
           icon="solar:book-2-bold"
         />
         <LabelInfo
-          label="Email"
-          value={initialValues?.lecturer_info?.email || 'Không có'}
+          label="Chuyên ngành"
+          value={initialValues?.student_info?.major_name || 'Không có'}
           icon="solar:book-bookmark-bold"
         />
       </Box>
@@ -164,4 +164,4 @@ const ProfileUserSidebarInfo: React.FC<ProfileUserSidebarInfoProps> = ({
   )
 }
 
-export default ProfileUserSidebarInfo
+export default DetailProfileStudentSidebarInfo

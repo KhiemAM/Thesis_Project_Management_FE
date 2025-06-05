@@ -79,8 +79,8 @@ export function UserTableRow({ row, selected, onSelectRow, level = 0, onRefresh 
     })
   }, [row.id, onRefresh])
 
-  const handleUpdateFunction = useCallback(() => {
-    navigate(`/function/update/${row.id}`)
+  const handleDetailInformation = useCallback(() => {
+    navigate(`/user/information/${row.id}`)
   }, [navigate, row.id])
 
   const toggleExpand = () => {
@@ -159,7 +159,7 @@ export function UserTableRow({ row, selected, onSelectRow, level = 0, onRefresh 
             }
           }}
         >
-          <MenuItem onClick={() => { handleClosePopover(); handleUpdateFunction() }} sx={{ color: 'primary.main' }}>
+          <MenuItem onClick={() => { handleClosePopover(); handleDetailInformation() }} sx={{ color: 'primary.main' }}>
             <Iconify icon="solar:pen-bold" />
             Xem thông tin
           </MenuItem>

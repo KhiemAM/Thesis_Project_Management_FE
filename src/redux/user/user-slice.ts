@@ -12,10 +12,7 @@ interface IFormInputLogin {
 
 // Định nghĩa interface cho user
 interface IUser {
-  id: number;
-  user_name: string;
-  email: string;
-  error: string;
+  access_token: string;
 }
 
 // Định nghĩa trạng thái ban đầu
