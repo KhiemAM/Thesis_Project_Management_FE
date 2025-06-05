@@ -20,7 +20,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
-import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
+import { EMAIL_RULE, EMAIL_RULE_MESSAGE, FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
 import { useLoading } from 'src/context'
 import thesesApi from 'src/axios/theses'
@@ -31,6 +31,13 @@ dayjs.locale('vi')
 const _gender = [
   { value: '1', label: 'Nam' },
   { value: '2', label: 'Nữ' }
+]
+
+const _title = [
+  { value: '1', label: 'Thạc sĩ' },
+  { value: '2', label: 'Tiến sĩ' },
+  { value: '3', label: 'Phó giáo sư' },
+  { value: '4', label: 'Giáo sư' }
 ]
 
 export type StudentProfileProps = {
@@ -45,13 +52,14 @@ export type StudentProfileProps = {
     address: string;
     tel_phone: string;
   };
-  student_info: {
-    student_code: string;
-    class_name: string;
-    major_id: string;
-    major_name: string;
+  lecturer_info: {
+    lecturer_code: string;
+    department: string;
+    title: string;
+    email: string;
     id: string;
     user_id: string;
+    department_name: string;
     create_datetime: Dayjs | string; // hoặc Date nếu bạn parse dữ liệu
     update_datetime: Dayjs | string;
   };
@@ -70,9 +78,10 @@ interface IFormInput {
   gender: string;
   address?: string;
   tel_phone?: string;
-  student_code: string;
-  class_name: string;
-  major_id: string;
+  lecturer_code: string;
+  department: string;
+  title: string;
+  email: string;
 }
 
 const ProfileStudentInformation = ({
@@ -83,13 +92,13 @@ const ProfileStudentInformation = ({
   const { setIsLoading } = useLoading()
   const [isLoadingButton, setIsLoadingButton] = useState(false)
   const [isEditing, setIsEditing] = useState(true)
-  const [_major, setMajor] = useState<{ value: string; label: string }[]>([])
+  const [_departments, setDepartments] = useState<{ value: string; label: string }[]>([])
 
   const fetchStudentInfo = useCallback(async () => {
     try {
       setIsLoading(true)
-      const res = await thesesApi.getAllMajor()
-      setMajor(res.data.map((item: { id: string; name: string }) => ({
+      const res = await thesesApi.getAllDepartments()
+      setDepartments(res.data.map((item: { id: string; name: string }) => ({
         value: item.id,
         label: item.name
       })))
@@ -115,13 +124,14 @@ const ProfileStudentInformation = ({
       reset({
         first_name: initialValues.information.first_name,
         last_name: initialValues.information.last_name,
-        student_code: initialValues.student_info.student_code,
-        class_name: initialValues.student_info.class_name,
-        major_id: initialValues.student_info.major_id,
         gender: initialValues.information.gender,
         address: initialValues.information.address,
         tel_phone: initialValues.information.tel_phone,
-        date_of_birth: dayjs(initialValues.information.date_of_birth)
+        date_of_birth: dayjs(initialValues.information.date_of_birth),
+        lecturer_code: initialValues.lecturer_info.lecturer_code,
+        department: initialValues.lecturer_info.department,
+        title: initialValues.lecturer_info.title,
+        email: initialValues.lecturer_info.email
       })
     }
   }, [initialValues, reset])
@@ -137,22 +147,23 @@ const ProfileStudentInformation = ({
           address: data.address || '',
           tel_phone: data.tel_phone || ''
         },
-        student_info: {
-          student_code: data.student_code,
-          class_name: data.class_name,
-          major_id: data.major_id
+        lecturer_info: {
+          lecturer_code: data.lecturer_code,
+          department: data.department,
+          title: data.title,
+          email: data.email
         }
       }
       setIsLoadingButton(true)
       if (initialValues) {
         // Cập nhật thông tin sinh viên
-        await profileApi.updateStudentProfile(newData)
-        toast.success('Cập nhật thông tin sinh viên thành công!')
+        await profileApi.updateLecturerProfile(newData)
+        toast.success('Cập nhật thông tin giảng viên thành công!')
       }
       else {
         // Tạo mới thông tin sinh viên
-        await profileApi.createStudentProfile(newData)
-        toast.success('Tạo thông tin sinh viên thành công!')
+        await profileApi.createLecturerProfile(newData)
+        toast.success('Tạo thông tin giảng viên thành công!')
       }
     } finally {
       onRefresh?.()
@@ -166,44 +177,25 @@ const ProfileStudentInformation = ({
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
-            label="Mã số sinh viên *"
-            error={!!errors['student_code']}
+            label="Mã số giáo viên *"
+            error={!!errors['lecturer_code']}
             variant="outlined"
             disabled={!isEditing}
             slotProps={{
               inputLabel: { shrink: true }
             }}
-            {...register('student_code', {
+            {...register('lecturer_code', {
               required: FIELD_REQUIRED_MESSAGE
             })}
           />
-          {errors['student_code'] && (
-            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['student_code']?.message)}</Alert>
-          )
-          }
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <TextField
-            fullWidth
-            label="Lớp học *"
-            error={!!errors['class_name']}
-            variant="outlined"
-            disabled={!isEditing}
-            slotProps={{
-              inputLabel: { shrink: true }
-            }}
-            {...register('class_name', {
-              required: FIELD_REQUIRED_MESSAGE
-            })}
-          />
-          {errors['class_name'] && (
-            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['class_name']?.message)}</Alert>
+          {errors['lecturer_code'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['lecturer_code']?.message)}</Alert>
           )
           }
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <Controller
-            name="major_id"
+            name="department"
             control={control}
             rules={{ required: FIELD_REQUIRED_MESSAGE }}
             defaultValue=""
@@ -211,9 +203,9 @@ const ProfileStudentInformation = ({
               <TextField
                 fullWidth
                 select
-                label="Chuyên ngành *"
+                label="Bộ môn *"
                 disabled={!isEditing}
-                error={!!errors['major_id']}
+                error={!!errors['department']}
                 {...field}
                 slotProps={{
                   inputLabel: { shrink: true }
@@ -231,7 +223,7 @@ const ProfileStudentInformation = ({
                   </Box>
                 </ListSubheader>
 
-                {_major.map((option) => (
+                {_departments.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
                       <Typography
@@ -256,14 +248,57 @@ const ProfileStudentInformation = ({
               </TextField>
             )}
           />
-          {errors['major_id'] && (
-            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['major_id']?.message)}</Alert>
+          {errors['department'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['department']?.message)}</Alert>
           )}
         </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Controller
+            name="title"
+            control={control}
+            defaultValue="Thạc sĩ" // giá trị mặc định nếu chưa có
+            render={({ field }) => (
+              <TextField
+                fullWidth
+                select
+                label="Trình độ"
+                disabled={!isEditing}
+                {...field} // bao gồm value + onChange
+                error={!!errors['title']}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
+              >
+                <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
+                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                      Giá trị
+                    </Typography>
+                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                      Nhãn
+                    </Typography>
+                  </Box>
+                </ListSubheader>
+                {_title.map((option) => (
+                  <MenuItem key={option.value} value={option.label}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.value}</Typography>
+                      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+          />
+        </Grid>
+
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
-            label="Tên sinh viên *"
+            label="Tên giảng viên *"
             error={!!errors['first_name']}
             variant="outlined"
             disabled={!isEditing}
@@ -282,7 +317,7 @@ const ProfileStudentInformation = ({
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             fullWidth
-            label="Họ sinh viên *"
+            label="Họ giảng viên *"
             error={!!errors['last_name']}
             variant="outlined"
             disabled={!isEditing}
@@ -370,6 +405,29 @@ const ProfileStudentInformation = ({
               </TextField>
             )}
           />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <TextField
+            fullWidth
+            label="Email *"
+            error={!!errors['email']}
+            variant="outlined"
+            disabled={!isEditing}
+            slotProps={{
+              inputLabel: { shrink: true }
+            }}
+            {...register('email', {
+              required: FIELD_REQUIRED_MESSAGE,
+              pattern: {
+                value: EMAIL_RULE,
+                message: EMAIL_RULE_MESSAGE
+              }
+            })}
+          />
+          {errors['email'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['email']?.message)}</Alert>
+          )
+          }
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField

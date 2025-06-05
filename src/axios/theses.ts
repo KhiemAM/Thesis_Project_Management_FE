@@ -14,6 +14,9 @@ const thesesApi = {
   getTheseById(id: string): Promise<any> {
     return instance.get(`/theses/${id}`)
   },
+  getAllDepartments(): Promise<any> {
+    return instance.get('/theses/getall/department/g')
+  },
   createThese(payload: ThesesPayload): Promise<any> {
     return instance.post('/theses', payload)
   },

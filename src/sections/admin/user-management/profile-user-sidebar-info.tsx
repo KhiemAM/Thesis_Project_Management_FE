@@ -14,7 +14,7 @@ import { fDate } from 'src/utils/format-time'
 
 import { Iconify } from 'src/components/iconify'
 
-import type { StudentProfileProps } from './profile-student-information'
+import type { StudentProfileProps } from './profile-user-information'
 
 interface LabelInfoProps {
   label: string;
@@ -116,13 +116,13 @@ const ProfileUserSidebarInfo: React.FC<ProfileUserSidebarInfoProps> = ({
 
       <Tooltip title="Họ tên" placement="left">
         <Typography variant="h6" gutterBottom>
-          {`${initialValues?.information?.last_name || ''} ${initialValues?.information?.first_name || ''}`.trim() || 'Chưa có họ tên'}
+          {`${initialValues?.lecturer_info?.title}. ${initialValues?.information?.last_name || ''} ${initialValues?.information?.first_name || ''}`.trim() || 'Chưa có họ tên'}
         </Typography>
       </Tooltip>
 
-      <Tooltip title="Mã số sinh viên" placement="left">
+      <Tooltip title="Mã số giảng viên" placement="left">
         <Typography variant="body1" color="text.secondary" gutterBottom>
-          {initialValues?.student_info?.student_code || 'Chưa có mã số sinh viên'}
+          {initialValues?.lecturer_info?.lecturer_code || 'Chưa có mã số giảng viên'}
         </Typography>
       </Tooltip>
 
@@ -150,13 +150,13 @@ const ProfileUserSidebarInfo: React.FC<ProfileUserSidebarInfoProps> = ({
           icon="solar:calendar-bold"
         />
         <LabelInfo
-          label="Lớp học"
-          value={initialValues?.student_info?.class_name || 'Không có'}
+          label="Bộ môn"
+          value={initialValues?.lecturer_info?.department_name || 'Không có'}
           icon="solar:book-2-bold"
         />
         <LabelInfo
-          label="Chuyên ngành"
-          value={initialValues?.student_info?.major_name || 'Không có'}
+          label="Email"
+          value={initialValues?.lecturer_info?.email || 'Không có'}
           icon="solar:book-bookmark-bold"
         />
       </Box>
