@@ -14,12 +14,12 @@ import { Iconify } from 'src/components/iconify'
 
 export type ProfileStudentTabValue = 'information' | 'account';
 
-interface ProfileStudentTabsProps {
+interface ProfileUserTabsProps {
   value: ProfileStudentTabValue;
   onChange: (event: SyntheticEvent, newValue: ProfileStudentTabValue) => void;
 }
 
-const ProfileStudentTabs: React.FC<ProfileStudentTabsProps> = ({ value, onChange }) => {
+const ProfileUserTabs: React.FC<ProfileUserTabsProps> = ({ value, onChange }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -68,4 +68,4 @@ const ProfileStudentTabs: React.FC<ProfileStudentTabsProps> = ({ value, onChange
   )
 }
 
-export default ProfileStudentTabs
+export default ProfileUserTabs

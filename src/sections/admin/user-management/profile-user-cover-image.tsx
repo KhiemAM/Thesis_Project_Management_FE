@@ -6,15 +6,15 @@ import Button from '@mui/material/Button'
 
 import { Iconify } from 'src/components/iconify'
 
-interface ProfileStudentCoverImageProps {
+interface ProfileUserCoverImageProps {
   coverImage?: string;
   onCoverChange?: (file: File) => void;
 }
 
-const ProfileStudentCoverImage = ({
+const ProfileUserCoverImage = ({
   coverImage = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEil2iKPxVTadEINxydRzP0j_X8O1EGI6HVfgXNdrel-uhuBoqzx5F6Qvn7PFKHgi7G5TzUdx6wYhgUKSjes6BmK8ZVYpHbXJgE-2hYW8bWkrMEm-9N1yqL84V7A5J-TcAfJxB3rLWeSz7XN/s2000/215795661_2999503290285160_5412146965312912818_n.jpg',
   onCoverChange
-} : ProfileStudentCoverImageProps) => {
+} : ProfileUserCoverImageProps) => {
   const [isHovered, setIsHovered] = useState(false)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,4 +87,4 @@ const ProfileStudentCoverImage = ({
   )
 }
 
-export default ProfileStudentCoverImage
+export default ProfileUserCoverImage

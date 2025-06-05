@@ -10,7 +10,11 @@ import Divider from '@mui/material/Divider'
 import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
+import { fDate } from 'src/utils/format-time'
+
 import { Iconify } from 'src/components/iconify'
+
+import type { StudentProfileProps } from './profile-student-information'
 
 interface LabelInfoProps {
   label: string;
@@ -29,16 +33,14 @@ const LabelInfo = ({ label, value, icon }: LabelInfoProps) => (
   </Box>
 )
 
-interface ProfileStudentSidebarInfoProps {
-  name?: string;
-  company?: string;
+interface ProfileUserSidebarInfoProps {
+  initialValues: StudentProfileProps | null;
   profileImage?: string;
   isDrawer?: boolean;
 }
 
-const ProfileStudentSidebarInfo: React.FC<ProfileStudentSidebarInfoProps> = ({
-  name = 'Huỳnh Quang Khiêm',
-  company = '2001210783',
+const ProfileUserSidebarInfo: React.FC<ProfileUserSidebarInfoProps> = ({
+  initialValues,
   profileImage = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
   isDrawer = false
 }) => {
@@ -67,7 +69,7 @@ const ProfileStudentSidebarInfo: React.FC<ProfileStudentSidebarInfoProps> = ({
       <Box sx={{ position: 'relative', mb: 2 }}>
         <Avatar
           src={profileImage}
-          alt={name}
+          alt='Profile Image'
           sx={{
             width: 96,
             height: 96,
@@ -114,25 +116,52 @@ const ProfileStudentSidebarInfo: React.FC<ProfileStudentSidebarInfoProps> = ({
 
       <Tooltip title="Họ tên" placement="left">
         <Typography variant="h6" gutterBottom>
-          {name}
+          {`${initialValues?.information?.last_name || ''} ${initialValues?.information?.first_name || ''}`.trim() || 'Chưa có họ tên'}
         </Typography>
       </Tooltip>
+
       <Tooltip title="Mã số sinh viên" placement="left">
         <Typography variant="body1" color="text.secondary" gutterBottom>
-          {company}
+          {initialValues?.student_info?.student_code || 'Chưa có mã số sinh viên'}
         </Typography>
       </Tooltip>
 
       <Divider sx={{ width: '100%', my: 2 }} />
 
       <Box sx={{ width: '100%' }}>
-        <LabelInfo label="Giới tính" value="Nam" icon="tabler:gender-male" />
-        <LabelInfo label="Ngày sinh" value="09/02/2003" icon="tabler:gender-male" />
-        <LabelInfo label="Lớp học" value="12DHTH03" icon="tabler:gender-male" />
-        <LabelInfo label="Ngành" value="Công nghệ thông tin" icon="tabler:gender-male" />
+        <LabelInfo
+          label="Giới tính"
+          value={
+            String(initialValues?.information?.gender) === '1'
+              ? 'Nam'
+              : String(initialValues?.information?.gender) === '2'
+                ? 'Nữ'
+                : 'Không rõ'
+          }
+          icon="tabler:gender-male"
+        />
+        <LabelInfo
+          label="Ngày sinh"
+          value={
+            initialValues?.information?.date_of_birth
+              ? fDate(initialValues.information.date_of_birth)
+              : 'Không có'
+          }
+          icon="solar:calendar-bold"
+        />
+        <LabelInfo
+          label="Lớp học"
+          value={initialValues?.student_info?.class_name || 'Không có'}
+          icon="solar:book-2-bold"
+        />
+        <LabelInfo
+          label="Chuyên ngành"
+          value={initialValues?.student_info?.major_name || 'Không có'}
+          icon="solar:book-bookmark-bold"
+        />
       </Box>
     </Paper>
   )
 }
 
-export default ProfileStudentSidebarInfo
+export default ProfileUserSidebarInfo

@@ -1,6 +1,6 @@
 import type { SyntheticEvent } from 'react'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -9,18 +9,21 @@ import { styled } from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
+import { useLoading } from 'src/context'
+import profileApi from 'src/axios/profile'
 import { DashboardContent } from 'src/layouts/student'
 
 import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 
-import ProfileStudentTabs from '../profile-user-tabs'
-import ProfileStudentAccount from '../profile-user-account'
-import ProfileStudentCoverImage from '../profile-user-cover-image'
-import ProfileStudentSidebarInfo from '../profile-user-sidebar-info'
-import ProfileStudentInformation from '../profile-student-information'
+import ProfileUserTabs from '../profile-user-tabs'
+import ProfileUserAccount from '../profile-user-account'
+import ProfileUserCoverImage from '../profile-user-cover-image'
+import ProfileUserSidebarInfo from '../profile-user-sidebar-info'
+import ProfileStudentInformation from '../profile-user-information'
 
 import type { ProfileStudentTabValue } from '../profile-user-tabs'
+import type { StudentProfileProps } from '../profile-user-information'
 // ----------------------------------------------------------------------
 
 const ContentWrapper = styled(Paper)(({ theme }) => ({
@@ -36,7 +39,23 @@ const ContentWrapper = styled(Paper)(({ theme }) => ({
 }))
 
 export function ProfileUserView() {
+  const { setIsLoading } = useLoading()
   const [activeTab, setActiveTab] = useState<ProfileStudentTabValue>('information')
+  const [studentInfo, setStudentInfo] = useState<StudentProfileProps | null>(null)
+
+  const fetchStudentInfo = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await profileApi.getLecturerProfile()
+      setStudentInfo(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  useEffect(() => {
+    fetchStudentInfo()
+  }, [fetchStudentInfo])
 
   const handleTabChange = (event: SyntheticEvent, newValue: ProfileStudentTabValue) => {
     setActiveTab(newValue)
@@ -45,11 +64,11 @@ export function ProfileUserView() {
   const renderTabContent = () => {
     switch (activeTab) {
     case 'information':
-      return <ProfileStudentInformation />
+      return <ProfileStudentInformation initialValues={studentInfo} onRefresh={fetchStudentInfo}/>
     case 'account':
-      return <ProfileStudentAccount />
+      return <ProfileUserAccount />
     default:
-      return <ProfileStudentInformation />
+      return <ProfileStudentInformation initialValues={studentInfo} onRefresh={fetchStudentInfo}/>
     }
   }
 
@@ -79,14 +98,14 @@ export function ProfileUserView() {
       <Card>
         <Scrollbar>
           <Box>
-            <ProfileStudentCoverImage />
+            <ProfileUserCoverImage />
             <Grid container sx={{ bgcolor: 'background.paper' }}>
               <Grid size={{ xs: 12, md: 3, lg: 3 }}>
-                <ProfileStudentSidebarInfo />
+                <ProfileUserSidebarInfo initialValues={studentInfo}/>
               </Grid>
               <Grid size={{ xs: 12, md: 9, lg: 9 }}>
                 <ContentWrapper>
-                  <ProfileStudentTabs value={activeTab} onChange={handleTabChange} />
+                  <ProfileUserTabs value={activeTab} onChange={handleTabChange} />
                   <Box sx={{ px: { xs: 2, sm: 3 } }}>
                     {renderTabContent()}
                   </Box>
