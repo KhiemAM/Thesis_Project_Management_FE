@@ -197,16 +197,16 @@ export function ImportTopicProposalView() {
       <Card>
         <TopicTabsFilter data={_topic} value={filterDepartment} setValue={handleFilterDepartment}/>
 
-        <ApproveTopicProposalTabsStatusFilter value={filterStatus} setValue={handleFilterStatus}/>
+        {/* <ApproveTopicProposalTabsStatusFilter value={filterStatus} setValue={handleFilterStatus}/> */}
 
-        <UserTableToolbar
+        {/* <UserTableToolbar
           numSelected={table.selected.length}
           filterName={filterName}
           onFilterName={handleFilterName}
           valueMultipleSelect={instructor}
           filterInstructor={filterInstructor}
           onFilterInstructor={handleFilterInstructor}
-        />
+        /> */}
 
         <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>
 

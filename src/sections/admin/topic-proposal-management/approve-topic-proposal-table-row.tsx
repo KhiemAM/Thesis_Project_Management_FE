@@ -36,7 +36,7 @@ import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
-import { getColorByStatus, getColorByDepartment, getColorByThesisType } from './utils'
+import { getColorByDepartment, getColorByThesisType, getColorByStatusDepartment } from './utils'
 
 // ----------------------------------------------------------------------
 export type ApproveTopicProps = {
@@ -49,6 +49,7 @@ export type ApproveTopicProps = {
   start_date: string;
   end_date: string;
   major: string;
+  reason?: string;
   instructors: {
     name: string;
     email: string;
@@ -92,16 +93,21 @@ export function ApproveTopicProposalTableRow({ onRefresh, row, selected, onSelec
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openTopicDetail, setOpenTopicDetail] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
+  const [openDialogReason, setOpenDialogReason] = useState(false)
+  const [loadingButton, setLoadingButton] = useState(false)
   const { register, handleSubmit, formState: { errors } } = useForm<IFormInputApprovveTopicProposal>()
   const onSubmit: SubmitHandler<IFormInputApprovveTopicProposal> = async(data) => {
     try {
-      console.log('🚀 ~ constonSubmit:SubmitHandler<IFormInput>=async ~ data:', data)
-      // setLoading(true)
-      // await groupApi.createGroup(data)
-      // toast.success('Tạo nhóm thành công')
+      setLoadingButton(true)
+      await thesesApi.updateThese(row.id, {
+        status: TopicStatusCode.REJECTED,
+        reason: data.reason
+      })
+      toast.success('Đã gửi lý do từ chối đề tài thành công!')
+      onRefresh?.()
     }
     finally {
-      // setLoading(false)
+      setLoadingButton(true)
       handleCloseDialog()
     }
   }
@@ -130,6 +136,14 @@ export function ApproveTopicProposalTableRow({ onRefresh, row, selected, onSelec
     setOpenDialog(false)
   }, [])
 
+  const handleOpenDialogReason = useCallback(() => {
+    setOpenDialogReason(true)
+  }, [])
+
+  const handleCloseDialogReason = useCallback(() => {
+    setOpenDialogReason(false)
+  }, [])
+
   const handleApproveTopicProposal = useCallback(() => {
     AlertConfirmCallAPI({
       title: 'Bạn có muốn thực hiện thao tác này không?',
@@ -141,7 +155,7 @@ export function ApproveTopicProposalTableRow({ onRefresh, row, selected, onSelec
       confirmButtonText:'Duyệt đề tài',
       cancelButtonText:'Hủy',
       api: async() => {
-        await thesesApi.updateThese(row.id, { status: TopicStatusCode.NOT_REGISTERED })
+        await thesesApi.updateThese(row.id, { status: TopicStatusCode.APPROVED_BY_DEPARTMENT })
         onRefresh?.()
         toast.success('Duyệt đề tài thành công!')
       }
@@ -173,7 +187,12 @@ export function ApproveTopicProposalTableRow({ onRefresh, row, selected, onSelec
         <TableCell>{row.name}</TableCell>
 
         <TableCell align='center'>
-          <Label color={getColorByStatus(row.status)}>{row.status}</Label>
+          <Label color={getColorByStatusDepartment(row.status)}>{row.status}</Label>
+          {row.reason && (
+            <IconButton color='primary' onClick={handleOpenDialogReason}>
+              <Iconify icon="solar:eye-bold" />
+            </IconButton>
+          )}
         </TableCell>
 
 
@@ -373,8 +392,24 @@ export function ApproveTopicProposalTableRow({ onRefresh, row, selected, onSelec
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color='error'>Hủy</Button>
-          <Button type="submit">Từ chối</Button>
+          <Button loading={loadingButton} loadingPosition='start' type="submit">Từ chối</Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Dialog See reason*/}
+      <Dialog
+        fullWidth
+        open={openDialogReason}
+        onClose={handleCloseDialogReason}
+      >
+        <DialogTitle>Lý do từ chối</DialogTitle>
+        <DialogContent>
+          <TextField
+            value={row.reason || ''}
+            fullWidth
+            multiline
+          />
+        </DialogContent>
       </Dialog>
     </>
   )

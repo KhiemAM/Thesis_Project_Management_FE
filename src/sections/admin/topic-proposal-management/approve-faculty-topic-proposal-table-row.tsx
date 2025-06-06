@@ -1,19 +1,34 @@
+import type { SubmitHandler } from 'react-hook-form'
+
 import { toast } from 'react-toastify'
+import { useForm } from 'react-hook-form'
 import { useState, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
+import Alert from '@mui/material/Alert'
+import { useTheme } from '@mui/material'
+import Dialog from '@mui/material/Dialog'
+import Button from '@mui/material/Button'
 import Popover from '@mui/material/Popover'
 import Divider from '@mui/material/Divider'
+import Tooltip from '@mui/material/Tooltip'
 import Checkbox from '@mui/material/Checkbox'
 import MenuList from '@mui/material/MenuList'
 import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
+import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContentText from '@mui/material/DialogContentText'
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
-import { Dialog, useTheme, TextField, DialogTitle, DialogContent } from '@mui/material'
+
+import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
 import thesesApi from 'src/axios/theses'
+import { TopicStatusCode } from 'src/constants/topic-status'
 
 import { Label } from 'src/components/label'
 import { Drawer } from 'src/components/drawer'
@@ -21,11 +36,10 @@ import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
-import { getColorByStatus, getColorByThesisType, getColorByDepartment } from './utils'
+import { getColorByStatus, getColorByDepartment, getColorByThesisType, getColorByStatusFaculty } from './utils'
 
 // ----------------------------------------------------------------------
-
-export type TopicProps = {
+export type ApproveTopicProps = {
   id: string;
   thesis_type: number;
   name_thesis_type: string;
@@ -64,17 +78,39 @@ export type TopicProps = {
 };
 
 type UserTableRowProps = {
-  row: TopicProps;
+  row: ApproveTopicProps;
   selected: boolean;
   onSelectRow: () => void;
-  onRefresh?: () => void; // Optional prop for refreshing the table
+  onRefresh?: () => void;
 };
 
-export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }: UserTableRowProps) {
+interface IFormInputApprovveTopicProposal {
+  reason: string;
+}
+
+export function ApproveFacultyTopicProposalTableRow({ onRefresh, row, selected, onSelectRow }: UserTableRowProps) {
   const theme = useTheme()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openTopicDetail, setOpenTopicDetail] = useState(false)
+  const [openDialog, setOpenDialog] = useState(false)
   const [openDialogReason, setOpenDialogReason] = useState(false)
+  const [loadingButton, setLoadingButton] = useState(false)
+  const { register, handleSubmit, formState: { errors } } = useForm<IFormInputApprovveTopicProposal>()
+  const onSubmit: SubmitHandler<IFormInputApprovveTopicProposal> = async(data) => {
+    try {
+      setLoadingButton(true)
+      await thesesApi.updateThese(row.id, {
+        status: TopicStatusCode.REJECTED,
+        reason: data.reason
+      })
+      toast.success('Đã gửi lý do từ chối đề tài thành công!')
+      onRefresh?.()
+    }
+    finally {
+      setLoadingButton(true)
+      handleCloseDialog()
+    }
+  }
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     setOpenPopover(event.currentTarget)
@@ -92,6 +128,14 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
     setOpenTopicDetail(false)
   }, [])
 
+  const handleOpenDialog = useCallback(() => {
+    setOpenDialog(true)
+  }, [])
+
+  const handleCloseDialog = useCallback(() => {
+    setOpenDialog(false)
+  }, [])
+
   const handleOpenDialogReason = useCallback(() => {
     setOpenDialogReason(true)
   }, [])
@@ -100,24 +144,23 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
     setOpenDialogReason(false)
   }, [])
 
-  const handleDeleteTopic = useCallback(() => {
+  const handleApproveTopicProposal = useCallback(() => {
     AlertConfirmCallAPI({
-      title: 'Bạn có chắc chắn',
-      text: 'Bạn có muốn xóa không?',
-      icon: 'warning',
+      title: 'Bạn có muốn thực hiện thao tác này không?',
+      text: 'Bạn có muốn duyệt đề tài này không?',
+      icon:'success',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Xóa!',
-      cancelButtonText: 'Hủy',
+      confirmButtonColor:'#3085d6',
+      cancelButtonColor:'#d33',
+      confirmButtonText:'Duyệt đề tài',
+      cancelButtonText:'Hủy',
       api: async() => {
-        await thesesApi.deleteThese(row.id)
+        await thesesApi.updateThese(row.id, { status: TopicStatusCode.APPROVED_BY_FACULTY })
         onRefresh?.()
-        toast.success('Xóa đề tài thành công!')
+        toast.success('Duyệt đề tài thành công!')
       }
     })
   }, [row.id, onRefresh])
-
 
   return (
     <>
@@ -144,7 +187,7 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
         <TableCell>{row.name}</TableCell>
 
         <TableCell align='center'>
-          <Label color={getColorByStatus(row.status)}>{row.status}</Label>
+          <Label color={getColorByStatusFaculty(row.status)}>{row.status}</Label>
           {row.reason && (
             <IconButton color='primary' onClick={handleOpenDialogReason}>
               <Iconify icon="solar:eye-bold" />
@@ -170,16 +213,34 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
         </TableCell>
 
         <TableCell
-          align="center"
+          align="right"
           sx={{
             position: 'sticky',
             right: 0,
             backgroundColor: theme.vars.palette.background.paper
           }}
         >
-          <IconButton onClick={handleOpenPopover}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            <Tooltip title="Duyệt đề tài" arrow>
+              <IconButton onClick={handleApproveTopicProposal} sx={{ color: 'success.main' }}>
+                <Iconify icon="solar:check-circle-broken" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Từ chối" arrow>
+              <IconButton onClick={handleOpenDialog} sx={{ color: 'error.main' }}>
+                <Iconify icon="solar:close-circle-broken" />
+              </IconButton>
+            </Tooltip>
+            <IconButton onClick={handleOpenPopover}>
+              <Iconify icon="eva:more-vertical-fill" />
+            </IconButton>
+          </Box>
         </TableCell>
       </TableRow>
 
@@ -212,11 +273,6 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
           >
             <Iconify icon="solar:pen-bold" />
             Xem chi tiết
-          </MenuItem>
-
-          <MenuItem onClick={() => { handleClosePopover(); handleDeleteTopic() }} sx={{ color: 'error.main' }}>
-            <Iconify icon="solar:trash-bin-trash-bold"/>
-              Xóa
           </MenuItem>
         </MenuList>
       </Popover>
@@ -278,7 +334,7 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
                   <Box key={index} sx={{ mb: 1 }}>
                     <Typography variant='subtitle1'>{instructor.name}</Typography>
                     <Typography variant='body2' color='text.secondary'>
-                      {instructor.email}
+                      {instructor.email} - {instructor.phone}
                     </Typography>
                   </Box>
                 ))}
@@ -297,7 +353,48 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
             <Divider />
           </Box>
         </Scrollbar>
+
       </Drawer>
+
+      {/* Dialog */}
+      <Dialog
+        fullWidth
+        open={openDialog}
+        onClose={handleCloseDialog}
+        slotProps={{
+          paper: {
+            component: 'form',
+            onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+              event.preventDefault()
+              handleSubmit(onSubmit)()
+            }
+          }
+        }}
+      >
+        <DialogTitle>Lý do từ chối</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Vui lòng nhập lý do từ chối đề tài này.
+          </DialogContentText>
+          <TextField
+            fullWidth
+            label="Lý do *"
+            error={!!errors['reason']}
+            multiline
+            sx={{ mt: 3 }}
+            {...register('reason', {
+              required: FIELD_REQUIRED_MESSAGE
+            })}
+          />
+          {errors['reason'] && (
+            <Alert severity="error" sx={{ mt: 3 }}>{String(errors['reason']?.message)}</Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color='error'>Hủy</Button>
+          <Button loading={loadingButton} loadingPosition='start' type="submit">Từ chối</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Dialog See reason*/}
       <Dialog

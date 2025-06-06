@@ -20,6 +20,7 @@ import { useLoading } from 'src/context'
 import thesesApi from 'src/axios/theses'
 import academyApi from 'src/axios/academy'
 import { DashboardContent } from 'src/layouts/dashboard'
+import { TopicStatusCode } from 'src/constants/topic-status'
 
 import { Scrollbar } from 'src/components/scrollbar'
 import { MultipleSelectTextField } from 'src/components/select'
@@ -177,7 +178,7 @@ export function CreateTopicProposalView() {
         description: data.description,
         thesis_type: data.thesis_type,
         lecturer_ids: data.lecturer_ids,
-        status: 3,
+        status: TopicStatusCode.PENDING_APPROVAL,
         major_id: data.major_id,
         start_date: selectedBatchInfo?.start_date,
         end_date: selectedBatchInfo?.end_date

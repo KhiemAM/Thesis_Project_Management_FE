@@ -1,12 +1,14 @@
 import Box from '@mui/material/Box'
-import Tooltip from '@mui/material/Tooltip'
 import Toolbar from '@mui/material/Toolbar'
-import IconButton from '@mui/material/IconButton'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import InputAdornment from '@mui/material/InputAdornment'
 
 import { Iconify } from 'src/components/iconify'
 import MultipleSelectFilter from 'src/components/select/multiple-select-filter'
+
+import { TopicSort } from './topic-proposal-sort'
+
+import type { Batch } from './types'
 
 // ----------------------------------------------------------------------
 
@@ -17,9 +19,32 @@ type UserTableToolbarProps = {
   valueMultipleSelect: string[];
   filterInstructor: string[];
   onFilterInstructor: (newValue: string[]) => void;
+  sortBy: string;
+  onSort: (newSort: string) => void;
+  option: Batch[];
 };
 
-export function UserTableToolbar({ numSelected, filterName, onFilterName, valueMultipleSelect, filterInstructor, onFilterInstructor }: UserTableToolbarProps) {
+const formatBatchOptions = (batches: Batch[]) => batches.map((batch) => {
+  const academyYearName = batch.semester.academy_year?.name
+  const label = `${batch.name} - ${batch.semester.name}${academyYearName ? ` (${academyYearName})` : ''}`
+  return {
+    label,
+    value: batch.id
+  }
+})
+
+
+export function UserTableToolbar({
+  numSelected,
+  filterName,
+  onFilterName,
+  valueMultipleSelect,
+  filterInstructor,
+  onFilterInstructor,
+  sortBy,
+  onSort,
+  option
+}: UserTableToolbarProps) {
   return (
   // <Toolbar
   //   sx={{
@@ -90,11 +115,14 @@ export function UserTableToolbar({ numSelected, filterName, onFilterName, valueM
         />
       </Box>
 
-      <Tooltip title="Filter list">
-        <IconButton>
-          <Iconify icon="ic:round-filter-list" />
-        </IconButton>
-      </Tooltip>
+      <TopicSort
+        sortBy={sortBy}
+        onSort={onSort}
+        options={[
+          { label: 'Tất cả', value: 'Tất cả' },
+          ...formatBatchOptions(option)
+        ]}
+      />
     </Toolbar>
   )
 }

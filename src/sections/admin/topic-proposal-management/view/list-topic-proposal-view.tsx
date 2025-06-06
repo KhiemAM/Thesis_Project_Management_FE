@@ -32,6 +32,7 @@ import { emptyRows, applyFilter, getComparator } from '../utils'
 import { TopicProposalTableRow } from '../topic-proposal-table-row'
 import { TopicProposalTabsStatusFilter } from '../topic-proposal-tabs-status-filter'
 
+import type { Batch } from '../types'
 import type { TopicProps } from '../topic-proposal-table-row'
 
 // ----------------------------------------------------------------------
@@ -46,6 +47,8 @@ export function ListTopicProposalView() {
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
   const [_topic, setTopic] = useState<TopicProps[]>([])
   const [instructor, setInstructor] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState('Tất cả')
+  const [batches, setBatches] = useState<Batch[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -70,18 +73,33 @@ export function ListTopicProposalView() {
   const fetchTheses = useCallback(async () => {
     try {
       setIsLoading(true)
-      const res = await thesesApi.getAllTheses()
+      let res
+      if (sortBy === 'Tất cả') {
+        res = await thesesApi.getAllTheses()
+      } else {
+        res = await thesesApi.getTheseByBatchId(sortBy)
+      }
       setTopic(res.data)
     } finally {
       setIsLoading(false)
     }
-  }, [setIsLoading])
+  }, [setIsLoading, sortBy])
 
   const fetchUserLecturers = useCallback(async () => {
     try {
       setIsLoading(true)
       const res = await userApi.getUserLectures()
-      setInstructor(res.data.map((item: any) => `${item.first_name} ${item.last_name}`))
+      setInstructor(res.data.map((item: any) => `${item.last_name} ${item.first_name}`))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  const fetchAcademy = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.getAllBatches()
+      setBatches(res.data)
     } finally {
       setIsLoading(false)
     }
@@ -90,7 +108,8 @@ export function ListTopicProposalView() {
   useEffect(() => {
     fetchUserLecturers()
     fetchTheses()
-  }, [fetchTheses, fetchUserLecturers])
+    fetchAcademy()
+  }, [fetchTheses, fetchUserLecturers, fetchAcademy])
 
   const dataFiltered: TopicProps[] = applyFilter({
     inputData: _topic,
@@ -244,6 +263,9 @@ export function ListTopicProposalView() {
           valueMultipleSelect={instructor}
           filterInstructor={filterInstructor}
           onFilterInstructor={handleFilterInstructor}
+          sortBy={sortBy}
+          onSort={setSortBy}
+          option={batches}
         />
 
         <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>

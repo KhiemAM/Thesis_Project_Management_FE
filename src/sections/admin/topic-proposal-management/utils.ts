@@ -100,9 +100,9 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
   }
 
   if (filter.filterSelect.data.length > 0) {
-    const instructorLabels = filter.filterSelect.data.map((item) => item.label)
+    const instructorLabels = filter.filterSelect.data.map((item) => item.label.trim())
     inputData = inputData.filter((item) =>
-      item.instructors.some((instructor) => instructorLabels.includes(instructor.name))
+      item.instructors.some((instructor) => instructorLabels.includes(instructor.name.trim()))
     )
   }
 
@@ -126,18 +126,36 @@ export const getColorByDepartment = (department: string) => {
 
 export const getColorByStatus = (status: string) => {
   switch (status) {
-  case getTopicStatusText(3):
-    return 'warning'
-  case getTopicStatusText(1):
-    return 'info'
   case getTopicStatusText(0):
     return 'error'
+  case getTopicStatusText(1):
+    return 'warning'
   case getTopicStatusText(2):
     return 'primary'
-  case getTopicStatusText(4):
+  case getTopicStatusText(3):
     return 'success'
-  case getTopicStatusText(5):
-    return 'error'
+  default:
+    return 'default'
+  }
+}
+
+export const getColorByStatusDepartment = (status: string) => {
+  switch (status) {
+  case getTopicStatusText(1):
+    return 'warning'
+  case getTopicStatusText(2):
+    return 'success'
+  default:
+    return 'default'
+  }
+}
+
+export const getColorByStatusFaculty = (status: string) => {
+  switch (status) {
+  case getTopicStatusText(2):
+    return 'warning'
+  case getTopicStatusText(3):
+    return 'success'
   default:
     return 'default'
   }

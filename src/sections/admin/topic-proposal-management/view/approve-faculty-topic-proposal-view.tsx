@@ -15,6 +15,7 @@ import userApi from 'src/axios/user'
 import thesesApi from 'src/axios/theses'
 import { useLoading } from 'src/context'
 import { DashboardContent } from 'src/layouts/student'
+import { TopicStatusText } from 'src/constants/topic-status'
 
 import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
@@ -25,9 +26,10 @@ import { TopicTabsFilter } from '../topic-tabs-filter'
 import { UserTableToolbar } from '../user-table-toolbar'
 import { UserTableHead } from '../topic-proposal-table-head'
 import { emptyRows, applyFilter, getComparator } from '../utils'
-import { ApproveTopicProposalTableRow } from '../approve-topic-proposal-table-row'
-import { ApproveTopicProposalTabsStatusFilter } from '../approve-topic-proposal-tabs-status-filter'
+import { ApproveFacultyTopicProposalTableRow } from '../approve-faculty-topic-proposal-table-row'
+import { ApproveFacultyTopicProposalTabsStatusFilter } from '../approve-faculty-topic-proposal-tabs-status-filter'
 
+import type { Batch } from '../types'
 import type { ApproveTopicProps } from '../approve-topic-proposal-table-row'
 
 // ----------------------------------------------------------------------
@@ -42,6 +44,8 @@ export function ApproveFacultyTopicProposalView() {
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
   const [_topic, setTopic] = useState<ApproveTopicProps[]>([])
   const [instructor, setInstructor] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState('Tất cả')
+  const [batches, setBatches] = useState<Batch[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -66,18 +70,37 @@ export function ApproveFacultyTopicProposalView() {
   const fetchTheses = useCallback(async () => {
     try {
       setIsLoading(true)
-      const res = await thesesApi.getAllTheses()
-      setTopic(res.data)
+      let res
+      if (sortBy === 'Tất cả') {
+        res = await thesesApi.getAllTheses()
+      } else {
+        res = await thesesApi.getTheseByBatchId(sortBy)
+      }
+      setTopic(
+        res.data.filter(
+          (topic: ApproveTopicProps) => ![TopicStatusText[0], TopicStatusText[1]].includes(topic.status)
+        )
+      )
     } finally {
       setIsLoading(false)
     }
-  }, [setIsLoading])
+  }, [setIsLoading, sortBy])
 
   const fetchUserLecturers = useCallback(async () => {
     try {
       setIsLoading(true)
       const res = await userApi.getUserLectures()
-      setInstructor(res.data.map((item: any) => `${item.first_name} ${item.last_name}`))
+      setInstructor(res.data.map((item: any) => `${item.last_name} ${item.first_name}`))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  const fetchAcademy = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.getAllBatches()
+      setBatches(res.data)
     } finally {
       setIsLoading(false)
     }
@@ -86,10 +109,11 @@ export function ApproveFacultyTopicProposalView() {
   useEffect(() => {
     fetchUserLecturers()
     fetchTheses()
-  }, [fetchTheses, fetchUserLecturers])
+    fetchAcademy()
+  }, [fetchTheses, fetchUserLecturers, fetchAcademy])
 
   const dataFiltered: ApproveTopicProps[] = applyFilter({
-    inputData: _topic.filter((topic) => topic.status !== 'Từ chối'),
+    inputData: _topic,
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
   })
@@ -215,14 +239,14 @@ export function ApproveFacultyTopicProposalView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Duyệt đề tài
+          Duyệt đề tài cấp bộ môn
         </Typography>
       </Box>
 
       <Card>
         <TopicTabsFilter data={_topic} value={filterDepartment} setValue={handleFilterDepartment}/>
 
-        <ApproveTopicProposalTabsStatusFilter value={filterStatus} setValue={handleFilterStatus}/>
+        <ApproveFacultyTopicProposalTabsStatusFilter data={_topic} value={filterStatus} setValue={handleFilterStatus}/>
 
         <UserTableToolbar
           numSelected={table.selected.length}
@@ -231,6 +255,9 @@ export function ApproveFacultyTopicProposalView() {
           valueMultipleSelect={instructor}
           filterInstructor={filterInstructor}
           onFilterInstructor={handleFilterInstructor}
+          sortBy={sortBy}
+          onSort={setSortBy}
+          option={batches}
         />
 
         <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>
@@ -267,7 +294,7 @@ export function ApproveFacultyTopicProposalView() {
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
                   .map((row) => (
-                    <ApproveTopicProposalTableRow
+                    <ApproveFacultyTopicProposalTableRow
                       key={row.id}
                       row={row}
                       selected={table.selected.includes(row.id)}

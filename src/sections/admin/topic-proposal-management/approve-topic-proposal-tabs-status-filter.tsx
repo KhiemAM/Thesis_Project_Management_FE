@@ -2,14 +2,21 @@ import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
+import { getTopicStatusText } from 'src/constants/topic-status'
+
 import { Label } from 'src/components/label'
 
+import { getDataFilterByTabs } from './utils'
+
+import type { TopicProps } from './topic-proposal-table-row'
+
 interface TopicTabsFilterProps {
+  data: TopicProps[]
   value: string
   setValue: (newValue: string) => void
 }
 
-export function ApproveTopicProposalTabsStatusFilter({ value, setValue }: TopicTabsFilterProps) {
+export function ApproveTopicProposalTabsStatusFilter({ data, value, setValue }: TopicTabsFilterProps) {
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
@@ -23,9 +30,9 @@ export function ApproveTopicProposalTabsStatusFilter({ value, setValue }: TopicT
         indicatorColor="primary"
         aria-label="topic department tabs"
       >
-        <Tab value="Tất cả" label="Tất cả" icon={<Label color='default'>24</Label>} iconPosition='end'/>
-        <Tab value="Đã duyệt" label="Đã duyệt" icon={<Label color='success'>4</Label>} iconPosition='end'/>
-        <Tab value="Chờ duyệt" label="Chờ duyệt" icon={<Label color='warning'>9</Label>} iconPosition='end'/>
+        <Tab value="Tất cả" label="Tất cả" icon={<Label color='default'>{data.length}</Label>} iconPosition='end'/>
+        <Tab value={getTopicStatusText(1)} label={getTopicStatusText(1)} icon={<Label color='warning'>{getDataFilterByTabs(data, 'status', getTopicStatusText(1)).length}</Label>} iconPosition='end'/>
+        <Tab value={getTopicStatusText(2)} label={getTopicStatusText(2)} icon={<Label color='success'>{getDataFilterByTabs(data, 'status', getTopicStatusText(2)).length}</Label>} iconPosition='end'/>
       </Tabs>
     </Box>
   )

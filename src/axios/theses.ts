@@ -25,6 +25,12 @@ const thesesApi = {
   },
   deleteThese(id: string): Promise<any> {
     return instance.delete(`/theses/${id}`)
+  },
+  getAllBatches(): Promise<any> {
+    return instance.get('/theses/getall/batches')
+  },
+  getTheseByBatchId(batchId: string): Promise<any> {
+    return instance.get(`/theses/by-batch/${batchId}`)
   }
 }
 
