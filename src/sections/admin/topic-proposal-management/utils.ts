@@ -159,6 +159,19 @@ export const getColorByStatusFaculty = (status: string) => {
   default:
     return 'default'
   }
+
+}
+export const getColorByStatusAnnounce = (status: string) => {
+  switch (status) {
+  case getTopicStatusText(3):
+    return 'warning'
+  case getTopicStatusText(4):
+    return 'error'
+  case getTopicStatusText(5):
+    return 'success'
+  default:
+    return 'default'
+  }
 }
 
 export const getColorByThesisType = (department: string) => {

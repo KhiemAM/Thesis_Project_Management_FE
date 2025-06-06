@@ -1,3 +1,4 @@
+export * from './announce-topic-view'
 export * from './list-topic-proposal-view'
 export * from './create-topic-proposal-view'
 export * from './import-topic-proposal-view'

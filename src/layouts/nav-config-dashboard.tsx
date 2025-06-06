@@ -89,17 +89,17 @@ export const navData = [
     icon: icon('solar--document-add-bold-duotone'),
     children: [
       {
-        title: 'Danh sách đề xuất đề tài',
+        title: 'Danh sách đề tài đề xuất',
         path: '/topic-proposal/list'
       },
       {
         title: 'Lập đề xuất đề tài',
         path: '/topic-proposal/create'
       },
-      {
-        title: 'Import đề xuất đề tài',
-        path: '/topic-proposal/import'
-      },
+      // {
+      //   title: 'Import đề xuất đề tài',
+      //   path: '/topic-proposal/import'
+      // },
       {
         title: 'Duyệt đề tài cấp bộ môn',
         path: '/topic-proposal/approve'
@@ -107,6 +107,10 @@ export const navData = [
       {
         title: 'Duyệt đề tài cấp khoa',
         path: '/topic-proposal/approve-faculty'
+      },
+      {
+        title: 'Danh sách đề tài',
+        path: '/topic-proposal/announce'
       }
     ]
   },

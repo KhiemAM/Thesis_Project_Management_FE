@@ -43,6 +43,7 @@ export const CreateTopicProposalPage = lazy(() => import('src/pages/admin/topicP
 export const ApproveTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/approve-topic-proposal'))
 export const ApproveFacultyTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/approve-faculty-topic-proposal'))
 export const ImportTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/import-topic-proposal'))
+export const AnnounceTopicPage = lazy(() => import('src/pages/admin/topicProposalManagement/announce-topic'))
 //----------------------- Group Management--------------------------------------
 export const ListGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/list-group-student'))
 export const ProgressGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/progress-group-student'))
@@ -148,7 +149,8 @@ const MainRoutes = () => [
           { path: 'create', element: <CreateTopicProposalPage /> },
           { path: 'approve', element: <ApproveTopicProposalPage /> },
           { path: 'approve-faculty', element: <ApproveFacultyTopicProposalPage /> },
-          { path: 'import', element: <ImportTopicProposalPage /> }
+          { path: 'import', element: <ImportTopicProposalPage /> },
+          { path: 'announce', element: <AnnounceTopicPage /> }
         ]
       },
       {
