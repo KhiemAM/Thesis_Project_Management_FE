@@ -43,7 +43,7 @@ export function SignInView() {
       dispatch(loginUserAPI(data)).unwrap(),
       { pending: 'Đang đăng nhập...', success: 'Đăng nhập thành công!' }
     ).then((res) => {
-      if (!res.error) {
+      if (res) {
         navigate('/student')
       }
     })

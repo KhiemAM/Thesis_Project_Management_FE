@@ -12,7 +12,7 @@ import {
 
 import { Iconify } from 'src/components/iconify'
 
-export type ProfileStudentTabValue = 'information' | 'account';
+export type ProfileStudentTabValue = 'information' | 'account' | 'role';
 
 interface ProfileUserTabsProps {
   value: ProfileStudentTabValue;
@@ -54,6 +54,19 @@ const ProfileUserTabs: React.FC<ProfileUserTabsProps> = ({ value, onChange }) =>
           label="Tài khoản"
           value="account"
           icon={<Iconify icon='solar:folder-security-bold' />}
+          iconPosition='start'
+          sx={{
+            py: 2,
+            minWidth: isMobile ? 'auto' : 120,
+            transition: 'all 0.2s ease',
+            '&.Mui-selected': {
+            }
+          }}
+        />
+        <MuiTab
+          label="Vai trò"
+          value="role"
+          icon={<Iconify icon='solar:shield-user-bold' />}
           iconPosition='start'
           sx={{
             py: 2,

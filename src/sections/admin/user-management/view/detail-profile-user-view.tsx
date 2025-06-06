@@ -22,8 +22,9 @@ import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import ProfileUserTabs from '../profile-user-tabs'
-import ProfileUserAccount from '../profile-user-account'
 import ProfileUserCoverImage from '../profile-user-cover-image'
+import DetailProfileUserRole from '../detail-profile-user-role'
+import DetailProfileUserAccount from '../detail-profile-user-account'
 import DetailProfileStudentInformation from '../detail-profile-student-information'
 import DetailProfileStudentSidebarInfo from '../detail-profile-student-sidebar-info'
 import DetailProfileLecturerInformation from '../detail-profile-lecturer-information'
@@ -121,7 +122,9 @@ export function DetailProfileUserView() {
     case 'information':
       return studentInfo?.lecturer_info ? <DetailProfileLecturerInformation initialValues={studentInfo} /> : <DetailProfileStudentInformation initialValues={studentInfo}/>
     case 'account':
-      return <ProfileUserAccount />
+      return <DetailProfileUserAccount userId={id || null}/>
+    case 'role':
+      return <DetailProfileUserRole userId={id || null}/>
     default:
       return studentInfo?.lecturer_info ? <DetailProfileLecturerInformation initialValues={studentInfo} /> : <DetailProfileStudentInformation initialValues={studentInfo}/>
     }

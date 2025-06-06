@@ -151,7 +151,7 @@ export function UserTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
         <Divider />
 
         <Scrollbar>
-          <ProfileStudentSidebarInfo isDrawer/>
+          {/* <ProfileStudentSidebarInfo isDrawer/> */}
         </Scrollbar>
       </Drawer>
     </>

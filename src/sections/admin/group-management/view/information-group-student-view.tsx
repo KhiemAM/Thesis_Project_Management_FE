@@ -104,7 +104,7 @@ export function InformationGroupStudentView() {
         </Box>
 
         <Divider />
-        <ProfileStudentSidebarInfo isDrawer/>
+        {/* <ProfileStudentSidebarInfo isDrawer/> */}
       </Drawer>
 
     </DashboardContent>

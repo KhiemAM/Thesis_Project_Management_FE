@@ -71,7 +71,7 @@ export function ListUserView() {
   }, [fetchUsers])
 
   const dataFiltered: UserProps[] = applyFilter({
-    inputData: _users,
+    inputData: _users.filter((user) => String(user.user_type) !== '1'),
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
   })

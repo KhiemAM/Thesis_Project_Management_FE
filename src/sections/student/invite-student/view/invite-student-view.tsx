@@ -116,7 +116,7 @@ export function InviteStudentView() {
         </Box>
 
         <Divider />
-        <ProfileStudentSidebarInfo isDrawer/>
+        {/* <ProfileStudentSidebarInfo isDrawer/> */}
       </Drawer>
     </DashboardContent>
   )

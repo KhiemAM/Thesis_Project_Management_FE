@@ -64,23 +64,32 @@ export function UpdateRoleView() {
   const [roleDetail, setRoleDetail] = useState<RoleDetail | null>(null)
   const [functions, setFunctions] = useState([])
   const [checkedIds, setCheckedIds] = useState<string[]>([])
+  console.log('🚀 ~ UpdateRoleView ~ checkedIds:', checkedIds)
   const [isLoadingButton, setIsLoadingButton] = useState(false)
 
-  const flattenFunctionIds = useCallback((functionList: any[]): string[] => _(functionList)
-    .flatMap((f) => {
-      if (!f || typeof f.id === 'undefined') return [] // bỏ qua nếu không hợp lệ
-      const children = Array.isArray(f.children) ? f.children : []
-      return [f, ...flattenFunctionIds(children)]
-    })
-    .map((f) => String(f.id))
-    .filter((functionId) => functionId !== 'undefined') // Bỏ các giá trị 'undefined' string
-    .value(), [])
+  const flattenFunctionIds = useCallback((data: any[]): string[] => {
+    const result: string[] = []
 
+    const traverse = (items: any[]) => {
+      for (const item of items) {
+        result.push(String(item.id)) // thêm chính nó
+        if (item.children && item.children.length > 0) {
+          traverse(item.children) // đệ quy vào con
+        }
+      }
+    }
+    // Lọc các item có children để chỉ lấy nhánh cha cần thiết
+    const parentsWithChildren = _.filter(data, item => item.children && item.children.length > 0)
+    traverse(parentsWithChildren)
+
+    return result
+  }, [])
 
   const fetchFunctions = useCallback(async () => {
     try {
       setIsLoading(true)
       const resFunctionDetail = await rolesApi.getRoleById(id as string)
+      console.log('🚀 ~ fetchFunctions ~ resFunctionDetail:', resFunctionDetail.data.function)
       const resFunctions = await functionsApi.getAllFunctions()
       setFunctions(resFunctions.data)
       setRoleDetail(resFunctionDetail.data)

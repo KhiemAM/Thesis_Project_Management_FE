@@ -11,7 +11,7 @@ const authApi = {
     return instance.post('/auth/change-password', payload)
   },
   changePasswordByAdmin(payload) {
-    return instance.post('/auth/change-password-by-admin', payload)
+    return instance.post('/auth/admin-change-password', payload)
   }
 }
 
