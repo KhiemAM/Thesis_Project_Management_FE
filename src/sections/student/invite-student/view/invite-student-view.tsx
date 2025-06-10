@@ -116,7 +116,32 @@ export function InviteStudentView() {
         </Box>
 
         <Divider />
-        {/* <ProfileStudentSidebarInfo isDrawer/> */}
+        <ProfileStudentSidebarInfo
+          isDrawer
+          initialValues={{
+            user_id: 'ed629b03-aa01-4c7e-ba5d-86b4de5735c8',
+            information: {
+              id: '0705aad0-5e65-4850-997a-687b0beceb39',
+              user_id: 'ed629b03-aa01-4c7e-ba5d-86b4de5735c8',
+              first_name: 'Khiêm',
+              last_name: 'Huỳnh Quang',
+              date_of_birth: '2000-04-15',
+              gender: '1',
+              address: 'Tân An, Long An',
+              tel_phone: '0356576557'
+            },
+            student_info: {
+              student_code: '2001210783',
+              class_name: '12DHTH05',
+              major_id: '4c5ccb13-e1da-48de-a067-a7fdd547040c',
+              major_name: 'Công nghệ thông tin',
+              id: '0e8fc47e-2e22-46c7-a36d-234567891234',
+              user_id: 'ed629b03-aa01-4c7e-ba5d-86b4de5735c8',
+              create_datetime: '2024-08-01T10:30:00',
+              update_datetime: '2025-06-06T15:45:00'
+            }
+          }}
+        />
       </Drawer>
     </DashboardContent>
   )

@@ -1,6 +1,7 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
 import { v4 as uuidv4 } from 'uuid'
+import { jwtDecode } from 'jwt-decode'
 import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
@@ -14,8 +15,10 @@ import TablePagination from '@mui/material/TablePagination'
 import userApi from 'src/axios/user'
 import thesesApi from 'src/axios/theses'
 import { useLoading } from 'src/context'
+import { useAppSelector } from 'src/redux/hook'
 import { DashboardContent } from 'src/layouts/student'
 import { TopicStatusText } from 'src/constants/topic-status'
+import { selectCurrentUser } from 'src/redux/user/user-slice'
 
 import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
@@ -33,11 +36,20 @@ import type { Batch } from '../types'
 import type { ApproveTopicProps } from '../approve-topic-proposal-table-row'
 
 // ----------------------------------------------------------------------
+interface DecodedToken {
+  uuid: string;
+  name: string;
+  type: number; // 2 = student, 3 = admin (tuỳ theo hệ thống của bạn)
+  functions: string[]; // danh sách đường dẫn chức năng được phép truy cập
+  exp: number; // thời gian hết hạn token (UNIX timestamp)
+}
 
 export function ApproveTopicProposalView() {
   const { setIsLoading } = useLoading()
   const table = useTable()
   const id = uuidv4()
+  const currentUser = useAppSelector(selectCurrentUser)
+  const userInfo = currentUser ? jwtDecode<DecodedToken>(currentUser.access_token) : null
   const [filterName, setFilterName] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('Tất cả')
   const [filterStatus, setFilterStatus] = useState('Tất cả')
@@ -46,6 +58,7 @@ export function ApproveTopicProposalView() {
   const [instructor, setInstructor] = useState<string[]>([])
   const [sortBy, setSortBy] = useState('Tất cả')
   const [batches, setBatches] = useState<Batch[]>([])
+  const [userFullInformation, setUserFullInformation] = useState<any>(null)
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -106,14 +119,32 @@ export function ApproveTopicProposalView() {
     }
   }, [setIsLoading])
 
+  const fetchUserInformation = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      if (userInfo?.uuid) {
+        const res = await userApi.getUserFullProfile(userInfo.uuid)
+        setUserFullInformation(res.data)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, userInfo?.uuid])
+
   useEffect(() => {
     fetchUserLecturers()
     fetchTheses()
     fetchAcademy()
-  }, [fetchTheses, fetchUserLecturers, fetchAcademy])
+    fetchUserInformation()
+  }, [fetchTheses, fetchUserLecturers, fetchAcademy, fetchUserInformation])
 
   const dataFiltered: ApproveTopicProps[] = applyFilter({
-    inputData: _topic,
+    inputData: String(userInfo?.type) === '1'
+      ? _topic // sinh viên => không lọc, lấy toàn bộ
+      : _topic.filter(
+        (topic) =>
+          topic.instructors[0]?.department_name === userFullInformation?.lecturer_info?.department_name
+      ),
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
   })

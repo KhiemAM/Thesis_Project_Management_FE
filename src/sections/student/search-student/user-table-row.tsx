@@ -1,43 +1,70 @@
-import { useState, useCallback } from 'react'
+import type { Dayjs } from 'dayjs'
 
-import Box from '@mui/material/Box'
-import Drawer from '@mui/material/Drawer'
+import { toast } from 'react-toastify'
+import { motion } from 'framer-motion'
+import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import { useTheme } from '@mui/material'
 import Popover from '@mui/material/Popover'
-import Divider from '@mui/material/Divider'
-import TableRow from '@mui/material/TableRow'
 import Checkbox from '@mui/material/Checkbox'
 import MenuList from '@mui/material/MenuList'
+import TableRow from '@mui/material/TableRow'
+import { styled } from '@mui/material/styles'
 import TableCell from '@mui/material/TableCell'
 import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
+
+import { fDate } from 'src/utils/format-time'
+
+import functionsApi from 'src/axios/functions'
 
 import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
-import { Scrollbar } from 'src/components/scrollbar'
+import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
-import ProfileStudentSidebarInfo from '../profile-student/profile-student-sidebar-info'
+import { getColorByIsActive } from './utils'
 
 // ----------------------------------------------------------------------
 
-export type SearchStudentProps = {
-  id: string;
-  mssv: string;
-  name: string;
-  class: string;
-  gender: string;
-  birthday: string;
-};
+// Tạo một MotionTableRow từ MUI TableRow với cách sử dụng mới
+const MotionTableRow = motion.create(styled(TableRow)({}))
+
+export interface ProfileProps {
+  user_id: string;
+  information: {
+    id: string;
+    user_id: string;
+    first_name: string;
+    last_name: string;
+    date_of_birth: string; // ISO format: "1985-03-15T00:00:00"
+    gender: string; // 0: Female, 1: Male
+    address: string;
+    tel_phone: string;
+  };
+  student_info: {
+    id: string;
+    user_id: string;
+    student_code: string;
+    class_name: string;
+    major_id: string;
+    major_name: string;
+    create_datetime: string; // ISO format
+    update_datetime: string; // ISO format
+  };
+}
 
 type UserTableRowProps = {
-  row: SearchStudentProps
+  row: ProfileProps;
   selected: boolean;
   onSelectRow: () => void;
+  level?: number;
+  onRefresh?: () => void; // Optional prop for refreshing the table
 };
 
-export function UserTableRow({ row, selected, onSelectRow }: UserTableRowProps) {
+export function UserTableRow({ row, selected, onSelectRow, level = 0, onRefresh }: UserTableRowProps) {
+  const theme = useTheme()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
-  const [openStudentInfoDetail, setOpenStudentInfoDetail] = useState(false)
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     setOpenPopover(event.currentTarget)
@@ -47,43 +74,62 @@ export function UserTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
     setOpenPopover(null)
   }, [])
 
-  const onOpenStudentInfoDetail = useCallback(() => {
-    setOpenStudentInfoDetail(true)
-  }, [])
-
-  const onCloseStudentInfoDetail = useCallback(() => {
-    setOpenStudentInfoDetail(false)
-  }, [])
-
-  const handleInviteStudent = useCallback(() => {
-    // setOpenStudentInfoDetail(false)
-  }, [])
-
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+      <MotionTableRow
+        hover
+        tabIndex={-1}
+        role="checkbox"
+        selected={selected}
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -10, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        sx={
+          level === 0
+            ? {
+              '&.MuiTableRow-root': {
+                borderBottom: '1px solid',
+                borderTop: '1px solid',
+                backgroundColor: theme.vars.palette.action.selected,
+                '&:hover': {
+                  backgroundColor: theme.vars.palette.action.focus
+                }
+              }
+            }
+            : {}
+        }
+      >
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={onSelectRow} />
         </TableCell>
 
-        <TableCell>{row.mssv}</TableCell>
+        <TableCell>{row.student_info.student_code}</TableCell>
 
-        <TableCell>{row.name}</TableCell>
+        <TableCell>{`${row.information.last_name} ${row.information.first_name}`}</TableCell>
 
-        <TableCell>{row.class}</TableCell>
+        <TableCell>{fDate(row.information.date_of_birth)}</TableCell>
 
-        <TableCell>{row.birthday}</TableCell>
+        <TableCell>{String(row.information.gender) === '1' ? 'Nam' : 'Nữ'}</TableCell>
 
-        <TableCell align='center'>
-          <Label color={(row.gender === 'Nữ' && 'error') || 'success'}>{row.gender}</Label>
-        </TableCell>
+        <TableCell>{row.student_info.class_name}</TableCell>
 
-        <TableCell align="right">
+        <TableCell>{row.student_info.major_name}</TableCell>
+
+        {/* <TableCell align='center'>
+          <Label color={getColorByIsActive(row.is_active)}>{row.is_active ? 'Hoạt động' : 'Ngừng hoạt động'}</Label>
+        </TableCell> */}
+
+        <TableCell align="center" sx={{
+          position: 'sticky',
+          right: 0,
+          backgroundColor: `${theme.vars.palette.background.paper}`
+        }}>
           <IconButton onClick={handleOpenPopover}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
-      </TableRow>
+      </MotionTableRow>
 
       <Popover
         open={!!openPopover}
@@ -108,52 +154,12 @@ export function UserTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
             }
           }}
         >
-          <MenuItem onClick={handleClosePopover} sx={{ color: 'primary.main' }}>
-            <Iconify icon="solar:user-plus-linear" />
-            Gửi lời mời
-          </MenuItem>
-
-          <MenuItem onClick={() => { handleClosePopover(); onOpenStudentInfoDetail() }}>
+          <MenuItem onClick={() => { handleClosePopover() }} sx={{ color: 'primary.main' }}>
             <Iconify icon="solar:pen-bold" />
             Xem thông tin
           </MenuItem>
         </MenuList>
       </Popover>
-
-      <Drawer
-        anchor="right"
-        open={openStudentInfoDetail}
-        onClose={onCloseStudentInfoDetail}
-        slotProps={{
-          paper: {
-            sx: { width: { xs: 360, sm: 360 }, overflow: 'hidden' }
-          }
-        }}
-      >
-        <Box
-          sx={{
-            py: 2,
-            pl: 2.5,
-            pr: 1.5,
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        >
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Thông tin sinh viên
-          </Typography>
-
-          <IconButton onClick={onCloseStudentInfoDetail}>
-            <Iconify icon="mingcute:close-line" />
-          </IconButton>
-        </Box>
-
-        <Divider />
-
-        <Scrollbar>
-          {/* <ProfileStudentSidebarInfo isDrawer/> */}
-        </Scrollbar>
-      </Drawer>
     </>
   )
 }

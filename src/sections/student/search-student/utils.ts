@@ -1,4 +1,6 @@
-import type { SearchStudentProps } from './user-table-row'
+import type { ChipsFilter } from 'src/components/chip/types'
+
+import type { ProfileProps } from './user-table-row'
 
 // ----------------------------------------------------------------------
 
@@ -53,12 +55,12 @@ export function getComparator<Key extends keyof any>(
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: SearchStudentProps[];
-  filterName: string;
+  inputData: ProfileProps[];
   comparator: (a: any, b: any) => number;
+  filter: ChipsFilter;
 };
 
-export function applyFilter({ inputData, comparator, filterName }: ApplyFilterProps) {
+export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps) {
   const stabilizedThis = inputData.map((el, index) => [el, index] as const)
 
   stabilizedThis.sort((a, b) => {
@@ -69,11 +71,46 @@ export function applyFilter({ inputData, comparator, filterName }: ApplyFilterPr
 
   inputData = stabilizedThis.map((el) => el[0])
 
-  if (filterName) {
-    inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-    )
-  }
+  // if (filter.filterSearch.data.length > 0) {
+  //   inputData = inputData.filter(
+  //     (item) => item.user_name.toLowerCase().indexOf(filter.filterSearch.data[0].label.toLowerCase()) !== -1
+  //   )
+  // }
+
+  // if (Array.isArray(filter.filterTab) && filter.filterTab.length > 0) {
+  //   // Hàm lấy các label hợp lệ từ filterTab
+  //   const getLabels = (type: string) =>
+  //     filter.filterTab
+  //       .filter((item) => item.display === type)
+  //       .flatMap((item) => item.data)
+  //       .map((chip) => chip.label)
+  //       .filter((label) => label !== 'Tất cả')
+
+  //   // Lấy danh sách labels cho department và status
+  //   const statusLabels = getLabels('Trạng thái')
+
+  //   // Lọc inputData theo cả department và status
+  //   inputData = inputData.filter((item) =>
+  //     (!statusLabels.length || statusLabels.includes(item.is_active ? 'Hoạt động' : 'Ngừng hoạt động'))
+  //   )
+  // }
+
+  // if (filter.filterInstructor.data.length > 0) {
+  //   const instructorLabels = filter.filterInstructor.data.map((item) => item.label)
+  //   inputData = inputData.filter((item) => instructorLabels.includes(item.instructor)
+  //   )
+  // }
 
   return inputData
+}
+
+export const getColorByIsActive = (isActive: boolean) => {
+  switch (isActive) {
+  case true:
+    return 'success'
+  case false:
+    return 'error'
+  default:
+    return 'default'
+  }
 }

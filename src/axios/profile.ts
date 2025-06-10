@@ -22,6 +22,9 @@ const profileApi = {
   },
   updateLecturerProfile(payload: ProfilePayload): Promise<any> {
     return instance.put('/lecturer-profile', payload)
+  },
+  getAllStudentsProfiles(): Promise<any> {
+    return instance.get('/student-profile/gett-all')
   }
 }
 

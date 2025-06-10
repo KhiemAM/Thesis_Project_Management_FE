@@ -1,6 +1,7 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
-import { useState, useCallback } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -10,26 +11,31 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _searchStudent } from 'src/_mock'
+import { useLoading } from 'src/context'
+import profileApi from 'src/axios/profile'
 import { DashboardContent } from 'src/layouts/student'
 
+import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
 import { UserTableRow } from '../user-table-row'
 import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
-import { UserTableToolbar } from '../user-table-toolbar'
+import { UserTabsFilter } from '../user-tabs-filter'
+import { UserTableToolbar } from '../function-table-toolbar'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 
-import type { SearchStudentProps } from '../user-table-row'
+import type { ProfileProps } from '../user-table-row'
 
 // ----------------------------------------------------------------------
 
 export function SearchStudentView() {
+  const { setIsLoading } = useLoading()
   const table = useTable()
-
+  const id = uuidv4()
   const [filterName, setFilterName] = useState('')
+  const [filterStatus, setFilterStatus] = useState('Tất cả')
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -37,23 +43,109 @@ export function SearchStudentView() {
     },
     filterTab: [
       {
-        display: 'Bộ môn',
+        display: 'Trạng thái',
         data: []
       }
     ],
     filterSelect: {
-      display: 'Giáo viên hướng dẫn',
+      display: '',
       data: []
     }
   })
+  const [_profiles, setProfiles] = useState<ProfileProps[]>([])
 
-  const dataFiltered: SearchStudentProps[] = applyFilter({
-    inputData: _searchStudent,
+  const fetchProfile = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await profileApi.getAllStudentsProfiles()
+      setProfiles(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  , [setIsLoading])
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
+
+  const dataFiltered: ProfileProps[] = applyFilter({
+    inputData: _profiles,
     comparator: getComparator(table.order, table.orderBy),
-    filterName
+    filter: chipsFilter
   })
 
   const notFound = !dataFiltered.length && !!filterName
+
+  const handleClearFilter = useCallback(() => {
+    setChipsFilter({
+      filterSearch: {
+        display: 'Tìm kiếm',
+        data: []
+      },
+      filterTab: [
+        {
+          display: 'Trạng thái',
+          data: []
+        }
+      ],
+      filterSelect: {
+        display: '',
+        data: []
+      }
+    })
+    setFilterName('')
+    setFilterStatus('Tất cả')
+  }, [])
+
+  const handleDeleteChipData = useCallback((newChipsFilter: ChipsFilter) => {
+    setChipsFilter(newChipsFilter)
+    Object.keys(newChipsFilter).forEach((key) => {
+      const section = newChipsFilter[key as keyof ChipsFilter]
+
+      // Xử lý cho filterSearch
+      if (key === 'filterSearch' && section && 'data' in section && Array.isArray(section.data) && section.data.length === 0) {
+        setFilterName('')
+      }
+
+      // Xử lý cho filterTab
+      if (key === 'filterTab' && Array.isArray(section)) {
+        section.forEach((item) => {
+          if (Array.isArray(item.data) && item.data.length === 0) {
+            if (item.display === 'Trạng thái') {
+              setFilterStatus('Tất cả')
+            }
+          }
+        })
+      }
+    })
+  }, [])
+
+  const handleFilterName = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setChipsFilter((pvev) => ({
+      ...pvev,
+      filterSearch: {
+        ...pvev.filterSearch,
+        data: event.target.value ? [{ key: id, label: event.target.value }] : []
+      }
+    }))
+
+    setFilterName(event.target.value)
+    table.onResetPage()
+  }, [id, table])
+
+  const handleFilterStatus = useCallback((newValue: string) => {
+    setChipsFilter((prev) => {
+      const updatedFilterTab = prev.filterTab.map((item) =>
+        item.display === 'Trạng thái'
+          ? { ...item, data: newValue !== 'Tất cả' ? [{ key: id, label: newValue }] : [] }
+          : item
+      )
+
+      return { ...prev, filterTab: updatedFilterTab }
+    })
+    setFilterStatus(newValue)
+  }, [id])
 
   return (
     <DashboardContent>
@@ -65,19 +157,20 @@ export function SearchStudentView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Danh sách sinh viên
+          Danh sách tài khoản
         </Typography>
       </Box>
 
       <Card>
+        <UserTabsFilter value={filterStatus} setValue={handleFilterStatus}/>
+
         <UserTableToolbar
           numSelected={table.selected.length}
           filterName={filterName}
-          onFilterName={(event: React.ChangeEvent<HTMLInputElement>) => {
-            setFilterName(event.target.value)
-            table.onResetPage()
-          }}
+          onFilterName={handleFilterName}
         />
+
+        <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>
 
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
@@ -85,22 +178,23 @@ export function SearchStudentView() {
               <UserTableHead
                 order={table.order}
                 orderBy={table.orderBy}
-                rowCount={_searchStudent.length}
+                rowCount={_profiles.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
                 onSelectAllRows={(checked) =>
                   table.onSelectAllRows(
                     checked,
-                    _searchStudent.map((user) => user.id)
+                    _profiles.map((item) => item.user_id)
                   )
                 }
                 headLabel={[
-                  { id: 'mssv', label: 'Mã số sinh viên' },
-                  { id: 'name', label: 'Họ tên' },
-                  { id: 'class', label: 'Lớp' },
-                  { id: 'birthday', label: 'Ngày sinh' },
-                  { id: 'gender', label: 'Giới tính', align: 'center' },
-                  { id: '' }
+                  { id: 'student_code', label: 'Mã số sinh viên', minWidth: 300 },
+                  { id: 'name', label: 'Họ tên', minWidth: 200 },
+                  { id: 'date_of_birth', label: 'Ngày sinh', minWidth: 200 },
+                  { id: 'gender', label: 'Giới tính', minWidth: 200 },
+                  { id: 'class_name', label: 'Tên lớp', minWidth: 200 },
+                  { id: 'major_name', label: 'Chuyên ngành', minWidth: 200 },
+                  { id: '', label: 'Thao tác', minWidth: 100, align: 'center' }
                 ]}
               />
               <TableBody>
@@ -111,16 +205,17 @@ export function SearchStudentView() {
                   )
                   .map((row) => (
                     <UserTableRow
-                      key={row.id}
+                      key={row.user_id}
                       row={row}
-                      selected={table.selected.includes(row.id)}
-                      onSelectRow={() => table.onSelectRow(row.id)}
+                      selected={table.selected.includes(row.user_id)}
+                      onSelectRow={() => table.onSelectRow(row.user_id)}
+                      onRefresh={() => {}}
                     />
                   ))}
 
                 <TableEmptyRows
                   height={68}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, _searchStudent.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, _profiles.length)}
                 />
 
                 {notFound && <TableNoData searchQuery={filterName} />}
@@ -132,7 +227,7 @@ export function SearchStudentView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_searchStudent.length}
+          count={dataFiltered.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}
@@ -147,7 +242,7 @@ export function SearchStudentView() {
 
 export function useTable() {
   const [page, setPage] = useState(0)
-  const [orderBy, setOrderBy] = useState('name')
+  const [orderBy, setOrderBy] = useState('user_name')
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [selected, setSelected] = useState<string[]>([])
   const [order, setOrder] = useState<'asc' | 'desc'>('asc')
