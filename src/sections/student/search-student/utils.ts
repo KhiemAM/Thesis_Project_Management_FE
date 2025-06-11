@@ -71,11 +71,11 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
 
   inputData = stabilizedThis.map((el) => el[0])
 
-  // if (filter.filterSearch.data.length > 0) {
-  //   inputData = inputData.filter(
-  //     (item) => item.user_name.toLowerCase().indexOf(filter.filterSearch.data[0].label.toLowerCase()) !== -1
-  //   )
-  // }
+  if (filter.filterSearch.data.length > 0) {
+    inputData = inputData.filter(
+      (item) => `${item.information.last_name} ${item.information.first_name}`.toLowerCase().indexOf(filter.filterSearch.data[0].label.toLowerCase()) !== -1
+    )
+  }
 
   // if (Array.isArray(filter.filterTab) && filter.filterTab.length > 0) {
   //   // Hàm lấy các label hợp lệ từ filterTab

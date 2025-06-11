@@ -62,8 +62,7 @@ export function SearchStudentView() {
     } finally {
       setIsLoading(false)
     }
-  }
-  , [setIsLoading])
+  }, [setIsLoading])
 
   useEffect(() => {
     fetchProfile()
@@ -242,7 +241,7 @@ export function SearchStudentView() {
 
 export function useTable() {
   const [page, setPage] = useState(0)
-  const [orderBy, setOrderBy] = useState('user_name')
+  const [orderBy, setOrderBy] = useState('name')
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [selected, setSelected] = useState<string[]>([])
   const [order, setOrder] = useState<'asc' | 'desc'>('asc')

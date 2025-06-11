@@ -83,13 +83,13 @@ const MainRoutes = () => [
   {
     path: '/student',
     element: (
-      <ProtectedRoute>
+      // <ProtectedRoute>
         <StudentLayout>
           <Suspense fallback={renderFallback()}>
             <Outlet />
           </Suspense>
         </StudentLayout>
-      </ProtectedRoute>
+      // </ProtectedRoute>
     ),
     children: [
       { index: true, element: <DashboardStudentPage /> },
@@ -103,13 +103,13 @@ const MainRoutes = () => [
   {
     path: '/',
     element: (
-      <ProtectedRoute>
+      // <ProtectedRoute>
         <DashboardLayout>
           <Suspense fallback={renderFallback()}>
             <Outlet />
           </Suspense>
         </DashboardLayout>
-      </ProtectedRoute>
+      // </ProtectedRoute>
     ),
     children: [
       { index: true, element: <DashboardPage /> },

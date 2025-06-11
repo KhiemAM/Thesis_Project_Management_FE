@@ -5,6 +5,9 @@ interface GroupPayload {
 }
 
 const groupApi = {
+  getGroups(): Promise<any> {
+    return instance.get('/group/my-groups')
+  },
   createGroup(payload: GroupPayload): Promise<any> {
     return instance.post('/group', payload)
   }

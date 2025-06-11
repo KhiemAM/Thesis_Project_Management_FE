@@ -86,7 +86,10 @@ const GroupStudentListAccept: React.FC<StudentListProps> = ({
                 />
                 <IconButton
                   edge="end"
-                  onClick={() => onRemoveStudent(student.id)}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onRemoveStudent(student.id)
+                  }}
                   size="small"
                   sx={{
                     color: 'error.main',
