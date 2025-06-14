@@ -15,7 +15,7 @@ import GroupStudentForm from './group-student-form'
 import GroupStudentHeader from './group-student-header'
 import GroupStudentListAccept from './group-student-list-accept'
 
-import type { Group } from './type'
+import type { Group } from './types'
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -43,12 +43,14 @@ interface GroupStudentManagementProps {
   group: Group;
   onUpdateGroup: (group: Group) => void;
   onDeleteGroup: () => void;
+  onOpenInformation?: () => void;
 }
 
 const GroupStudentManagement = ({
   group,
   onUpdateGroup,
-  onDeleteGroup
+  onDeleteGroup,
+  onOpenInformation
 }: GroupStudentManagementProps) => {
   const theme = useTheme()
   const [currentTab, setCurrentTab] = useState(0)
@@ -117,6 +119,7 @@ const GroupStudentManagement = ({
               students={group.members}
               maxMembers={3}
               onRemoveStudent={handleRemoveStudent}
+              onOpenInformation={onOpenInformation}
             />
           </TabPanel>
 

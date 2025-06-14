@@ -40,7 +40,7 @@ const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
   }, [])
 
   const handleRemoveStudent = (id: string) => {
-    setStudents(students.filter(student => student.id !== id))
+    setStudents(students.filter(student => student.user_id !== id))
   }
 
   const isOverLimit = students.length > 3

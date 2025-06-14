@@ -156,6 +156,10 @@ export function UserTableRow({ row, selected, onSelectRow, level = 0, onRefresh 
         >
           <MenuItem onClick={() => { handleClosePopover() }} sx={{ color: 'primary.main' }}>
             <Iconify icon="solar:pen-bold" />
+            Gửi lời mời
+          </MenuItem>
+          <MenuItem onClick={() => { handleClosePopover() }} sx={{ color: 'primary.main' }}>
+            <Iconify icon="solar:pen-bold" />
             Xem thông tin
           </MenuItem>
         </MenuList>

@@ -45,9 +45,9 @@ export const ApproveFacultyTopicProposalPage = lazy(() => import('src/pages/admi
 export const ImportTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/import-topic-proposal'))
 export const AnnounceTopicPage = lazy(() => import('src/pages/admin/topicProposalManagement/announce-topic'))
 //----------------------- Group Management--------------------------------------
-export const ListGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/list-group-student'))
-export const ProgressGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/progress-group-student'))
-export const InformationGroupStudentPage = lazy(() => import('src/pages/admin/groupManagement/information-group-student'))
+export const ListGroupStudentManagementPage = lazy(() => import('src/pages/admin/groupManagement/list-group-student'))
+export const ProgressGroupStudentManagementPage = lazy(() => import('src/pages/admin/groupManagement/progress-group-student'))
+export const InformationGroupStudentManagementPage = lazy(() => import('src/pages/admin/groupManagement/information-group-student'))
 //----------------------- Committee Management--------------------------------------
 export const ListCommitteePage = lazy(() => import('src/pages/admin/committeeManagement/list-committee'))
 
@@ -57,6 +57,8 @@ export const SearchStudentPage = lazy(() => import('src/pages/student/search-stu
 export const InviteStudentPage = lazy(() => import('src/pages/student/invite-student'))
 export const ProfileStudentPage = lazy(() => import('src/pages/student/profile-student'))
 export const GroupStudentPage = lazy(() => import('src/pages/student/group-student'))
+export const ListGroupStudentPage = lazy(() => import('src/pages/student/list-group-student'))
+export const InformationGroupStudentPage = lazy(() => import('src/pages/student/information-group-student'))
 export const TopicStudentPage = lazy(() => import('src/pages/student/topic-student'))
 
 const renderFallback = () => (
@@ -97,6 +99,8 @@ const MainRoutes = () => [
       { path: 'invite', element: <InviteStudentPage /> },
       { path: 'profile', element: <ProfileStudentPage /> },
       { path: 'group', element: <GroupStudentPage /> },
+      { path: 'group-list', element: <ListGroupStudentPage /> },
+      { path: 'information/:id', element: <InformationGroupStudentPage /> },
       { path: 'topic', element: <TopicStudentPage /> }
     ]
   },
@@ -157,9 +161,9 @@ const MainRoutes = () => [
         path: 'group',
         element: <Outlet />,
         children: [
-          { path: 'list', element: <ListGroupStudentPage /> },
-          { path: 'information/:id', element: <InformationGroupStudentPage /> },
-          { path: 'progress/:id', element: <ProgressGroupStudentPage /> }
+          { path: 'list', element: <ListGroupStudentManagementPage /> },
+          { path: 'information/:id', element: <InformationGroupStudentManagementPage /> },
+          { path: 'progress/:id', element: <ProgressGroupStudentManagementPage /> }
         ]
       },
       {
@@ -167,7 +171,7 @@ const MainRoutes = () => [
         element: <Outlet />,
         children: [
           { path: 'list', element: <ListCommitteePage /> },
-          { path: 'create', element: <InformationGroupStudentPage /> }
+          { path: 'create', element: <InformationGroupStudentManagementPage /> }
         ]
       }
       // { path: 'products', element: <ProductsPage /> },

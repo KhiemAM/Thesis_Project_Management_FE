@@ -14,7 +14,7 @@ import ListItemText from '@mui/material/ListItemText'
 
 import { Iconify } from 'src/components/iconify'
 
-import type { Student } from './type'
+import type { Student } from './types'
 
 interface StudentListProps {
   students: Student[];

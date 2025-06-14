@@ -19,6 +19,11 @@ export const navData = [
     icon: icon('mingcute--home-4-line')
   },
   {
+    title: 'Thông tin cá nhân',
+    path: '/student/profile',
+    icon: icon('iconamoon--profile')
+  },
+  {
     title: 'Tìm kiếm',
     path: '/student/search',
     icon: icon('mingcute--search-3-line')
@@ -34,9 +39,9 @@ export const navData = [
     icon: icon('solar--users-group-rounded-linear')
   },
   {
-    title: 'Thông tin cá nhân',
-    path: '/student/profile',
-    icon: icon('iconamoon--profile')
+    title: 'Quản lý nhóm',
+    path: '/student/group-list',
+    icon: icon('solar--users-group-rounded-linear')
   },
   {
     title: 'Chọn đề tài',
