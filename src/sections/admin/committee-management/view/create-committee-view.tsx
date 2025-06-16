@@ -41,12 +41,12 @@ interface IFormInputCreateFunction {
   name: string;
   content: string;
   instructor: string;
-  email: string;
+  topic: string;
   department: string;
   note: string;
 }
 
-export function CreateTopicProposalView() {
+export function CreateCommitteeView() {
   const theme = useTheme()
   const { register, handleSubmit, formState: { errors } } = useForm<IFormInputCreateFunction>()
 
@@ -118,15 +118,15 @@ export function CreateTopicProposalView() {
 
               <TextField
                 fullWidth
-                label="Email *"
-                error={!!errors['email']}
+                label="Danh sách đề tài *"
+                error={!!errors['topic']}
                 sx={{ mb: 3 }}
-                {...register('email', {
+                {...register('topic', {
                   required: FIELD_REQUIRED_MESSAGE
                 })}
               />
-              {errors['email'] && (
-                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['email']?.message)}</Alert>
+              {errors['topic'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['topic']?.message)}</Alert>
               )}
 
               <TextField

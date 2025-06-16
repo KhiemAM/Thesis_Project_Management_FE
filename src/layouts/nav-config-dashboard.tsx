@@ -141,6 +141,14 @@ export const navData = [
       {
         title: 'Danh sách hội đồng',
         path: '/committee/list'
+      },
+      {
+        title: 'Lập hội đồng',
+        path: '/committee/create'
+      },
+      {
+        title: 'Cập nhật hội đồng',
+        path: '/committee/update'
       }
     ]
   },

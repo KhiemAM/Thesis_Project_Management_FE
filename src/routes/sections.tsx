@@ -50,6 +50,7 @@ export const ProgressGroupStudentManagementPage = lazy(() => import('src/pages/a
 export const InformationGroupStudentManagementPage = lazy(() => import('src/pages/admin/groupManagement/information-group-student'))
 //----------------------- Committee Management--------------------------------------
 export const ListCommitteePage = lazy(() => import('src/pages/admin/committeeManagement/list-committee'))
+export const CreateCommitteePage = lazy(() => import('src/pages/admin/committeeManagement/create-committee'))
 
 // ----------------------Student------------------------------------------------
 export const DashboardStudentPage = lazy(() => import('src/pages/student/dashboard-student'))
@@ -171,7 +172,7 @@ const MainRoutes = () => [
         element: <Outlet />,
         children: [
           { path: 'list', element: <ListCommitteePage /> },
-          { path: 'create', element: <InformationGroupStudentManagementPage /> }
+          { path: 'create', element: <CreateCommitteePage /> }
         ]
       }
       // { path: 'products', element: <ProductsPage /> },
