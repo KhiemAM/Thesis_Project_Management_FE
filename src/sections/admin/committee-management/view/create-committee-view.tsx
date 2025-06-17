@@ -1,4 +1,8 @@
-import { useForm } from 'react-hook-form'
+import type { Dayjs } from 'dayjs'
+
+import dayjs from 'dayjs'
+import { useForm, Controller } from 'react-hook-form'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -10,45 +14,47 @@ import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import ListSubheader from '@mui/material/ListSubheader'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
+import thesesApi from 'src/axios/theses'
+import { useLoading } from 'src/context'
 import { DashboardContent } from 'src/layouts/dashboard'
 
 import { Scrollbar } from 'src/components/scrollbar'
 
 // ----------------------------------------------------------------------
-const _department = [
-  {
-    value: 'KTPM',
-    label: 'Kỹ thuật phần mềm'
-  },
-  {
-    value: 'HTTT',
-    label: 'Hệ thống thông tin'
-  },
-  {
-    value: 'KHDL&TTNT',
-    label: 'Khoa học dữ liệu và trí tuệ nhân tạo'
-  },
-  {
-    value: 'MMT-ATTT',
-    label: 'Mạng máy tính và an toàn thông tin'
-  },
-]
 
 interface IFormInputCreateFunction {
   name: string;
-  content: string;
-  instructor: string;
-  topic: string;
-  department: string;
-  note: string;
+  date: string;
+  location: string;
+  major: string;
 }
 
 export function CreateCommitteeView() {
   const theme = useTheme()
-  const { register, handleSubmit, formState: { errors } } = useForm<IFormInputCreateFunction>()
+  const { setIsLoading } = useLoading()
+  const { register, handleSubmit, formState: { errors }, control } = useForm<IFormInputCreateFunction>()
+  const [major, setMajor] = useState<{ value: string; label: string }[]>([])
+
+  const fetchMajor = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.getAllMajor()
+      setMajor(res.data.map((item: { id: string, name: string }) => ({ value: item.id, label: item.name })))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  , [setIsLoading])
+
+  useEffect(() => {
+    // fetchMajor()
+  }, [fetchMajor])
 
   return (
     <form onSubmit={handleSubmit((data) => {
@@ -67,8 +73,8 @@ export function CreateCommitteeView() {
           </Typography>
         </Box>
 
-        <Card sx={{ width: { sm: '100%', md: '60%' }, mx: { sm: 'none', md: 'auto' } }}>
-          <Scrollbar>
+        <Scrollbar>
+          <Card sx={{ width: { sm: '100%', md: '80%' }, mx: { sm: 'none', md: 'auto' } }}>
             <Box
               sx={{
                 display: 'flex',
@@ -78,7 +84,7 @@ export function CreateCommitteeView() {
             >
               <TextField
                 fullWidth
-                label="Tên đề tài *"
+                label="Tên hội đồng *"
                 error={!!errors['name']}
                 sx={{ mb: 3 }}
                 {...register('name', {
@@ -89,53 +95,58 @@ export function CreateCommitteeView() {
                 <Alert severity="error" sx={{ mb: 3 }}>{String(errors['name']?.message)}</Alert>
               )}
 
-              <TextField
-                fullWidth
-                label="Nội dung yêu cầu *"
-                error={!!errors['content']}
-                multiline
-                sx={{ mb: 3 }}
-                {...register('content', {
-                  required: FIELD_REQUIRED_MESSAGE
-                })}
+              <Controller
+                name="date"
+                control={control}
+                rules={{ required: FIELD_REQUIRED_MESSAGE }}
+                render={({ field }) => (
+                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='vi'>
+                    <DateTimePicker
+                      label="Thời gian *"
+                      dayOfWeekFormatter={(weekday) => `${(weekday as Dayjs).format('dd')}`}
+                      enableAccessibleFieldDOMStructure={false}
+                      value={field.value ? dayjs(field.value) : null}
+                      onChange={(newValue) => field.onChange(newValue)}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          variant: 'outlined',
+                          error: !!errors['date'],
+                          slotProps: {
+                            inputLabel: { shrink: true }
+                          }
+                        }
+                      }}
+                      sx={{ mb: 3 }}
+                    />
+                  </LocalizationProvider>
+                )}
               />
-              {errors['content'] && (
-                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['content']?.message)}</Alert>
+              {errors['date'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['date']?.message)}</Alert>
               )}
 
               <TextField
                 fullWidth
-                label="Giáo viên hướng dẫn *"
-                error={!!errors['instructor']}
+                label="Địa điểm *"
+                error={!!errors['location']}
                 sx={{ mb: 3 }}
-                {...register('instructor', {
+                {...register('location', {
                   required: FIELD_REQUIRED_MESSAGE
                 })}
               />
-              {errors['instructor'] && (
-                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['instructor']?.message)}</Alert>
-              )}
-
-              <TextField
-                fullWidth
-                label="Danh sách đề tài *"
-                error={!!errors['topic']}
-                sx={{ mb: 3 }}
-                {...register('topic', {
-                  required: FIELD_REQUIRED_MESSAGE
-                })}
-              />
-              {errors['topic'] && (
-                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['topic']?.message)}</Alert>
+              {errors['location'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['location']?.message)}</Alert>
               )}
 
               <TextField
                 fullWidth
                 select
-                label="Bộ môn *"
-                error={!!errors['department']}
+                label="Chuyên ngành *"
+                defaultValue=''
+                error={!!errors['major']}
                 sx={{ mb: 3 }}
-                {...register('department', {
+                {...register('major', {
                   required: FIELD_REQUIRED_MESSAGE
                 })}
               >
@@ -150,28 +161,53 @@ export function CreateCommitteeView() {
                     </Typography>
                   </Box>
                 </ListSubheader>
-                {_department.map((option) => (
+                {major.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.value}</Typography>
+                      <Typography
+                        variant='body1'
+                        sx={{
+                          flex: 1,
+                          textAlign: 'center',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {option.value}
+                      </Typography>
                       <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
                       <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
                     </Box>
                   </MenuItem>
                 ))}
               </TextField>
-              {errors['department'] && (
-                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['department']?.message)}</Alert>
+              {errors['major'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['major']?.message)}</Alert>
               )}
+            </Box>
+          </Card>
 
-              <TextField
-                fullWidth
-                label="Ghi chú"
-                multiline
-                sx={{ mb: 3 }}
-                {...register('note')}
-              />
+          <Card sx={{ width: { sm: '100%', md: '80%' }, mx: { sm: 'none', md: 'auto' }, mt: 3 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                p: 3
+              }}
+            >
+              <></>
+            </Box>
+          </Card>
 
+          <Card sx={{ width: { sm: '100%', md: '80%' }, mx: { sm: 'none', md: 'auto' }, mt: 3 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                p: 3
+              }}
+            >
               <Button
                 fullWidth
                 size="large"
@@ -186,8 +222,8 @@ export function CreateCommitteeView() {
                 Lập đề xuất
               </Button>
             </Box>
-          </Scrollbar>
-        </Card>
+          </Card>
+        </Scrollbar>
       </DashboardContent>
     </form>
   )

@@ -1,5 +1,3 @@
-import 'dayjs/locale/vi'
-
 import type { Dayjs } from 'dayjs'
 import type { SubmitHandler } from 'react-hook-form'
 
@@ -26,7 +24,6 @@ import { useLoading } from 'src/context'
 import thesesApi from 'src/axios/theses'
 import profileApi from 'src/axios/profile'
 
-dayjs.locale('vi')
 //-------------------------------------------------------------------------
 const _gender = [
   { value: '1', label: 'Nam' },

@@ -1,3 +1,6 @@
+import 'dayjs/locale/vi'
+
+import dayjs from 'dayjs'
 import { Provider } from 'react-redux'
 import { persistStore } from 'redux-persist'
 import { createRoot } from 'react-dom/client'
@@ -12,6 +15,8 @@ import LoadingProvider from './context'
 import { injectStore } from './axios/config'
 import { routesSection } from './routes/sections'
 import { ErrorBoundary } from './routes/components'
+
+dayjs.locale('vi')
 
 injectStore(store)
 const persistor = persistStore(store)
