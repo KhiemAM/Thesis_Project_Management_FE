@@ -17,7 +17,7 @@ import { Iconify } from 'src/components/iconify'
 import type { Student } from './type'
 
 interface StudentListProps {
-  students: Student[];
+  students: Student[] | undefined;
   maxMembers: number;
   onRemoveStudent: (id: string) => void;
   onOpenInformation?: () => void;
@@ -30,18 +30,18 @@ const GroupStudentListAccept: React.FC<StudentListProps> = ({
   onOpenInformation
 }) => {
   const theme = useTheme()
-  const isOverLimit = students.length > maxMembers
+  const isOverLimit = (students?.length ?? 0) > maxMembers
 
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h6" component="h3">
-          Sinh viên ({students.length}/{maxMembers})
+          Sinh viên ({students?.length}/{maxMembers})
         </Typography>
         {isOverLimit && (
           <Fade in>
             <Chip
-              label={`Vui lòng xóa ${students.length - maxMembers} sinh viên`}
+              label={`Vui lòng xóa ${(students?.length ?? 0) - maxMembers} sinh viên`}
               color="error"
               size="small"
               sx={{ animation: 'pulse 2s infinite' }}
@@ -50,7 +50,7 @@ const GroupStudentListAccept: React.FC<StudentListProps> = ({
         )}
       </Box>
 
-      {students.length > 0 ? (
+      {students && students.length > 0 ? (
         <Paper
           elevation={0}
         >
@@ -70,7 +70,7 @@ const GroupStudentListAccept: React.FC<StudentListProps> = ({
                 onClick={onOpenInformation}
               >
                 <Avatar
-                  src={student.avatarUrl}
+                  src="/assets/images/avatar/avatar-1.webp"
                   alt={student.full_name}
                   sx={{
                     width: 48,
@@ -80,7 +80,12 @@ const GroupStudentListAccept: React.FC<StudentListProps> = ({
                   }}
                 />
                 <ListItemText
-                  primary={student.full_name}
+                  primary={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant='h6'>{student.full_name}</Typography>
+                      {student.is_leader && <Iconify color='gold' icon="solar:crown-star-bold" /> }
+                    </Box>
+                  }
                   secondary={student.student_code}
                   slotProps={{ primary: { sx: { fontWeight: 'bold' } } }}
                 />

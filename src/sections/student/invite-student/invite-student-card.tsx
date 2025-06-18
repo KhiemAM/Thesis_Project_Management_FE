@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { toast } from 'react-toastify'
+import { useState, useCallback } from 'react'
 
 import {
   Box,
@@ -8,28 +9,58 @@ import {
   Typography
 } from '@mui/material'
 
-import type { UserData } from './data'
+import inviteApi from 'src/axios/invite'
 
-interface UserProfileCardProps {
-  user: UserData;
+import type { Invite } from './types'
+
+interface InviteCardProps {
+  invite: Invite;
   onOpenInformation: () => void;
+  typeInvite: 'received_invites' | 'sent_invites';
 }
 
-const UserProfileCard = ({ user, onOpenInformation } : UserProfileCardProps) => {
-  const [isVisible, setIsVisible] = useState(true)
-  const [isAccepted, setIsAccepted] = useState(false)
+const InviteCard = ({ invite, onOpenInformation, typeInvite } : InviteCardProps) => {
+  const [isVisible, setIsVisible] = useState(false)
+  const [isAccepted, setIsAccepted] = useState(invite.status === 2)
+  const [isRejected, setIsRejected] = useState(invite.status === 3)
   const [isHovered, setIsHovered] = useState(false)
   const theme = useTheme()
+  const [loadingButton, setLoadingButton] = useState(false)
 
-  const handleAccept = () => {
-    setIsAccepted(true)
-  }
+  const handleRevokeInvite = useCallback(async() => {
+    try {
+      setLoadingButton(true)
+      await inviteApi.revokeInvite(invite.id)
+      toast.success('Hủy lời mời thành công')
+      setIsVisible(true)
+    } finally {
+      setLoadingButton(false)
+    }
+  }, [invite.id])
 
-  const handleReject = () => {
-    setIsVisible(false)
-  }
+  const handleRejectInvite = useCallback(async() => {
+    try {
+      setLoadingButton(true)
+      await inviteApi.rejectInvite(invite.id)
+      toast.success('Từ chối lời mời thành công')
+      setIsRejected(true)
+    } finally {
+      setLoadingButton(false)
+    }
+  }, [invite.id])
 
-  if (!isVisible) {
+  const handleAcceptInvite = useCallback(async() => {
+    try {
+      setLoadingButton(true)
+      await inviteApi.acceptInvite(invite.id)
+      toast.success('Xác nhận lời mời thành công')
+      setIsAccepted(true)
+    } finally {
+      setLoadingButton(false)
+    }
+  }, [invite.id])
+
+  if (isVisible) {
     return null
   }
 
@@ -53,8 +84,8 @@ const UserProfileCard = ({ user, onOpenInformation } : UserProfileCardProps) => 
       onMouseLeave={() => setIsHovered(false)}
     >
       <Avatar
-        src={user.profileImage}
-        alt={user.displayName}
+        src="/assets/images/avatar/avatar-1.webp"
+        alt={invite.receiver.full_name}
         sx={{
           width: 48,
           height: 48,
@@ -64,71 +95,111 @@ const UserProfileCard = ({ user, onOpenInformation } : UserProfileCardProps) => 
         }}
         onClick={onOpenInformation}
       />
-      <Box sx={{ flex: 1, minWidth: 0 }} onClick={onOpenInformation}>
-        <Box sx={{
-          display: 'flex',
-          alignItems: 'center',
-          mb: 0.5
-        }}>
+      { typeInvite === 'received_invites' ? (
+        <Box sx={{ flex: 1, minWidth: 0 }} onClick={onOpenInformation}>
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            mb: 0.5
+          }}>
+            <Typography
+              variant="h5"
+              sx={{
+                '&:hover': {
+                  color: theme.vars.palette.primary.main
+                }
+              }}
+            >
+              {invite.sender.student_code}
+            </Typography>
+          </Box>
           <Typography
-            variant="h5"
-            sx={{
-              '&:hover': {
-                color: theme.vars.palette.primary.main
-              }
-            }}
+            variant="subtitle2"
           >
-            {user.username}
+            {invite.sender.full_name}
           </Typography>
         </Box>
-        <Typography
-          variant="subtitle2"
-        >
-          {user.displayName}
-        </Typography>
-      </Box>
+      ) : (
+        <Box sx={{ flex: 1, minWidth: 0 }} onClick={onOpenInformation}>
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            mb: 0.5
+          }}>
+            <Typography
+              variant="h5"
+              sx={{
+                '&:hover': {
+                  color: theme.vars.palette.primary.main
+                }
+              }}
+            >
+              {invite.receiver.student_code}
+            </Typography>
+          </Box>
+          <Typography
+            variant="subtitle2"
+          >
+            {invite.receiver.full_name}
+          </Typography>
+        </Box>
+      )}
+
       <Box sx={{ ml: 2, display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-        {user.type === 'inviter' ? (
-          <><Button
-            variant={isAccepted ? 'outlined' : 'contained'}
-            onClick={handleAccept}
-            disabled={isAccepted}
-            sx={{
-              minWidth: '100px',
-              fontWeight: 700,
-              backgroundColor: isAccepted ? 'transparent' : undefined,
-              color: isAccepted ? theme.palette.text.primary : undefined,
-              borderColor: isAccepted ? theme.palette.text.primary : undefined,
-              '&:hover': {
-                backgroundColor: isAccepted
-                  ? theme.palette.action.hover
-                  : theme.palette.primary.dark
-              },
-              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}
-          >
-            {isAccepted ? 'Đã xác nhận' : 'Xác nhận'}
-          </Button><Button
-            variant="outlined"
-            onClick={handleReject}
-            sx={{
-              minWidth: '100px',
-              fontWeight: 700,
-              borderColor: theme.palette.error.main,
-              color: theme.palette.error.main,
-              '&:hover': {
-                backgroundColor: theme.palette.error.main + '15',
-                borderColor: theme.palette.error.main
-              },
-              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}
-          >
-              Từ chối
-          </Button></>
+        {typeInvite === 'received_invites' ? (
+          <>
+            <Button
+              variant={isAccepted ? 'outlined' : 'contained'}
+              loading={loadingButton}
+              loadingPosition="start"
+              onClick={handleAcceptInvite}
+              disabled={isAccepted}
+              sx={{
+                display: isRejected ? 'none' : 'inline-flex',
+                minWidth: '100px',
+                fontWeight: 700,
+                backgroundColor: isAccepted ? 'transparent' : undefined,
+                color: isAccepted ? theme.palette.text.primary : undefined,
+                borderColor: isAccepted ? theme.palette.text.primary : undefined,
+                '&:hover': {
+                  backgroundColor: isAccepted
+                    ? theme.palette.action.hover
+                    : theme.palette.primary.dark
+                },
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              {isAccepted ? 'Đã xác nhận' : 'Xác nhận'}
+            </Button>
+            <Button
+              variant="outlined"
+              loading={loadingButton}
+              loadingPosition="start"
+              onClick={handleRejectInvite}
+              disabled={isRejected}
+              sx={{
+                display: isAccepted ? 'none' : 'inline-flex',
+                minWidth: '100px',
+                fontWeight: 700,
+                borderColor: theme.palette.error.main,
+                color: theme.palette.error.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.error.main + '15',
+                  borderColor: theme.palette.error.main
+                },
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              {isRejected ? 'Đã từ chối' : 'Từ chối'}
+            </Button>
+          </>
         ) : (
           <Button
             variant="outlined"
-            onClick={handleReject}
+            loading={loadingButton}
+            loadingPosition="start"
+            onClick={handleRevokeInvite}
+            disabled={isAccepted || isRejected}
             sx={{
               minWidth: '100px',
               fontWeight: 700,
@@ -141,7 +212,7 @@ const UserProfileCard = ({ user, onOpenInformation } : UserProfileCardProps) => 
               transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
           >
-            Hủy
+            { isAccepted ? 'Đã xác nhận' : isRejected ? 'Đã từ chối' : 'Hủy lời mời' }
           </Button>
         )}
       </Box>
@@ -149,4 +220,4 @@ const UserProfileCard = ({ user, onOpenInformation } : UserProfileCardProps) => 
   )
 }
 
-export default UserProfileCard
+export default InviteCard

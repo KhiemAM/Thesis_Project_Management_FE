@@ -22,7 +22,6 @@ import { TableNoData } from '../table-no-data'
 import { UserTableRow } from '../user-table-row'
 import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
-import { UserTabsFilter } from '../user-tabs-filter'
 import { UserTableToolbar } from '../function-table-toolbar'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 
@@ -35,7 +34,6 @@ export function SearchStudentView() {
   const table = useTable()
   const id = uuidv4()
   const [filterName, setFilterName] = useState('')
-  const [filterStatus, setFilterStatus] = useState('Tất cả')
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -43,7 +41,7 @@ export function SearchStudentView() {
     },
     filterTab: [
       {
-        display: 'Trạng thái',
+        display: '',
         data: []
       }
     ],
@@ -84,7 +82,7 @@ export function SearchStudentView() {
       },
       filterTab: [
         {
-          display: 'Trạng thái',
+          display: '',
           data: []
         }
       ],
@@ -94,7 +92,6 @@ export function SearchStudentView() {
       }
     })
     setFilterName('')
-    setFilterStatus('Tất cả')
   }, [])
 
   const handleDeleteChipData = useCallback((newChipsFilter: ChipsFilter) => {
@@ -105,17 +102,6 @@ export function SearchStudentView() {
       // Xử lý cho filterSearch
       if (key === 'filterSearch' && section && 'data' in section && Array.isArray(section.data) && section.data.length === 0) {
         setFilterName('')
-      }
-
-      // Xử lý cho filterTab
-      if (key === 'filterTab' && Array.isArray(section)) {
-        section.forEach((item) => {
-          if (Array.isArray(item.data) && item.data.length === 0) {
-            if (item.display === 'Trạng thái') {
-              setFilterStatus('Tất cả')
-            }
-          }
-        })
       }
     })
   }, [])
@@ -133,19 +119,6 @@ export function SearchStudentView() {
     table.onResetPage()
   }, [id, table])
 
-  const handleFilterStatus = useCallback((newValue: string) => {
-    setChipsFilter((prev) => {
-      const updatedFilterTab = prev.filterTab.map((item) =>
-        item.display === 'Trạng thái'
-          ? { ...item, data: newValue !== 'Tất cả' ? [{ key: id, label: newValue }] : [] }
-          : item
-      )
-
-      return { ...prev, filterTab: updatedFilterTab }
-    })
-    setFilterStatus(newValue)
-  }, [id])
-
   return (
     <DashboardContent>
       <Box
@@ -161,8 +134,6 @@ export function SearchStudentView() {
       </Box>
 
       <Card>
-        <UserTabsFilter value={filterStatus} setValue={handleFilterStatus}/>
-
         <UserTableToolbar
           numSelected={table.selected.length}
           filterName={filterName}
@@ -189,6 +160,7 @@ export function SearchStudentView() {
                 headLabel={[
                   { id: 'student_code', label: 'Mã số sinh viên', minWidth: 300 },
                   { id: 'name', label: 'Họ tên', minWidth: 200 },
+                  { id: 'user_name', label: 'Tên tài khoản', minWidth: 300 },
                   { id: 'date_of_birth', label: 'Ngày sinh', minWidth: 200 },
                   { id: 'gender', label: 'Giới tính', minWidth: 200 },
                   { id: 'class_name', label: 'Tên lớp', minWidth: 200 },

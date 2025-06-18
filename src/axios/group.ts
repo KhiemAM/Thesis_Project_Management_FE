@@ -10,6 +10,12 @@ const groupApi = {
   },
   createGroup(payload: GroupPayload): Promise<any> {
     return instance.post('/group', payload)
+  },
+  removeMember(groupId: string, studentId: string): Promise<any> {
+    return instance.delete(`/group/${groupId}/remove-member/${studentId}`)
+  },
+  updateNameGroup(groupId: string, payload: GroupPayload): Promise<any> {
+    return instance.put(`/group/${groupId}/name`, payload)
   }
 }
 

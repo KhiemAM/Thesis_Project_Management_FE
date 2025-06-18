@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify'
 import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
@@ -19,43 +20,14 @@ import type { Group } from '../type'
 
 export function GroupStudentView() {
   const { setIsLoading } = useLoading()
-  const [group, setGroup] = useState<Group | null>(
-    // {
-    //   id: '1',
-    //   name: 'Group 1',
-    //   description: 'Description 1',
-    //   members: [
-    //     {
-    //       id: '1',
-    //       username: '2001210783',
-    //       displayName: 'Huỳnh Quang Khiêm',
-    //       profileImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //       type: 'inviter'
-    //     },
-    //     {
-    //       id: '2',
-    //       username: '2001210783',
-    //       displayName: 'Hà Trang',
-    //       profileImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //       type: 'inviter'
-    //     },
-    //     {
-    //       id: '3',
-    //       username: '2001210783',
-    //       displayName: 'Hà Trang',
-    //       profileImage: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //       type: 'inviter'
-    //     }
-    //   ]
-    // }
-    null
-  )
+  const [group, setGroup] = useState<Group | null>(null)
 
   const fetchProfile = useCallback(async () => {
     try {
       setIsLoading(true)
       const res = await groupApi.getGroups()
-      // setGroup(res.data)
+      const data = res.data.find((item: Group) => item.name === null)
+      setGroup(data)
     } finally {
       setIsLoading(false)
     }
@@ -65,17 +37,21 @@ export function GroupStudentView() {
     fetchProfile()
   }, [fetchProfile])
 
-  const handleCreateGroup = (newGroup : Group) => {
-    setGroup(newGroup)
-  }
-
-  const handleUpdateGroup = (updatedGroup: Group) => {
-    setGroup(updatedGroup)
-  }
-
-  const handleDeleteGroup = () => {
-    setGroup(null)
-  }
+  const handleCreateGroup = useCallback(async (data: { new_name: string }) => {
+    if (!group?.id) {
+      toast.error('Không tìm thấy thông tin nhóm')
+      return
+    }
+    try {
+      setIsLoading(true)
+      await groupApi.updateNameGroup(group.id, data)
+      toast.success('Tạo nhóm thành công')
+      fetchProfile()
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }, [group?.id, setIsLoading, fetchProfile])
 
   return (
     <DashboardContent>
@@ -104,7 +80,9 @@ export function GroupStudentView() {
         <Scrollbar>
           <Box>
             <GroupStudentCreate
+              group={group}
               onCreateGroup={handleCreateGroup}
+              onRefresh={fetchProfile}
             />
           </Box>
         </Scrollbar>

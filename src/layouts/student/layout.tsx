@@ -16,6 +16,8 @@ import { HeaderSection } from '../core/header-section'
 import { LayoutSection } from '../core/layout-section'
 import { navData, navBottomData } from '../nav-config-student'
 import { SettingsDrawer } from '../components/settings-drawer'
+import { AccountPopover } from '../components/account-popover'
+import { _accountStudent } from '../nav-config-account-student'
 
 import type { MainSectionProps } from '../core/main-section'
 import type { HeaderSectionProps } from '../core/header-section'
@@ -71,6 +73,9 @@ export function StudentLayout({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 0.75 } }}>
           {/** @slot Settings popover */}
           <SettingsDrawer />
+
+          {/** @slot Account drawer */}
+          <AccountPopover data={_accountStudent} />
         </Box>
       )
     }

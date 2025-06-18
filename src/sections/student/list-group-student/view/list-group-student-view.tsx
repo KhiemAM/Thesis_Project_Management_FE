@@ -28,7 +28,7 @@ export function ListGroupStudentView() {
     try {
       setIsLoading(true)
       const res = await groupApi.getGroups()
-      const newData = res.data.map((item: Group, index: number) => ({
+      const newData = res.data.filter((item: Group) => item.name !== null).map((item: Group, index: number) => ({
         ...item,
         coverImage: `/assets/images/cover/cover-${index + 1}.webp`,
         members: item.members.map((member, memberIndex) => ({

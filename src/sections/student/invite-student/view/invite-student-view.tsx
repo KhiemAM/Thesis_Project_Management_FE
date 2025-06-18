@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -7,6 +7,8 @@ import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
+import { useLoading } from 'src/context'
+import inviteApi from 'src/axios/invite'
 import { DashboardContent } from 'src/layouts/student'
 
 import { Iconify } from 'src/components/iconify'
@@ -15,18 +17,34 @@ import { Scrollbar } from 'src/components/scrollbar'
 
 import ProfileStudentSidebarInfo from 'src/sections/student/profile-student/profile-student-sidebar-info'
 
-import { userSuggestions } from '../data'
-import UserProfileCard from '../invite-student-card'
+import InviteCard from '../invite-student-card'
 import { InviteStudentToolbar } from '../invite-student-toolbar'
+
+import type { InviteResponse } from '../types'
 // ----------------------------------------------------------------------
 
 const drawerWidth = 360
 
 export function InviteStudentView() {
+  const { setIsLoading } = useLoading()
   const [filterName, setFilterName] = useState('')
-  const [profile, setProfile] = useState(null)
+  const [_invites, setInvites] = useState<InviteResponse | null>(null)
   const [openInformation, setOpenInformation] = useState(false)
   const canReset = ''
+
+  const fetchStudentInfo = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await inviteApi.getInvites()
+      setInvites(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  useEffect(() => {
+    fetchStudentInfo()
+  }, [fetchStudentInfo])
 
   const onOpenInformation = useCallback(() => {
     setOpenInformation(true)
@@ -72,8 +90,11 @@ export function InviteStudentView() {
               Danh sách lời mời
             </Typography>
             <Box sx={{ p: 3 }} >
-              {userSuggestions.map((user) => (
-                <UserProfileCard key={user.id} user={user} onOpenInformation={onOpenInformation}/>
+              {_invites?.received_invites.map((invite) => (
+                <InviteCard key={invite.id} invite={invite} onOpenInformation={onOpenInformation} typeInvite="received_invites"/>
+              ))}
+              {_invites?.sent_invites.map((invite) => (
+                <InviteCard key={invite.id} invite={invite} onOpenInformation={onOpenInformation} typeInvite="sent_invites"/>
               ))}
             </Box>
           </Scrollbar>

@@ -21,12 +21,12 @@ import type { Group, Student } from './type'
 
 interface GroupStudentFormProps {
    students: Student[]
-   onCreateGroup: (group: Group) => void;
-   labelButton: string
+   onCreateGroup: (data: { new_name: string }) => void;
+   labelButton: string;
 }
 
 interface IFormInput {
-  name: string
+  new_name: string
   // description?: string
 }
 
@@ -35,45 +35,10 @@ const GroupStudentForm = ({ students, onCreateGroup, labelButton } : GroupStuden
   const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>()
 
   const onSubmit: SubmitHandler<IFormInput> = async(data) => {
-    try {
-      setLoading(true)
-      await groupApi.createGroup(data)
-      toast.success('Tạo nhóm thành công')
-    }
-    finally {
-      setLoading(false)
-    }
-    // onCreateGroup(
-    //   {
-    //     id: '1',
-    //     name: data.name,
-    //     description: data.description,
-    //     members: [
-    //       {
-    //         id: '1',
-    //         username: '2001210783',
-    //         displayName: 'Huỳnh Quang Khiêm',
-    //         profileImage: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //         type: 'inviter'
-    //       },
-    //       {
-    //         id: '2',
-    //         username: '2001210783',
-    //         displayName: 'Hà Trang',
-    //         profileImage: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //         type: 'inviter'
-    //       },
-    //       {
-    //         id: '3',
-    //         username: '2001210783',
-    //         displayName: 'Hà Trang',
-    //         profileImage: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=100',
-    //         type: 'inviter'
-    //       }
-    //     ]
-    //   }
-    // )
+    onCreateGroup(data)
   }
+
+  const isOverLimit = students.length > 3
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -81,19 +46,20 @@ const GroupStudentForm = ({ students, onCreateGroup, labelButton } : GroupStuden
         <TextField
           fullWidth
           label="Tên nhóm *"
-          error={!!errors['name']}
+          error={!!errors['new_name']}
           sx={{ mb: 3 }}
-          {...register('name', {
+          {...register('new_name', {
             required: FIELD_REQUIRED_MESSAGE
           })}
         />
-        {errors['name'] && (
-          <Alert severity="error" sx={{ mb: 3 }}>{String(errors['name']?.message)}</Alert>
+        {errors['new_name'] && (
+          <Alert severity="error" sx={{ mb: 3 }}>{String(errors['new_name']?.message)}</Alert>
         )
         }
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 3 }}>
         <Button
+          disabled={isOverLimit}
           loading={loading}
           loadingPosition='start'
           variant="contained"

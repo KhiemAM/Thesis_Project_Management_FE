@@ -1,11 +1,8 @@
-import type { Dayjs } from 'dayjs'
 
-import { toast } from 'react-toastify'
 import { motion } from 'framer-motion'
+import { toast } from 'react-toastify'
 import { useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 
-import { useTheme } from '@mui/material'
 import Popover from '@mui/material/Popover'
 import Checkbox from '@mui/material/Checkbox'
 import MenuList from '@mui/material/MenuList'
@@ -13,17 +10,17 @@ import TableRow from '@mui/material/TableRow'
 import { styled } from '@mui/material/styles'
 import TableCell from '@mui/material/TableCell'
 import IconButton from '@mui/material/IconButton'
+import { Box, Divider, useTheme, Typography } from '@mui/material'
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
 
 import { fDate } from 'src/utils/format-time'
 
-import functionsApi from 'src/axios/functions'
+import inviteApi from 'src/axios/invite'
 
-import { Label } from 'src/components/label'
+import { Drawer } from 'src/components/drawer'
 import { Iconify } from 'src/components/iconify'
-import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
-import { getColorByIsActive } from './utils'
+import ProfileStudentSidebarInfo from '../profile-student/profile-student-sidebar-info'
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +29,7 @@ const MotionTableRow = motion.create(styled(TableRow)({}))
 
 export interface ProfileProps {
   user_id: string;
+  user_name: string;
   information: {
     id: string;
     user_id: string;
@@ -65,6 +63,8 @@ type UserTableRowProps = {
 export function UserTableRow({ row, selected, onSelectRow, level = 0, onRefresh }: UserTableRowProps) {
   const theme = useTheme()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
+  const [openInformation, setOpenInformation] = useState(false)
+  const [loadingButton, setLoadingButton] = useState(false)
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     setOpenPopover(event.currentTarget)
@@ -73,6 +73,24 @@ export function UserTableRow({ row, selected, onSelectRow, level = 0, onRefresh 
   const handleClosePopover = useCallback(() => {
     setOpenPopover(null)
   }, [])
+
+  const onOpenInformation = useCallback(() => {
+    setOpenInformation(true)
+  }, [])
+
+  const onCloseInformation = useCallback(() => {
+    setOpenInformation(false)
+  }, [])
+
+  const handleInviteGroup = useCallback(async() => {
+    try {
+      setLoadingButton(true)
+      await inviteApi.sendInvite({ receiver_id: row.user_id })
+      toast.success('Gửi lời mời thành công!')
+    } finally {
+      setLoadingButton(false)
+    }
+  }, [row.user_id])
 
   return (
     <>
@@ -107,6 +125,8 @@ export function UserTableRow({ row, selected, onSelectRow, level = 0, onRefresh 
         <TableCell>{row.student_info.student_code}</TableCell>
 
         <TableCell>{`${row.information.last_name} ${row.information.first_name}`}</TableCell>
+
+        <TableCell>{row.user_name}</TableCell>
 
         <TableCell>{fDate(row.information.date_of_birth)}</TableCell>
 
@@ -154,16 +174,52 @@ export function UserTableRow({ row, selected, onSelectRow, level = 0, onRefresh 
             }
           }}
         >
-          <MenuItem onClick={() => { handleClosePopover() }} sx={{ color: 'primary.main' }}>
-            <Iconify icon="solar:pen-bold" />
+          <MenuItem onClick={() => { handleClosePopover(); handleInviteGroup() }} sx={{ color: 'primary.main' }}>
+            <Iconify icon="solar:user-plus-linear" />
             Gửi lời mời
           </MenuItem>
-          <MenuItem onClick={() => { handleClosePopover() }} sx={{ color: 'primary.main' }}>
-            <Iconify icon="solar:pen-bold" />
+          <MenuItem onClick={() => { handleClosePopover(); onOpenInformation() }} sx={{ color: 'primary.main' }}>
+            <Iconify icon="solar:eye-bold" />
             Xem thông tin
           </MenuItem>
         </MenuList>
       </Popover>
+
+      {/* Drawer */}
+      <Drawer
+        anchor="right"
+        open={openInformation}
+        onClose={onCloseInformation}
+        slotProps={{
+          paper: {
+            sx: { width: { xs: 360, sm: 460 }, overflow: 'hidden' }
+          }
+        }}
+      >
+        <Box
+          sx={{
+            py: 2,
+            pl: 2.5,
+            pr: 1.5,
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Thông tin sinh viên
+          </Typography>
+
+          <IconButton onClick={onCloseInformation}>
+            <Iconify icon="mingcute:close-line" />
+          </IconButton>
+        </Box>
+
+        <Divider />
+        <ProfileStudentSidebarInfo
+          isDrawer
+          initialValues={row}
+        />
+      </Drawer>
     </>
   )
 }

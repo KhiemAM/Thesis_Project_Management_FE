@@ -73,7 +73,7 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
 
   if (filter.filterSearch.data.length > 0) {
     inputData = inputData.filter(
-      (item) => `${item.information.last_name} ${item.information.first_name}`.toLowerCase().indexOf(filter.filterSearch.data[0].label.toLowerCase()) !== -1
+      (item) => `${item.information.last_name} ${item.information.first_name}`.toLowerCase().indexOf(filter.filterSearch.data[0].label.toLowerCase()) !== -1 || item.student_info.student_code.toLowerCase().indexOf(filter.filterSearch.data[0].label.toLowerCase()) !== -1
     )
   }
 

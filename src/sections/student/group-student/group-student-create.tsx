@@ -1,35 +1,45 @@
-import { useState, useCallback } from 'react'
+import { toast } from 'react-toastify'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
-import Badge from '@mui/material/Badge'
 import Alert from '@mui/material/Alert'
 import { useTheme } from '@mui/material'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 
+import groupApi from 'src/axios/group'
+import { useLoading } from 'src/context'
+
 import { Drawer } from 'src/components/drawer'
 import { Iconify } from 'src/components/iconify'
+import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
 import ProfileStudentSidebarInfo from 'src/sections/student/profile-student/profile-student-sidebar-info'
 
-import { userSuggestions } from './data'
 import GroupStudentForm from './group-student-form'
 import GroupStudentListAccept from './group-student-list-accept'
 
 import type { Group, Student } from './type'
 
 interface GroupStudentCreateProps {
-  onCreateGroup: (group: Group) => void;
+  group: Group | null;
+  onCreateGroup: (data: { new_name: string }) => void;
+  onRefresh?: () => void; // Optional prop for refreshing the table
 }
 
-const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
+const GroupStudentCreate = ({ group, onCreateGroup, onRefresh } : GroupStudentCreateProps) => {
+  const { setIsLoading } = useLoading()
   const theme = useTheme()
   const [openInformation, setOpenInformation] = useState(false)
-  const [students, setStudents] = useState<Student[]>(userSuggestions)
+  const [students, setStudents] = useState<Student[]>([])
 
-  const canReset = ''
+  useEffect(() => {
+    if (group) {
+      setStudents(group.members)
+    }
+  }, [group])
 
   const onOpenInformation = useCallback(() => {
     setOpenInformation(true)
@@ -39,9 +49,29 @@ const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
     setOpenInformation(false)
   }, [])
 
-  const handleRemoveStudent = (id: string) => {
-    setStudents(students.filter(student => student.user_id !== id))
-  }
+  const handleRemoveStudent = useCallback(async(studentId: string) => {
+    AlertConfirmCallAPI({
+      title: 'Bạn có chắc chắn',
+      text: 'Bạn có muốn xóa không?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Xóa!',
+      cancelButtonText: 'Hủy',
+      api: async() => {
+        if (!group) return
+        try {
+          setIsLoading(true)
+          await groupApi.removeMember(group.id, studentId)
+          onRefresh?.()
+          toast.success('Đã xóa thành viên khỏi nhóm')
+        } finally {
+          setIsLoading(false)
+        }
+      }
+    })
+  }, [setIsLoading, group, onRefresh])
 
   const isOverLimit = students.length > 3
 
@@ -77,7 +107,7 @@ const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
           >
             <Iconify icon='solar:users-group-rounded-bold' />
             <Typography variant="h6">
-            Danh sách sinh viên chấp nhận
+              Danh sách sinh viên chấp nhận
             </Typography>
           </Box>
 
@@ -89,12 +119,12 @@ const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
                 mt: 2
               }}
             >
-            Vui lòng xóa {students.length - 3} thành viên trước khi tạo nhóm.
+              Vui lòng xóa {students.length - 3} thành viên trước khi tạo nhóm.
             </Alert>
           )}
 
           <GroupStudentListAccept
-            students={students}
+            students={group?.members}
             maxMembers={3}
             onRemoveStudent={handleRemoveStudent}
             onOpenInformation={onOpenInformation}
@@ -125,7 +155,7 @@ const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
           >
             <Iconify icon='solar:users-group-rounded-bold' />
             <Typography variant="h6">
-            Tạo nhóm
+              Tạo nhóm
             </Typography>
           </Box>
 
@@ -158,12 +188,6 @@ const GroupStudentCreate = ({ onCreateGroup } : GroupStudentCreateProps) => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Thông tin sinh viên
           </Typography>
-
-          <IconButton onClick={() => {}}>
-            <Badge color="error" variant="dot" invisible={!canReset}>
-              <Iconify icon="solar:restart-bold" />
-            </Badge>
-          </IconButton>
 
           <IconButton onClick={onCloseInformation}>
             <Iconify icon="mingcute:close-line" />
