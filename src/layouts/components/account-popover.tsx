@@ -1,5 +1,6 @@
 import type { IconButtonProps } from '@mui/material/IconButton'
 
+import { jwtDecode } from 'jwt-decode'
 import { useState, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
@@ -15,8 +16,8 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
 import { useRouter, usePathname } from 'src/routes/hooks'
 
 import { _myAccount } from 'src/_mock'
-import { useAppDispatch } from 'src/redux/hook'
-import { logoutUserAPI } from 'src/redux/user/user-slice'
+import { useAppDispatch, useAppSelector } from 'src/redux/hook'
+import { logoutUserAPI, selectCurrentUser } from 'src/redux/user/user-slice'
 
 // ----------------------------------------------------------------------
 
@@ -29,11 +30,21 @@ export type AccountPopoverProps = IconButtonProps & {
   }[];
 };
 
+interface DecodedToken {
+  uuid: string;
+  name: string;
+  type: number;
+  functions: string[];
+  exp: number;
+}
+
 export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps) {
   const dispatch = useAppDispatch()
   const router = useRouter()
   const pathname = usePathname()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
+  const currentUser = useAppSelector(selectCurrentUser)
+  const userInfo = currentUser ? jwtDecode<DecodedToken>(currentUser.access_token) : null
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     setOpenPopover(event.currentTarget)
@@ -90,7 +101,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
       >
         <Box sx={{ p: 2, pb: 1.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {_myAccount?.displayName}
+            {userInfo?.name}
           </Typography>
 
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>

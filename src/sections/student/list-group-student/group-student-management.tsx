@@ -41,26 +41,23 @@ function TabPanel(props: TabPanelProps) {
 
 interface GroupStudentManagementProps {
   group: Group;
-  onUpdateGroup: (group: Group) => void;
   onDeleteGroup: () => void;
   onOpenInformation?: () => void;
+  refresh?: () => void;
+  setInformationStudent: (student: any) => void;
+  handleTransferLeader: (studentId: string) => void;
 }
 
 const GroupStudentManagement = ({
   group,
-  onUpdateGroup,
   onDeleteGroup,
-  onOpenInformation
+  onOpenInformation,
+  refresh,
+  setInformationStudent,
+  handleTransferLeader
 }: GroupStudentManagementProps) => {
   const theme = useTheme()
   const [currentTab, setCurrentTab] = useState(0)
-  const [isEditing, setIsEditing] = useState(false)
-
-  const handleSaveChanges = () => {}
-
-  const handleCancelEdit = () => {}
-
-  const handleRemoveStudent = (id: string) => {}
 
   const handleImageUpload = (file: File) => {}
 
@@ -108,9 +105,9 @@ const GroupStudentManagement = ({
         <Box sx={{ px: 3 }}>
           <TabPanel value={currentTab} index={0}>
             <GroupStudentForm
-              students={group.members}
-              onCreateGroup={onUpdateGroup}
+              group={group}
               labelButton='Cập nhật'
+              refresh={refresh}
             />
           </TabPanel>
 
@@ -118,8 +115,9 @@ const GroupStudentManagement = ({
             <GroupStudentListAccept
               students={group.members}
               maxMembers={3}
-              onRemoveStudent={handleRemoveStudent}
               onOpenInformation={onOpenInformation}
+              setInformationStudent={setInformationStudent}
+              handleTransferLeader={handleTransferLeader}
             />
           </TabPanel>
 
@@ -138,18 +136,8 @@ const GroupStudentManagement = ({
                 color="error"
                 size='large'
                 startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                onClick={() => {
-                  AlertConfirmNavigate({
-                    title: 'Bạn có chắc chắn',
-                    text: 'Bạn có muốn xóa nhóm không?',
-                    icon:'warning',
-                    showCancelButton: true,
-                    confirmButtonColor:'#3085d6',
-                    cancelButtonColor:'#d33',
-                    confirmButtonText:'Yes, delete it!',
-                    router: () => {onDeleteGroup() }
-                  })
-                }}
+                onClick={onDeleteGroup}
+                sx={{ ml: 3, minWidth: 150 }}
               >
                 Xóa nhóm
               </Button>

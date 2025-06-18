@@ -43,12 +43,15 @@ export function PostItem({
       color="inherit"
       variant="subtitle1"
       underline="hover"
+      component={RouterLink}
+      href={`/student/information/${post.id}`}
       sx={{
         height: 44,
         overflow: 'hidden',
         WebkitLineClamp: 1,
         display: '-webkit-box',
-        WebkitBoxOrient: 'vertical'
+        WebkitBoxOrient: 'vertical',
+        cursor: 'pointer'
       }}
     >
       {post.name}
@@ -56,21 +59,19 @@ export function PostItem({
   )
 
   const renderDescription = (
-    <Tooltip title={post.description} arrow>
-      <Typography
-        variant="caption"
-        component="div"
-        sx={{
-          color: 'text.disabled',
-          overflow: 'hidden',
-          WebkitLineClamp: 1,
-          display: '-webkit-box',
-          WebkitBoxOrient: 'vertical'
-        }}
-      >
-        {post.description}
-      </Typography>
-    </Tooltip>
+    <Typography
+      variant="caption"
+      component="div"
+      sx={{
+        color: 'text.disabled',
+        overflow: 'hidden',
+        WebkitLineClamp: 1,
+        display: '-webkit-box',
+        WebkitBoxOrient: 'vertical'
+      }}
+    >
+      {post.members.length} thành viên
+    </Typography>
   )
 
   const renderInfo = (

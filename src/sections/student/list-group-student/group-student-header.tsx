@@ -29,7 +29,7 @@ const GroupStudentHeader: React.FC<GroupStudentHeaderProps> = ({
   const [isHovered, setIsHovered] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const defaultImage = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEil2iKPxVTadEINxydRzP0j_X8O1EGI6HVfgXNdrel-uhuBoqzx5F6Qvn7PFKHgi7G5TzUdx6wYhgUKSjes6BmK8ZVYpHbXJgE-2hYW8bWkrMEm-9N1yqL84V7A5J-TcAfJxB3rLWeSz7XN/s2000/215795661_2999503290285160_5412146965312912818_n.jpg'
+  const defaultImage = '/assets/images/cover/cover-1.webp'
   const imageUrl = coverImage || defaultImage
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
