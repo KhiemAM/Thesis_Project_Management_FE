@@ -36,13 +36,25 @@ export type TopicProps = {
   end_date: string;
   major: string;
   reason?: string;
+  notes?: string;
   instructors: {
     name: string;
     email: string;
-    phone: string;
+    lecturer_code: string;
     department: number;
     department_name: string;
   }[];
+  reviewers: {
+    name: string;
+    email: string;
+    lecturer_code: string;
+    department: number;
+    department_name: string;
+  }[];
+  department: {
+    id: string;
+    name: string;
+  };
   batch: {
     id: string;
     name: string;
@@ -161,8 +173,14 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
 
         <TableCell>{row.instructors[0].email}</TableCell>
 
+        <TableCell>
+          {row.reviewers.map((item, index) => (
+            <Typography key={index} variant='body2'>{item.name}</Typography>
+          ))}
+        </TableCell>
+
         <TableCell align='center'>
-          <Label color={getColorByDepartment(row.instructors[0].department_name)}>{row.instructors[0].department_name}</Label>
+          <Label color={getColorByDepartment(row.department.name)}>{row.department.name}</Label>
         </TableCell>
 
         <TableCell align='center'>
@@ -249,52 +267,382 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
           </IconButton>
         </Box>
 
-        <Divider />
-
-        <Scrollbar>
+        <Divider />        <Scrollbar>
           <Box sx={{ p: 3 }}>
-            <Box sx={{ mb: 3 }}>
-              <Typography variant='h5'>Tên đề tài:</Typography>
-              <Typography variant='body1'>
+            {/* Topic Name Section */}
+            <Box
+              sx={{
+                mb: 4,
+                p: 3,
+                background: theme.vars.palette.primary.main,
+                borderRadius: 3,
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+            >
+              <Typography variant='subtitle2' sx={{ color: 'white', mb: 1, fontWeight: 600, opacity: 0.9 }}>
+                Tên đề tài
+              </Typography>
+              <Typography variant='h6' sx={{ color: 'white', fontWeight: 600, lineHeight: 1.4 }}>
                 {row.name}
               </Typography>
-            </Box>
-
-            <Divider />
-
-            <Box sx={{ my: 3 }}>
-              <Typography variant='h5'>Nội dung đề tài:</Typography>
-              <Typography variant='body1' sx={{ whiteSpace: 'pre-line' }}>
+            </Box>            {/* Description Section */}
+            <Box
+              sx={{
+                mb: 4,
+                p: 3,
+                bgcolor: theme.vars.palette.background.paper,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: theme.vars.palette.grey[200],
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                position: 'relative',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: '6px',
+                  background: `linear-gradient(135deg, ${theme.vars.palette.primary.main}, ${theme.vars.palette.primary.dark})`,
+                  borderRadius: '0 8px 8px 0',
+                  boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)'
+                }
+              }}
+            >
+              <Typography variant='subtitle2' sx={{ color: theme.vars.palette.primary.main, mb: 2, fontWeight: 600 }}>
+                Nội dung đề tài
+              </Typography>
+              <Typography
+                variant='body1'
+                sx={{
+                  whiteSpace: 'pre-line',
+                  lineHeight: 1.7,
+                  color: theme.vars.palette.text.primary,
+                  pl: 1
+                }}
+              >
                 {row.description}
               </Typography>
-            </Box>
-
-            <Divider />
-
-            <Box sx={{ my: 3 }}>
-              <Typography variant='h5'>Giáo viên hướng dẫn:</Typography>
-              <Typography variant='body1'>
-                {row.instructors.map((instructor, index) => (
-                  <Box key={index} sx={{ mb: 1 }}>
-                    <Typography variant='subtitle1'>{instructor.name}</Typography>
-                    <Typography variant='body2' color='text.secondary'>
-                      {instructor.email}
+            </Box>            {/* Instructors Section */}
+            <Box
+              sx={{
+                mb: 4,
+                p: 3,
+                bgcolor: theme.vars.palette.background.paper,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: theme.vars.palette.grey[200],
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                position: 'relative',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: '6px',
+                  background: `linear-gradient(135deg, ${theme.vars.palette.primary.main}, ${theme.vars.palette.primary.dark})`,
+                  borderRadius: '0 8px 8px 0',
+                  boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)'
+                }
+              }}
+            >
+              <Typography variant='subtitle2' sx={{ color: theme.vars.palette.primary.main, mb: 3, fontWeight: 600 }}>
+                Giáo viên hướng dẫn
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pl: 1 }}>
+                {row.instructors.map((instructor, index) => ( <Box
+                  key={index}
+                  sx={{
+                    p: 3,
+                    bgcolor: theme.vars.palette.grey[50],
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: theme.vars.palette.grey[100],
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)',
+                      borderColor: theme.vars.palette.primary.light
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: '4px',
+                      background: `linear-gradient(135deg, ${theme.vars.palette.primary.main}, ${theme.vars.palette.primary.light})`,
+                      borderRadius: '0 6px 6px 0'
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        background: 'primary.main',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '1.1rem'
+                      }}
+                    >
+                      {instructor.name.charAt(0).toUpperCase()}
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>                        <Typography variant='subtitle1' sx={{ fontWeight: 600, color: theme.vars.palette.text.primary }}>
+                      {instructor.name}
                     </Typography>
+                    <Typography variant='caption' sx={{ color: theme.vars.palette.text.secondary, fontWeight: 500 }}>
+                          Mã GV: {instructor.lecturer_code}
+                    </Typography>
+                    </Box>
                   </Box>
+                  <Box sx={{ pl: 6 }}>                      <Typography variant='body2' sx={{ color: theme.vars.palette.text.secondary }}>
+                    {instructor.email}
+                  </Typography>
+                  </Box>
+                </Box>
                 ))}
+              </Box>
+            </Box>            {/* Reviewers Section */}
+            {row.reviewers && row.reviewers.length > 0 && (
+              <Box
+                sx={{
+                  mb: 4,
+                  p: 3,
+                  bgcolor: theme.vars.palette.background.paper,
+                  borderRadius: 3,
+                  border: '1px solid',
+                  borderColor: theme.vars.palette.grey[200],
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                  position: 'relative',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: '6px',
+                    background: `linear-gradient(135deg, ${theme.vars.palette.primary.light}, ${theme.vars.palette.primary.main})`,
+                    borderRadius: '0 8px 8px 0',
+                    boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)'
+                  }
+                }}
+              >
+                <Typography variant='subtitle2' sx={{ color: theme.vars.palette.primary.main, mb: 3, fontWeight: 600 }}>
+                  Giáo viên phản biện
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pl: 1 }}>
+                  {row.reviewers.map((reviewer, index) => ( <Box
+                    key={index}
+                    sx={{
+                      p: 3,
+                      bgcolor: theme.vars.palette.grey[50],
+                      borderRadius: 2,
+                      border: '1px solid',
+                      borderColor: theme.vars.palette.grey[100],
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)',
+                        borderColor: theme.vars.palette.primary.light
+                      },
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: '4px',
+                        background: `linear-gradient(135deg, ${theme.vars.palette.primary.light}, ${theme.vars.palette.primary.main})`,
+                        borderRadius: '0 6px 6px 0'
+                      }
+                    }}
+                  >                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                      <Box
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: '50%',
+                          background: 'primary.main',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontWeight: 600,
+                          fontSize: '1.1rem'
+                        }}
+                      >
+                        {reviewer.name.charAt(0).toUpperCase()}
+                      </Box>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography variant='subtitle1' sx={{ fontWeight: 600, color: 'text.primary' }}>
+                          {reviewer.name}
+                        </Typography>
+                        <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                            Mã GV: {reviewer.lecturer_code}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ pl: 6 }}>
+                      <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                        {reviewer.email}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  ))}
+                </Box>
+              </Box>
+            )}            {/* Department Section */}
+            <Box
+              sx={{
+                mb: 4,
+                p: 3,
+                background: theme.vars.palette.primary.lighter || theme.vars.palette.primary.light + '20',
+                borderRadius: 3,
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+                position: 'relative'
+              }}
+            >
+              <Typography variant='subtitle2' sx={{ color: theme.vars.palette.primary.dark, mb: 1, fontWeight: 600 }}>
+                Bộ môn
               </Typography>
-            </Box>
-
-            <Divider />
-
-            <Box sx={{ my: 3 }}>
-              <Typography variant='h5'>Bộ môn:</Typography>
-              <Typography variant='body1'>
-                {row.instructors[0].department_name}
+              <Typography variant='h6' sx={{ color: theme.vars.palette.primary.dark, fontWeight: 600 }}>
+                {row.department.name}
               </Typography>
-            </Box>
+            </Box>            {/* Notes Section */}
+            {row.notes && (
+              <Box
+                sx={{
+                  mb: 4,
+                  p: 3,
+                  bgcolor: theme.vars.palette.background.paper,
+                  borderRadius: 3,
+                  border: '1px solid',
+                  borderColor: theme.vars.palette.grey[200],
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                  position: 'relative',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: '6px',
+                    background: `linear-gradient(135deg, ${theme.vars.palette.warning.main}, ${theme.vars.palette.warning.dark})`,
+                    borderRadius: '0 8px 8px 0',
+                    boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)'
+                  }
+                }}
+              >
+                <Typography variant='subtitle2' sx={{ color: theme.vars.palette.warning.main, mb: 2, fontWeight: 600 }}>
+                  Ghi chú
+                </Typography>
+                <Typography
+                  variant='body1'
+                  sx={{
+                    whiteSpace: 'pre-line',
+                    lineHeight: 1.7,
+                    color: theme.vars.palette.text.primary,
+                    pl: 1
+                  }}
+                >
+                  {row.notes}
+                </Typography>
+              </Box>
+            )}            {/* Reason Section - Only if status is rejected */}
+            {row.status === 'Từ chối' && row.reason && (
+              <Box
+                sx={{
+                  mb: 4,
+                  p: 3,
+                  bgcolor: theme.vars.palette.background.paper,
+                  borderRadius: 3,
+                  border: '1px solid',
+                  borderColor: theme.vars.palette.error.light,
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                  position: 'relative',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: '6px',
+                    background: `linear-gradient(135deg, ${theme.vars.palette.error.main}, ${theme.vars.palette.error.dark})`,
+                    borderRadius: '0 8px 8px 0',
+                    boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)'
+                  }
+                }}
+              >
+                <Typography variant='subtitle2' sx={{ color: theme.vars.palette.error.main, mb: 2, fontWeight: 600 }}>
+                  Lý do từ chối
+                </Typography>
+                <Typography
+                  variant='body1'
+                  sx={{
+                    whiteSpace: 'pre-line',
+                    lineHeight: 1.7,
+                    color: theme.vars.palette.text.primary,
+                    pl: 1
+                  }}
+                >
+                  {row.reason}
+                </Typography>
+              </Box>
+            )}            {/* Additional Info */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3 }}>
+              <Box
+                sx={{
+                  p: 3,
+                  background: theme.vars.palette.primary.lighter || theme.vars.palette.primary.light + '20',
+                  borderRadius: 3,
+                  textAlign: 'center',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-4px)'
+                  }
+                }}
+              >
+                <Typography variant='caption' sx={{ color: theme.vars.palette.primary.dark, fontWeight: 600, display: 'block', mb: 1 }}>
+                  Loại đề tài
+                </Typography>
+                <Typography variant='body1' sx={{ fontWeight: 600, color: theme.vars.palette.primary.dark }}>
+                  {row.name_thesis_type}
+                </Typography>
+              </Box>
 
-            <Divider />
+              <Box
+                sx={{
+                  p: 3,
+                  background: theme.vars.palette.primary.main,
+                  borderRadius: 3,
+                  textAlign: 'center',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-4px)'
+                  }
+                }}
+              >
+                <Typography variant='caption' sx={{ color: 'white', fontWeight: 600, display: 'block', mb: 1 }}>
+                  Trạng thái
+                </Typography>
+                <Typography variant='body1' sx={{ fontWeight: 600, color: 'white' }}>
+                  {row.status}
+                </Typography>
+              </Box>
+            </Box>
           </Box>
         </Scrollbar>
       </Drawer>

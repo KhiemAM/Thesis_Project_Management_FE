@@ -239,7 +239,7 @@ export function ApproveFacultyTopicProposalView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Duyệt đề tài cấp bộ môn
+          Duyệt đề tài cấp khoa
         </Typography>
       </Box>
 
@@ -282,6 +282,7 @@ export function ApproveFacultyTopicProposalView() {
                   { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 150 },
                   { id: 'instructors', label: 'Giáo viên hướng dẫn', minWidth: 200 },
                   { id: 'email', label: 'Email', minWidth: 300 },
+                  { id: 'reviewers', label: 'Giáo viên phản biện', minWidth: 200 },
                   { id: 'department_name', label: 'Bộ môn', align: 'center', minWidth: 150 },
                   { id: 'name_thesis_type', label: 'Loại đề tài', align: 'center', minWidth: 150 },
                   { id: '', label: 'Thao tác', alight: 'center', minWidth: 100 }

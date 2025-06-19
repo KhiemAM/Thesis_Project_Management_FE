@@ -46,6 +46,10 @@ export const formatPatterns = {
   paramCase: {
     dateTime: 'DD-MM-YYYY h:mm a', // 17-04-2022 12:00 am
     date: 'DD-MM-YYYY' // 17-04-2022
+  },
+  iso: {
+    dateTime: 'YYYY-MM-DDTHH:mm:ss', // 2024-08-15T00:00:00
+    date: 'YYYY-MM-DD' // 2024-08-15
   }
 }
 
@@ -89,4 +93,30 @@ export function fToNow(date: DatePickerFormat): string {
   }
 
   return dayjs(date).toNow(true)
+}
+
+// ----------------------------------------------------------------------
+
+/**
+ * @output 2024-08-15T00:00:00
+ */
+export function fIsoDateTime(date: DatePickerFormat, template?: string): string {
+  if (!isValidDate(date)) {
+    return 'Invalid date'
+  }
+
+  return dayjs(date).format(template ?? formatPatterns.iso.dateTime)
+}
+
+// ----------------------------------------------------------------------
+
+/**
+ * @output 2024-08-15
+ */
+export function fIsoDate(date: DatePickerFormat, template?: string): string {
+  if (!isValidDate(date)) {
+    return 'Invalid date'
+  }
+
+  return dayjs(date).format(template ?? formatPatterns.iso.date)
 }

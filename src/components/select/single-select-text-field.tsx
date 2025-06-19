@@ -1,10 +1,10 @@
 import type { SelectChangeEvent } from '@mui/material/Select'
 
 import Box from '@mui/material/Box'
+import Radio from '@mui/material/Radio'
 import { useTheme } from '@mui/material'
 import Select from '@mui/material/Select'
 import Divider from '@mui/material/Divider'
-import Checkbox from '@mui/material/Checkbox'
 import MenuItem from '@mui/material/MenuItem'
 import InputLabel from '@mui/material/InputLabel'
 import Typography from '@mui/material/Typography'
@@ -12,7 +12,7 @@ import FormControl from '@mui/material/FormControl'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import ListSubheader from '@mui/material/ListSubheader'
 
-import type { MultipleSelectTextFieldProps } from './types'
+import type { SingleSelectTextFieldProps } from './types'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -25,7 +25,7 @@ const MenuProps = {
   }
 }
 
-export function MultipleSelectTextField({
+export function SingleSelectTextField({
   data = [],
   columns = [],
   inputLabel = 'Chọn giá trị',
@@ -34,37 +34,27 @@ export function MultipleSelectTextField({
   error = false,
   valueKey = 'value',
   displayKey
-}: MultipleSelectTextFieldProps) {
+}: SingleSelectTextFieldProps) {
   const theme = useTheme()
 
   const handleChange = (event: SelectChangeEvent<typeof value>) => {
-    const {
-      target: { value: newValue }
-    } = event
-    onChange(typeof newValue === 'string' ? newValue.split(',') : newValue)
+    const newValue = event.target.value
+    onChange(newValue)
   }
 
   const handleItemClick = (itemValue: any) => {
-    const currentValue = value || []
-    if (currentValue.includes(itemValue)) {
-      // Bỏ chọn nếu đã được chọn
-      onChange(currentValue.filter(val => val !== itemValue))
-    } else {
-      // Thêm vào danh sách đã chọn
-      onChange([...currentValue, itemValue])
-    }
+    onChange(itemValue)
   }
 
-  const renderSelectedValue = (selected: any[]) => selected
-    .map((val) => {
-      const found = data.find((item) => item[valueKey] === val)
-      if (displayKey && found) {
-        return found[displayKey]
-      }
-      return found ? columns.map(col => found[col.key]).join(' - ') : val
-    })
-    .filter(Boolean) // Lọc bỏ các giá trị null/undefined/empty
-    .join(', ')
+  const renderSelectedValue = (selected: any) => {
+    if (!selected) return ''
+
+    const found = data.find((item) => item[valueKey] === selected)
+    if (displayKey && found) {
+      return found[displayKey]
+    }
+    return found ? columns.map(col => found[col.key]).join(' - ') : selected
+  }
 
   if (columns.length === 0) {
     return null
@@ -72,11 +62,10 @@ export function MultipleSelectTextField({
 
   return (
     <FormControl fullWidth error={error}>
-      <InputLabel id="multiple-select-label">{inputLabel}</InputLabel>
+      <InputLabel id="single-select-label">{inputLabel}</InputLabel>
       <Select
-        labelId="multiple-select-label"
-        multiple
-        value={value}
+        labelId="single-select-label"
+        value={value || ''}
         onChange={handleChange}
         input={<OutlinedInput label={inputLabel} />}
         renderValue={renderSelectedValue}
@@ -84,7 +73,7 @@ export function MultipleSelectTextField({
       >
         <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', py: 1 }}>
-            <Box sx={{ width: '48px' }} /> {/* Khoảng trống cho checkbox */}
+            <Box sx={{ width: '48px' }} /> {/* Khoảng trống cho radio */}
             {columns.map((column, index) => (
               <Box key={column.key} sx={{
                 display: 'flex',
@@ -120,8 +109,8 @@ export function MultipleSelectTextField({
           >
             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
               <Box sx={{ width: '48px', display: 'flex', justifyContent: 'center' }}>
-                <Checkbox
-                  checked={(value || []).includes(item[valueKey])}
+                <Radio
+                  checked={value === item[valueKey]}
                   onClick={(e) => e.stopPropagation()}
                 />
               </Box>

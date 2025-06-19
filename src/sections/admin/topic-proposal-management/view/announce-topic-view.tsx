@@ -23,10 +23,10 @@ import { Scrollbar } from 'src/components/scrollbar'
 import { TableNoData } from '../table-no-data'
 import { TableEmptyRows } from '../table-empty-rows'
 import { TopicTabsFilter } from '../topic-tabs-filter'
-import { UserTableToolbar } from '../user-table-toolbar'
 import { UserTableHead } from '../topic-proposal-table-head'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 import { AnnounceTopicTableRow } from '../announce-topic-table-row'
+import { AnnounceTopicTableToolbar } from '../announce-topic-table-toolbar'
 import { AnnounceTopicTabsStatusFilter } from '../announce-topic-tabs-status-filter'
 
 import type { Batch } from '../types'
@@ -248,7 +248,7 @@ export function AnnounceTopicView() {
 
         <AnnounceTopicTabsStatusFilter data={_topic} value={filterStatus} setValue={handleFilterStatus}/>
 
-        <UserTableToolbar
+        <AnnounceTopicTableToolbar
           numSelected={table.selected.length}
           filterName={filterName}
           onFilterName={handleFilterName}
@@ -282,6 +282,7 @@ export function AnnounceTopicView() {
                   { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 150 },
                   { id: 'instructors', label: 'Giáo viên hướng dẫn', minWidth: 200 },
                   { id: 'email', label: 'Email', minWidth: 300 },
+                  { id: 'reviewers', label: 'Giáo viên phản biện', minWidth: 200 },
                   { id: 'department_name', label: 'Bộ môn', align: 'center', minWidth: 150 },
                   { id: 'name_thesis_type', label: 'Loại đề tài', align: 'center', minWidth: 150 },
                   { id: '', label: 'Thao tác', alight: 'center', minWidth: 100 }

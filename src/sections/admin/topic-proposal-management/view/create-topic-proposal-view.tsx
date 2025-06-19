@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { toast } from 'react-toastify'
 import { useForm, Controller } from 'react-hook-form'
 import { useState, useEffect, useCallback } from 'react'
@@ -5,14 +6,15 @@ import { useState, useEffect, useCallback } from 'react'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Alert from '@mui/material/Alert'
-import { useTheme } from '@mui/material'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import ListSubheader from '@mui/material/ListSubheader'
+import { useTheme, FormHelperText } from '@mui/material'
 
+import { fDate, fIsoDateTime } from 'src/utils/format-time'
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
 import userApi from 'src/axios/user'
@@ -24,6 +26,7 @@ import { TopicStatusCode } from 'src/constants/topic-status'
 
 import { Scrollbar } from 'src/components/scrollbar'
 import { MultipleSelectTextField } from 'src/components/select'
+import { SingleSelectTextField } from 'src/components/select/single-select-text-field'
 
 // ----------------------------------------------------------------------
 const _thesis_type = [
@@ -45,7 +48,9 @@ interface IFormInputCreateThese {
   description: string;
   thesis_type: string;
   major_id: string;
-  lecturer_ids: string[];
+  instructor_ids: string[];
+  reviewer_ids: string[];
+  department_id: string;
 }
 
 export function CreateTopicProposalView() {
@@ -54,34 +59,36 @@ export function CreateTopicProposalView() {
   const [isLoadingButton, setIsLoadingButton] = useState(false)
   const { register, handleSubmit, formState: { errors }, watch, reset, control } = useForm<IFormInputCreateThese>({
     defaultValues: {
-      lecturer_ids: []
+      instructor_ids: [],
+      reviewer_ids: []
     }
   })
-  const [academyYears, setAcademyYears] = useState<{ value: string; label: string }[]>([])
-  const [academySemestes, setAcademySemestes] = useState<{ value: string; label: string }[]>([])
-  const [academyBatches, setAcademyBatches] = useState<{
-    value: string
-    label: string
-    start_date: string
-    end_date: string
-  }[]>([])
-  const [userLecturers, setUserLecturers] = useState<{ value: string; label: string }[]>([])
+  const [academyYears, setAcademyYears] = useState([])
+  const [academySemestes, setAcademySemestes] = useState([])
+  const [academyBatches, setAcademyBatches] = useState<{ id: string; name: string; start_date: string; end_date: string }[]>([])
+  const [userLecturers, setUserLecturers] = useState([])
   const [major, setMajor] = useState<{ value: string; label: string }[]>([])
   const [selectedBatchInfo, setSelectedBatchInfo] = useState<{
-    value: string
-    label: string
-    start_date: string
-    end_date: string
+    id: string;
+    name: string;
+    start_date: string;
+    end_date: string;
   } | null>(null)
+  const [_departments, setDepartments] = useState<{ value: string; label: string }[]>([])
   const selectedAcademyYear = watch('academy_years')
   const selectedAcademySemester = watch('academy_semesters')
   const selectedBatchId = watch('batch_id')
+  const selectedThesisType = watch('thesis_type')
 
   const fetchAcademyYears = useCallback(async () => {
     try {
       setIsLoading(true)
       const res = await academyApi.getAcademyYears()
-      setAcademyYears(res.data.map((year: { id: string, name: string }) => ({ value: year.id, label: year.name })))
+      setAcademyYears(res.data.map((item: { start_date: string, end_date: string }) => ({
+        ...item,
+        start_date: fDate(item.start_date),
+        end_date: fDate(item.end_date)
+      })))
     } finally {
       setIsLoading(false)
     }
@@ -92,9 +99,9 @@ export function CreateTopicProposalView() {
     try {
       setIsLoading(true)
       const res = await userApi.getUserLectures()
-      setUserLecturers(res.data.map((item: { id: string, first_name: string, last_name: string, title: string }) => ({
-        value: item.id,
-        label: `${item.title}. ${item.last_name} ${item.first_name}`
+      setUserLecturers(res.data.map((item: { first_name: string, last_name: string, title: string }) => ({
+        ...item,
+        full_name: `${item.title}. ${item.last_name} ${item.first_name}`
       })))
     } finally {
       setIsLoading(false)
@@ -113,17 +120,35 @@ export function CreateTopicProposalView() {
   }
   , [setIsLoading])
 
+  const fetchDepartments = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.getAllDepartments()
+      setDepartments(res.data.map((item: { id: string; name: string }) => ({
+        value: item.id,
+        label: item.name
+      })))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
   useEffect(() => {
     fetchAcademyYears()
     fetchUserLecturers()
     fetchMajor()
-  }, [fetchMajor, fetchAcademyYears, fetchUserLecturers])
+    fetchDepartments()
+  }, [fetchMajor, fetchAcademyYears, fetchUserLecturers, fetchDepartments])
 
   const fetchAcademySemestes = useCallback(async (id: string) => {
     try {
       setIsLoading(true)
       const res = await academyApi.getAcademySemestes(id)
-      setAcademySemestes(res.data.map((year: { id: string, name: string }) => ({ value: year.id, label: year.name })))
+      setAcademySemestes(res.data.map((item: { id: string, name: string, start_date: string, end_date: string }) => ({
+        ...item,
+        start_date: fDate(item.start_date),
+        end_date: fDate(item.end_date)
+      })))
     } catch {
       setAcademySemestes([])
     } finally {
@@ -142,11 +167,10 @@ export function CreateTopicProposalView() {
     try {
       setIsLoading(true)
       const res = await academyApi.getAcademyBatches(id)
-      setAcademyBatches(res.data.map((item: { id: string, name: string, start_date: string, end_date: string }) => ({
-        value: item.id,
-        label: item.name,
-        start_date: item.start_date,
-        end_date: item.end_date
+      setAcademyBatches(res.data.map((item: { start_date: string, end_date: string }) => ({
+        ...item,
+        start_date_fDate: fDate(item.start_date),
+        end_date_fDate: fDate(item.end_date)
       })))
     } catch {
       setAcademyBatches([])
@@ -163,7 +187,7 @@ export function CreateTopicProposalView() {
   }, [selectedAcademySemester, fetchAcademyBatches])
 
   useEffect(() => {
-    const selected = academyBatches.find((batch) => batch.value === selectedBatchId)
+    const selected = academyBatches.find((batch) => batch.id === selectedBatchId)
     if (selected) {
       setSelectedBatchInfo(selected)
     }
@@ -176,8 +200,10 @@ export function CreateTopicProposalView() {
         batch_id: data.batch_id,
         title: data.title,
         description: data.description,
-        thesis_type: data.thesis_type,
-        lecturer_ids: data.lecturer_ids,
+        thesis_type:  data.thesis_type,
+        instructor_ids: data.instructor_ids,
+        reviewer_ids: data.reviewer_ids,
+        department_id: data.department_id,
         status: TopicStatusCode.PENDING_APPROVAL,
         major_id: data.major_id,
         start_date: selectedBatchInfo?.start_date,
@@ -216,143 +242,83 @@ export function CreateTopicProposalView() {
                 p: 3
               }}
             >
-              <TextField
-                fullWidth
-                select
-                label="Năm học *"
-                defaultValue=''
-                error={!!errors['academy_years']}
-                sx={{ mb: 3 }}
-                {...register('academy_years', {
-                  required: FIELD_REQUIRED_MESSAGE
-                })}
-              >
-                <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
-                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Giá trị
-                    </Typography>
-                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Nhãn
-                    </Typography>
-                  </Box>
-                </ListSubheader>
-                {academyYears.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                      <Typography
-                        variant='body1'
-                        sx={{
-                          flex: 1,
-                          textAlign: 'center',
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis'
-                        }}
-                      >
-                        {option.value}
-                      </Typography>
-                      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
-                    </Box>
-                  </MenuItem>
-                ))}
-              </TextField>
+              <Box sx={{ mb: 3 }}>
+                <Controller
+                  name="academy_years"
+                  rules={{ required: FIELD_REQUIRED_MESSAGE }}
+                  control={control}
+                  render={({ field }) => (
+                    <SingleSelectTextField
+                      data={academyYears}
+                      columns={[
+                        { key: 'name', label: 'Năm học' },
+                        { key: 'start_date', label: 'Ngày bắt đầu' },
+                        { key: 'end_date', label: 'Ngày kết thúc' }
+                      ]}
+                      valueKey='id'
+                      displayKey='name'
+                      inputLabel='Năm học *'
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors['academy_years']}
+                    />
+                  )}
+                />
+              </Box>
               {errors['academy_years'] && (
                 <Alert severity="error" sx={{ mb: 3 }}>{String(errors['academy_years']?.message)}</Alert>
               )}
 
-              <TextField
-                fullWidth
-                select
-                label="Học kỳ *"
-                defaultValue=''
-                error={!!errors['academy_semesters']}
-                sx={{ mb: 3 }}
-                {...register('academy_semesters', {
-                  required: FIELD_REQUIRED_MESSAGE
-                })}
-              >
-                <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
-                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Giá trị
-                    </Typography>
-                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Nhãn
-                    </Typography>
-                  </Box>
-                </ListSubheader>
-                {academySemestes.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                      <Typography
-                        variant='body1'
-                        sx={{
-                          flex: 1,
-                          textAlign: 'center',
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis'
-                        }}
-                      >
-                        {option.value}
-                      </Typography>
-                      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
-                    </Box>
-                  </MenuItem>
-                ))}
-              </TextField>
+              <Box sx={{ mb: 3 }}>
+                <Controller
+                  name="academy_semesters"
+                  rules={{ required: FIELD_REQUIRED_MESSAGE }}
+                  control={control}
+                  render={({ field }) => (
+                    <SingleSelectTextField
+                      data={academySemestes}
+                      columns={[
+                        { key: 'name', label: 'Học kỳ' },
+                        { key: 'start_date', label: 'Ngày bắt đầu' },
+                        { key: 'end_date', label: 'Ngày kết thúc' }
+                      ]}
+                      valueKey='id'
+                      displayKey='name'
+                      inputLabel='Học kỳ *'
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors['academy_semesters']}
+                    />
+                  )}
+                />
+              </Box>
               {errors['academy_semesters'] && (
                 <Alert severity="error" sx={{ mb: 3 }}>{String(errors['academy_semesters']?.message)}</Alert>
               )}
 
-              <TextField
-                fullWidth
-                select
-                label="Đợt *"
-                defaultValue=''
-                error={!!errors['batch_id']}
-                sx={{ mb: 3 }}
-                {...register('batch_id', {
-                  required: FIELD_REQUIRED_MESSAGE
-                })}
-              >
-                <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
-                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Giá trị
-                    </Typography>
-                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
-                      Nhãn
-                    </Typography>
-                  </Box>
-                </ListSubheader>
-                {academyBatches.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                      <Typography
-                        variant='body1'
-                        sx={{
-                          flex: 1,
-                          textAlign: 'center',
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis'
-                        }}
-                      >
-                        {option.value}
-                      </Typography>
-                      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
-                    </Box>
-                  </MenuItem>
-                ))}
-              </TextField>
+              <Box sx={{ mb: 3 }}>
+                <Controller
+                  name="batch_id"
+                  rules={{ required: FIELD_REQUIRED_MESSAGE }}
+                  control={control}
+                  render={({ field }) => (
+                    <SingleSelectTextField
+                      data={academyBatches}
+                      columns={[
+                        { key: 'name', label: 'Đợt' },
+                        { key: 'start_date_fDate', label: 'Ngày bắt đầu' },
+                        { key: 'end_date_fDate', label: 'Ngày kết thúc' }
+                      ]}
+                      valueKey='id'
+                      displayKey='name'
+                      inputLabel='Đợt *'
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors['batch_id']}
+                    />
+                  )}
+                />
+              </Box>
               {errors['batch_id'] && (
                 <Alert severity="error" sx={{ mb: 3 }}>{String(errors['batch_id']?.message)}</Alert>
               )}
@@ -434,6 +400,53 @@ export function CreateTopicProposalView() {
               <TextField
                 fullWidth
                 select
+                label="Bộ môn *"
+                defaultValue=''
+                error={!!errors['department_id']}
+                sx={{ mb: 3 }}
+                {...register('department_id', {
+                  required: FIELD_REQUIRED_MESSAGE
+                })}
+              >
+                <ListSubheader sx={{ bgcolor: theme.vars.palette.primary.main, borderStartStartRadius: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
+                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                      Giá trị
+                    </Typography>
+                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                    <Typography variant="subtitle2" sx={{ flex: 1, textAlign: 'center', color: theme.vars.palette.common.white }}>
+                      Nhãn
+                    </Typography>
+                  </Box>
+                </ListSubheader>
+                {_departments.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                      <Typography
+                        variant='body1'
+                        sx={{
+                          flex: 1,
+                          textAlign: 'center',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {option.value}
+                      </Typography>
+                      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                      <Typography variant='body1' sx={{ flex: 1, textAlign: 'center' }}>{option.label}</Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </TextField>
+              {errors['department_id'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['department_id']?.message)}</Alert>
+              )}
+
+              <TextField
+                fullWidth
+                select
                 label="Loại đề tài *"
                 defaultValue='1'
                 error={!!errors['thesis_type']}
@@ -478,22 +491,61 @@ export function CreateTopicProposalView() {
                 <Alert severity="error" sx={{ mb: 3 }}>{String(errors['thesis_type']?.message)}</Alert>
               )}
 
-              <Controller
-                name="lecturer_ids"
-                rules={{ required: FIELD_REQUIRED_MESSAGE }}
-                control={control}
-                render={({ field }) => (
-                  <MultipleSelectTextField
-                    data={userLecturers}
-                    inputLabel='Giáo viên hướng dẫn'
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={!!errors['lecturer_ids']}
+              {selectedThesisType === '2' && (
+                <Box sx={{ mb: 3 }}>
+                  <FormHelperText sx={{ mb: 1, ml: 1 }}>
+                    * Trường này chỉ hiển thị khi loại đề tài là <b>Đồ án tốt nghiệp</b>
+                  </FormHelperText>
+                  <Controller
+                    name="reviewer_ids"
+                    rules={{ required: FIELD_REQUIRED_MESSAGE }}
+                    control={control}
+                    render={({ field }) => (
+                      <MultipleSelectTextField
+                        data={userLecturers}
+                        columns={[
+                          { key: 'user_name', label: 'Tên tài khoản' },
+                          { key: 'full_name', label: 'Tên giáo viên' }
+                        ]}
+                        valueKey='id'
+                        displayKey='full_name'
+                        inputLabel='Giáo viên hướng dẫn'
+                        value={field.value}
+                        onChange={field.onChange}
+                        error={!!errors['reviewer_ids']}
+                      />
+                    )}
                   />
-                )}
-              />
-              {errors['lecturer_ids'] && (
-                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['lecturer_ids']?.message)}</Alert>
+                  {errors['reviewer_ids'] && (
+                    <Alert severity="error" sx={{ mt: 3 }}>{String(errors['reviewer_ids']?.message)}</Alert>
+                  )}
+                </Box>
+              )}
+
+              <Box sx={{ mb: 3 }}>
+                <Controller
+                  name="instructor_ids"
+                  rules={{ required: FIELD_REQUIRED_MESSAGE }}
+                  control={control}
+                  render={({ field }) => (
+                    <MultipleSelectTextField
+                      data={userLecturers}
+                      columns={[
+                        { key: 'user_name', label: 'Tên tài khoản' },
+                        { key: 'full_name', label: 'Tên giáo viên' }
+                      ]}
+                      valueKey='id'
+                      displayKey='full_name'
+                      inputLabel='Giáo viên hướng dẫn'
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors['instructor_ids']}
+                    />
+                  )}
+                />
+              </Box>
+              {errors['instructor_ids'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['instructor_ids']?.message)}</Alert>
               )}
 
               <Button
