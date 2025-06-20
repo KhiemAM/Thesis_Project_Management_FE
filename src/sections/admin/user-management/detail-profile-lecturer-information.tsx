@@ -46,7 +46,7 @@ const DetailProfileLecturerInformation = ({
     <Grid size={{ xs: 12, md: 6 }}>
       <TextField
         fullWidth
-        label="Trình độ"
+        label="Học hàm. Học vị"
         variant="standard"
         value={initialValues?.lecturer_info.title || ''}
         slotProps={{

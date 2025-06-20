@@ -262,7 +262,7 @@ const ProfileStudentInformation = ({
               <TextField
                 fullWidth
                 select
-                label="Trình độ"
+                label="Học hàm. Học vị"
                 disabled={!isEditing}
                 {...field} // bao gồm value + onChange
                 error={!!errors['title']}

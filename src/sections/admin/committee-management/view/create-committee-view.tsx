@@ -19,6 +19,7 @@ import { Table, Dialog, useTheme, TableBody, IconButton, DialogTitle, DialogCont
 
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
+import userApi from 'src/axios/user'
 import thesesApi from 'src/axios/theses'
 import { useLoading } from 'src/context'
 import { DashboardContent } from 'src/layouts/dashboard'
@@ -50,7 +51,6 @@ interface IFormInputCreateFunction {
 
 export function CreateCommitteeView() {
   const id = uuidv4()
-  const theme = useTheme()
   const table = useTable()
   const { setIsLoading } = useLoading()
   const { register, handleSubmit, formState: { errors }, control } = useForm<IFormInputCreateFunction>()
@@ -114,10 +114,21 @@ export function CreateCommitteeView() {
     }
   }, [setIsLoading, sortBy])
 
+  const fetchUserLecturers = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await userApi.getUserLectures()
+      setInstructor(res.data.map((item: any) => `${item.last_name} ${item.first_name}`))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
   useEffect(() => {
     fetchMajor()
     fetchTheses()
-  }, [fetchMajor, fetchTheses])
+    fetchUserLecturers()
+  }, [fetchMajor, fetchTheses, fetchUserLecturers])
 
   const dataFiltered: AnnounceTopicProps[] = applyFilterTopic({
     inputData: _topicDialog,
@@ -159,6 +170,14 @@ export function CreateCommitteeView() {
     setFilterInstructor(newValue)
   }
   , [id])
+
+  const handleSelectTopic = useCallback(() => {
+    const selectedTopics = _topicDialog.filter((topic) => table.selected.includes(topic.id))
+    setTopic((prev) => [...prev, ...selectedTopics])
+    setTopicDialog((prev) => prev.filter((topic) => !table.selected.includes(topic.id)))
+    table.onSelectAllRows(false, [])
+    setOpenDialog(false)
+  }, [_topicDialog, setTopic, setOpenDialog, table])
 
   return (
     <form onSubmit={handleSubmit((data) => {
@@ -339,7 +358,7 @@ export function CreateCommitteeView() {
             </Box>
           </Card>
 
-          <Card sx={{ width: { sm: '100%', md: '80%' }, mx: { sm: 'none', md: 'auto' }, mt: 3 }}>
+          <Card sx={{ width: { sm: '100%', md: '60%' }, mx: { sm: 'none', md: 'auto' }, mt: 3 }}>
             <Box
               sx={{
                 display: 'flex',
@@ -347,6 +366,29 @@ export function CreateCommitteeView() {
                 p: 3
               }}
             >
+              <Controller
+                name="major"
+                rules={{ required: FIELD_REQUIRED_MESSAGE }}
+                control={control}
+                render={({ field }) => (
+                  <SingleSelectTextField
+                    data={major}
+                    columns={[
+                      { key: 'name', label: 'Chuyên ngành' }
+                    ]}
+                    valueKey='id'
+                    displayKey='name'
+                    inputLabel='Chuyên ngành *'
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={!!errors['major']}
+                  />
+                )}
+              />
+              {errors['major'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['major']?.message)}</Alert>
+              )}
+
               <Button
                 fullWidth
                 size="large"
@@ -355,7 +397,8 @@ export function CreateCommitteeView() {
                 variant="contained"
                 sx={{
                   width: { sm: '100%', md: '30%' },
-                  ml: { sm: 'none', md: 'auto' }
+                  ml: { sm: 'none', md: 'auto' },
+                  mt: 3
                 }}
               >
                 Lập đề xuất
@@ -396,6 +439,7 @@ export function CreateCommitteeView() {
                 sortBy={sortBy}
                 onSort={setSortBy}
                 option={batches}
+                onSelectTopic={handleSelectTopic}
               />
 
               <Scrollbar>
@@ -404,13 +448,13 @@ export function CreateCommitteeView() {
                     <TopicProposalTableHead
                       order={table.order}
                       orderBy={table.orderBy}
-                      rowCount={_topic.length}
+                      rowCount={_topicDialog.length}
                       numSelected={table.selected.length}
                       onSort={table.onSort}
                       onSelectAllRows={(checked) =>
                         table.onSelectAllRows(
                           checked,
-                          _topic.map((topic) => topic.id)
+                          _topicDialog.map((topic) => topic.id)
                         )
                       }
                       headLabel={[
