@@ -1,21 +1,25 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
 import { v4 as uuidv4 } from 'uuid'
+import { toast } from 'react-toastify'
 import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
+import Button from '@mui/material/Button'
+import { styled } from '@mui/material/styles'
 import TableBody from '@mui/material/TableBody'
 import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
 import userApi from 'src/axios/user'
-import thesesApi from 'src/axios/theses'
 import { useLoading } from 'src/context'
+import thesesApi from 'src/axios/theses'
 import { DashboardContent } from 'src/layouts/student'
 
+import { Iconify } from 'src/components/iconify'
 import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
@@ -25,11 +29,24 @@ import { TopicTabsFilter } from '../topic-tabs-filter'
 import { UserTableToolbar } from '../user-table-toolbar'
 import { UserTableHead } from '../topic-proposal-table-head'
 import { emptyRows, applyFilter, getComparator } from '../utils'
-import { ApproveTopicProposalTableRow } from '../approve-topic-proposal-table-row'
-import { ApproveTopicProposalTabsStatusFilter } from '../approve-topic-proposal-tabs-status-filter'
+import { TopicProposalTableRow } from '../topic-proposal-table-row'
+import { TopicProposalTabsStatusFilter } from '../topic-proposal-tabs-status-filter'
 
-import type { ApproveTopicProps } from '../approve-topic-proposal-table-row'
+import type { Batch } from '../types'
+import type { TopicProps } from '../topic-proposal-table-row'
 
+// ----------------------------------------------------------------------
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1
+})
 // ----------------------------------------------------------------------
 
 export function ImportTopicProposalView() {
@@ -40,8 +57,10 @@ export function ImportTopicProposalView() {
   const [filterDepartment, setFilterDepartment] = useState('Tất cả')
   const [filterStatus, setFilterStatus] = useState('Tất cả')
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
-  const [_topic, setTopic] = useState<ApproveTopicProps[]>([])
+  const [_topic, setTopic] = useState<TopicProps[]>([])
   const [instructor, setInstructor] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState('Tất cả')
+  const [batches, setBatches] = useState<Batch[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -63,8 +82,49 @@ export function ImportTopicProposalView() {
     }
   })
 
-  const dataFiltered: ApproveTopicProps[] = applyFilter({
-    inputData: _topic.filter((topic) => topic.status !== 'Từ chối'),
+  const fetchTheses = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      let res
+      if (sortBy === 'Tất cả') {
+        res = await thesesApi.getAllTheses()
+      } else {
+        res = await thesesApi.getTheseByBatchId(sortBy)
+      }
+      setTopic(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, sortBy])
+
+  const fetchUserLecturers = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await userApi.getUserLectures()
+      setInstructor(res.data.map((item: any) => `${item.last_name} ${item.first_name}`))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  const fetchAcademy = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.getAllBatches()
+      setBatches(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  useEffect(() => {
+    fetchUserLecturers()
+    fetchTheses()
+    fetchAcademy()
+  }, [fetchTheses, fetchUserLecturers, fetchAcademy])
+
+  const dataFiltered: TopicProps[] = applyFilter({
+    inputData: _topic,
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
   })
@@ -180,6 +240,66 @@ export function ImportTopicProposalView() {
   }
   , [id])
 
+  const handleDowloadTemplate = useCallback(async() => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.downloadTemplate()
+
+      // Kiểm tra response
+      if (!res.data) {
+        toast.error('Không có dữ liệu file để tải xuống!')
+        return
+      }
+
+      // Tạo blob với content type cho Excel
+      const blob = new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      })
+
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'File mẫu import đề tài.xlsx' // Đặt tên file rõ ràng
+      link.style.display = 'none' // Ẩn link
+
+      document.body.appendChild(link)
+      link.click()
+
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      }, 100)
+
+      toast.success('Tải file mẫu thành công!')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  const handleUploadFile = useCallback(async (file: File) => {
+    console.log('~ handleUploadFile ~ file:', file)
+    try {
+      setIsLoading(true)
+
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('status', '1')
+
+      const response = await thesesApi.uploadTemplate(formData)
+
+      const result = response.data
+      if (!result) {
+        toast.error('Có lỗi xảy ra: Không nhận được phản hồi từ server.')
+        return
+      }
+      toast.success('Upload file thành công!')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+
   return (
     <DashboardContent>
       <Box
@@ -192,21 +312,48 @@ export function ImportTopicProposalView() {
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Import đề xuất đề tài
         </Typography>
+        <Button
+          component="label"
+          role={undefined}
+          variant="contained"
+          tabIndex={-1}
+          startIcon={<Iconify icon="solar:upload-minimalistic-bold" />}
+          onClick={() => {}}
+        >
+          Upload đề tài
+          <VisuallyHiddenInput
+            type="file"
+            onChange={(event) => handleUploadFile(event.target.files?.[0] as File)}
+          />
+        </Button>
+
+        <Button
+          variant="contained"
+          color="success"
+          startIcon={<Iconify icon="solar:download-minimalistic-bold" />}
+          onClick={handleDowloadTemplate}
+          sx={{ ml: 2 }}
+        >
+          Tải file excel mẫu
+        </Button>
       </Box>
 
       <Card>
         <TopicTabsFilter data={_topic} value={filterDepartment} setValue={handleFilterDepartment}/>
 
-        {/* <ApproveTopicProposalTabsStatusFilter value={filterStatus} setValue={handleFilterStatus}/> */}
+        <TopicProposalTabsStatusFilter data={_topic} value={filterStatus} setValue={handleFilterStatus}/>
 
-        {/* <UserTableToolbar
+        <UserTableToolbar
           numSelected={table.selected.length}
           filterName={filterName}
           onFilterName={handleFilterName}
           valueMultipleSelect={instructor}
           filterInstructor={filterInstructor}
           onFilterInstructor={handleFilterInstructor}
-        /> */}
+          sortBy={sortBy}
+          onSort={setSortBy}
+          option={batches}
+        />
 
         <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>
 
@@ -229,7 +376,8 @@ export function ImportTopicProposalView() {
                   { id: 'name', label: 'Tên đề tài', minWidth: 350 },
                   { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 150 },
                   { id: 'instructors', label: 'Giáo viên hướng dẫn', minWidth: 200 },
-                  { id: 'email', label: 'Email', minWidth: 300 },
+                  { id: 'email', label: 'Email giáo viên hướng dẫn', minWidth: 300 },
+                  { id: 'reviewers', label: 'Giáo viên phản biện', minWidth: 200 },
                   { id: 'department_name', label: 'Bộ môn', align: 'center', minWidth: 150 },
                   { id: 'name_thesis_type', label: 'Loại đề tài', align: 'center', minWidth: 150 },
                   { id: '', label: 'Thao tác', alight: 'center', minWidth: 100 }
@@ -242,11 +390,12 @@ export function ImportTopicProposalView() {
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
                   .map((row) => (
-                    <ApproveTopicProposalTableRow
+                    <TopicProposalTableRow
                       key={row.id}
                       row={row}
                       selected={table.selected.includes(row.id)}
                       onSelectRow={() => table.onSelectRow(row.id)}
+                      onRefresh={fetchTheses}
                     />
                   ))}
 

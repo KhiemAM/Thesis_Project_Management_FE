@@ -31,6 +31,18 @@ const thesesApi = {
   },
   getTheseByBatchId(batchId: string): Promise<any> {
     return instance.get(`/theses/by-batch/${batchId}`)
+  },
+  downloadTemplate(): Promise<any> {
+    return instance.get('/theses/download-template', {
+      responseType: 'blob'
+    })
+  },
+  uploadTemplate(payload: FormData): Promise<any> {
+    return instance.post('/theses/import--excel', payload, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
   }
 }
 
