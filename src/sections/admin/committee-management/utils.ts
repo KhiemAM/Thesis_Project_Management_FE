@@ -1,6 +1,9 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
+import { getTopicStatusText } from 'src/constants/topic-status'
+
 import type { CommitteeProps } from './committee-table-row'
+import type { AnnounceTopicProps } from './announce-topic-table-row'
 
 // ----------------------------------------------------------------------
 
@@ -104,6 +107,59 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
   return inputData
 }
 
+type ApplyFilterTopicProps = {
+  inputData: AnnounceTopicProps[];
+  comparator: (a: any, b: any) => number;
+  filter: ChipsFilter;
+};
+
+export function applyFilterTopic({ inputData, comparator, filter }: ApplyFilterTopicProps) {
+  const stabilizedThis = inputData.map((el, index) => [el, index] as const)
+
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0])
+    if (order !== 0) return order
+    return a[1] - b[1]
+  })
+
+  inputData = stabilizedThis.map((el) => el[0])
+
+  if (filter.filterSearch.data.length > 0) {
+    inputData = inputData.filter(
+      (item) => item.name.toLowerCase().indexOf(filter.filterSearch.data[0].label.toLowerCase()) !== -1
+    )
+  }
+
+  if (Array.isArray(filter.filterTab) && filter.filterTab.length > 0) {
+    // Hàm lấy các label hợp lệ từ filterTab
+    const getLabels = (type: string) =>
+      filter.filterTab
+        .filter((item) => item.display === type)
+        .flatMap((item) => item.data)
+        .map((chip) => chip.label)
+        .filter((label) => label !== 'Tất cả')
+
+    // Lấy danh sách labels cho department và status
+    const departmentLabels = getLabels('Loại đề tài')
+    const statusLabels = getLabels('Trạng thái')
+
+    // Lọc inputData theo cả department và status
+    inputData = inputData.filter((item) =>
+      (!departmentLabels.length || departmentLabels.includes(item.name_thesis_type)) &&
+    (!statusLabels.length || statusLabels.includes(item.status))
+    )
+  }
+
+  if (filter.filterSelect.data.length > 0) {
+    const instructorLabels = filter.filterSelect.data.map((item) => item.label.trim())
+    inputData = inputData.filter((item) =>
+      item.instructors.some((instructor) => instructorLabels.includes(instructor.name.trim()))
+    )
+  }
+
+  return inputData
+}
+
 export const getColorByDepartment = (department: string) => {
   switch (department) {
   case 'KTPM':
@@ -135,4 +191,28 @@ export const getDataFilterByTabs = (data: CommitteeProps[], key: keyof Committee
     return data
   }
   return data.filter((item) => (item as any)[key] === value)
+}
+
+export const getColorByThesisType = (department: string) => {
+  switch (department) {
+  case 'Khóa luận':
+    return 'primary'
+  case 'Đồ án':
+    return 'secondary'
+  default:
+    return 'default'
+  }
+}
+
+export const getColorByStatusAnnounce = (status: string) => {
+  switch (status) {
+  case getTopicStatusText(3):
+    return 'warning'
+  case getTopicStatusText(4):
+    return 'error'
+  case getTopicStatusText(5):
+    return 'success'
+  default:
+    return 'default'
+  }
 }
