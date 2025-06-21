@@ -1,7 +1,8 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
 import { v4 as uuidv4 } from 'uuid'
-import { useState, useCallback } from 'react'
+import { toast } from 'react-toastify'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -11,37 +12,41 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
-import { _topic, _instructor } from 'src/_mock'
+import userApi from 'src/axios/user'
+import thesesApi from 'src/axios/theses'
+import { useLoading } from 'src/context'
 import { DashboardContent } from 'src/layouts/student'
+import { TopicStatusCode, TopicStatusText } from 'src/constants/topic-status'
 
 import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { TableNoData } from '../table-no-data'
-import { TopicTableRow } from '../topic-table-row'
-import { UserTableHead } from '../user-table-head'
 import { TableEmptyRows } from '../table-empty-rows'
 import { TopicTabsFilter } from '../topic-tabs-filter'
-import { UserTableToolbar } from '../user-table-toolbar'
+import { UserTableHead } from '../topic-proposal-table-head'
 import { emptyRows, applyFilter, getComparator } from '../utils'
+import { AnnounceTopicTableRow } from '../announce-topic-table-row'
+import { AnnounceTopicTableToolbar } from '../announce-topic-table-toolbar'
+import { AnnounceTopicTabsStatusFilter } from '../announce-topic-tabs-status-filter'
 
-import type { TopicProps } from '../topic-table-row'
+import type { Batch } from '../types'
+import type { ApproveTopicProps } from '../announce-topic-table-row'
 
 // ----------------------------------------------------------------------
-const getUniqueInstructors = (): string[] => {
-  const uniqueInstructors = new Set<string>()
-  for (let i = 0; i < 24; i++) {
-    uniqueInstructors.add(_instructor(i))
-  }
-  return Array.from(uniqueInstructors)
-}
 
 export function TopicStudentView() {
+  const { setIsLoading } = useLoading()
   const table = useTable()
   const id = uuidv4()
   const [filterName, setFilterName] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('Tất cả')
+  const [filterStatus, setFilterStatus] = useState('Tất cả')
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
+  const [_topic, setTopic] = useState<ApproveTopicProps[]>([])
+  const [instructor, setInstructor] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState('Tất cả')
+  const [batches, setBatches] = useState<Batch[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -49,7 +54,11 @@ export function TopicStudentView() {
     },
     filterTab: [
       {
-        display: 'Bộ môn',
+        display: 'Loại đề tài',
+        data: []
+      },
+      {
+        display: 'Trạng thái',
         data: []
       }
     ],
@@ -59,7 +68,52 @@ export function TopicStudentView() {
     }
   })
 
-  const dataFiltered: TopicProps[] = applyFilter({
+  const fetchTheses = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      let res
+      if (sortBy === 'Tất cả') {
+        res = await thesesApi.getAllTheses()
+      } else {
+        res = await thesesApi.getTheseByBatchId(sortBy)
+      }
+      setTopic(
+        res.data.filter(
+          (topic: ApproveTopicProps) => ![TopicStatusText[0], TopicStatusText[1], TopicStatusText[2]].includes(topic.status)
+        )
+      )
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, sortBy])
+
+  const fetchUserLecturers = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await userApi.getUserLectures()
+      setInstructor(res.data.map((item: any) => `${item.last_name} ${item.first_name}`))
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  const fetchAcademy = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.getAllBatches()
+      setBatches(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading])
+
+  useEffect(() => {
+    fetchUserLecturers()
+    fetchTheses()
+    fetchAcademy()
+  }, [fetchTheses, fetchUserLecturers, fetchAcademy])
+
+  const dataFiltered: ApproveTopicProps[] = applyFilter({
     inputData: _topic,
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
@@ -75,7 +129,11 @@ export function TopicStudentView() {
       },
       filterTab: [
         {
-          display: 'Bộ môn',
+          display: 'Loại đề tài',
+          data: []
+        },
+        {
+          display: 'Trạng thái',
           data: []
         }
       ],
@@ -86,6 +144,7 @@ export function TopicStudentView() {
     })
     setFilterName('')
     setFilterDepartment('Tất cả')
+    setFilterStatus('Tất cả')
     setFilterInstructor([])
   }, [])
 
@@ -103,8 +162,11 @@ export function TopicStudentView() {
       if (key === 'filterTab' && Array.isArray(section)) {
         section.forEach((item) => {
           if (Array.isArray(item.data) && item.data.length === 0) {
-            if (item.display === 'Bộ môn') {
+            if (item.display === 'Loại đề tài') {
               setFilterDepartment('Tất cả')
+            }
+            if (item.display === 'Trạng thái') {
+              setFilterStatus('Tất cả')
             }
           }
         })
@@ -133,14 +195,27 @@ export function TopicStudentView() {
   const handleFilterDepartment = useCallback((newValue: string) => {
     setChipsFilter((prev) => {
       const updatedFilterTab = prev.filterTab.map((item) =>
-        item.display === 'Bộ môn'
-          ? { ...item, data: newValue ? [{ key: id, label: newValue }] : [] }
+        item.display === 'Loại đề tài'
+          ? { ...item, data: newValue !== 'Tất cả' ? [{ key: id, label: newValue }] : [] }
           : item
       )
 
       return { ...prev, filterTab: updatedFilterTab }
     })
     setFilterDepartment(newValue)
+  }, [id])
+
+  const handleFilterStatus = useCallback((newValue: string) => {
+    setChipsFilter((prev) => {
+      const updatedFilterTab = prev.filterTab.map((item) =>
+        item.display === 'Trạng thái'
+          ? { ...item, data: newValue !== 'Tất cả' ? [{ key: id, label: newValue }] : [] }
+          : item
+      )
+
+      return { ...prev, filterTab: updatedFilterTab }
+    })
+    setFilterStatus(newValue)
   }, [id])
 
   const handleFilterInstructor = useCallback((newValue: string[]) => {
@@ -155,6 +230,26 @@ export function TopicStudentView() {
   }
   , [id])
 
+  const handleSelectAnnounceTopic = useCallback(async() => {
+    try {
+      setIsLoading(true)
+      const data = {
+        theses: table.selected.map((item) => ({
+          id: item,
+          update_data: {
+            status: TopicStatusCode.NOT_REGISTERED
+          }
+        }))
+      }
+      await thesesApi.updateManyTheses(data)
+      toast.success('Công khai danh sách đề tài thành công!')
+      fetchTheses()
+      table.onSelectAllRows(false, [])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, fetchTheses, table])
+
   return (
     <DashboardContent>
       <Box
@@ -165,20 +260,26 @@ export function TopicStudentView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Chọn đề tài
+          Danh sách đề tài
         </Typography>
       </Box>
 
       <Card>
-        <TopicTabsFilter value={filterDepartment} setValue={handleFilterDepartment}/>
+        <TopicTabsFilter data={_topic} value={filterDepartment} setValue={handleFilterDepartment}/>
 
-        <UserTableToolbar
+        <AnnounceTopicTabsStatusFilter data={_topic} value={filterStatus} setValue={handleFilterStatus}/>
+
+        <AnnounceTopicTableToolbar
           numSelected={table.selected.length}
           filterName={filterName}
           onFilterName={handleFilterName}
-          valueMultipleSelect={getUniqueInstructors()}
+          valueMultipleSelect={instructor}
           filterInstructor={filterInstructor}
           onFilterInstructor={handleFilterInstructor}
+          sortBy={sortBy}
+          onSort={setSortBy}
+          option={batches}
+          onSelectAnnounceTopic={handleSelectAnnounceTopic}
         />
 
         <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>
@@ -199,12 +300,14 @@ export function TopicStudentView() {
                   )
                 }
                 headLabel={[
-                  { id: 'topicNumber', label: 'STT đề tài', minWidth: 130 },
                   { id: 'name', label: 'Tên đề tài', minWidth: 350 },
-                  { id: 'instructor', label: 'Giáo viên hướng dẫn', minWidth: 200 },
+                  { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 150 },
+                  { id: 'instructors', label: 'Giáo viên hướng dẫn', minWidth: 200 },
                   { id: 'email', label: 'Email', minWidth: 300 },
-                  { id: 'department', label: 'Bộ môn', align: 'center', minWidth: 100 },
-                  { id: '' }
+                  { id: 'reviewers', label: 'Giáo viên phản biện', minWidth: 200 },
+                  { id: 'department_name', label: 'Bộ môn', align: 'center', minWidth: 150 },
+                  { id: 'name_thesis_type', label: 'Loại đề tài', align: 'center', minWidth: 150 },
+                  { id: '', label: 'Thao tác', alight: 'center', minWidth: 100 }
                 ]}
               />
               <TableBody>
@@ -214,11 +317,12 @@ export function TopicStudentView() {
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
                   .map((row) => (
-                    <TopicTableRow
+                    <AnnounceTopicTableRow
                       key={row.id}
                       row={row}
                       selected={table.selected.includes(row.id)}
                       onSelectRow={() => table.onSelectRow(row.id)}
+                      onRefresh={fetchTheses}
                     />
                   ))}
 
@@ -236,7 +340,7 @@ export function TopicStudentView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_topic.length}
+          count={dataFiltered.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}
@@ -249,7 +353,7 @@ export function TopicStudentView() {
 
 // ----------------------------------------------------------------------
 
-export function useTable() {
+function useTable() {
   const [page, setPage] = useState(0)
   const [orderBy, setOrderBy] = useState('topicNumber')
   const [rowsPerPage, setRowsPerPage] = useState(5)

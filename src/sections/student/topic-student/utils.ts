@@ -1,6 +1,8 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
-import type { TopicProps } from './topic-table-row'
+import { getTopicStatusText } from 'src/constants/topic-status'
+
+import type { ApproveTopicProps } from './announce-topic-table-row'
 
 // ----------------------------------------------------------------------
 
@@ -55,7 +57,7 @@ export function getComparator<Key extends keyof any>(
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: TopicProps[];
+  inputData: ApproveTopicProps[];
   comparator: (a: any, b: any) => number;
   filter: ChipsFilter;
 };
@@ -87,17 +89,20 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
         .filter((label) => label !== 'Tất cả')
 
     // Lấy danh sách labels cho department và status
-    const departmentLabels = getLabels('Bộ môn')
+    const departmentLabels = getLabels('Loại đề tài')
+    const statusLabels = getLabels('Trạng thái')
 
     // Lọc inputData theo cả department và status
     inputData = inputData.filter((item) =>
-      (!departmentLabels.length || departmentLabels.includes(item.department))
+      (!departmentLabels.length || departmentLabels.includes(item.name_thesis_type)) &&
+    (!statusLabels.length || statusLabels.includes(item.status))
     )
   }
 
   if (filter.filterSelect.data.length > 0) {
-    const instructorLabels = filter.filterSelect.data.map((item) => item.label)
-    inputData = inputData.filter((item) => instructorLabels.includes(item.instructor)
+    const instructorLabels = filter.filterSelect.data.map((item) => item.label.trim())
+    inputData = inputData.filter((item) =>
+      item.instructors.some((instructor) => instructorLabels.includes(instructor.name.trim()))
     )
   }
 
@@ -117,4 +122,72 @@ export const getColorByDepartment = (department: string) => {
   default:
     return 'default'
   }
+}
+
+export const getColorByStatus = (status: string) => {
+  switch (status) {
+  case getTopicStatusText(0):
+    return 'error'
+  case getTopicStatusText(1):
+    return 'warning'
+  case getTopicStatusText(2):
+    return 'primary'
+  case getTopicStatusText(3):
+    return 'success'
+  default:
+    return 'default'
+  }
+}
+
+export const getColorByStatusDepartment = (status: string) => {
+  switch (status) {
+  case getTopicStatusText(1):
+    return 'warning'
+  case getTopicStatusText(2):
+    return 'success'
+  default:
+    return 'default'
+  }
+}
+
+export const getColorByStatusFaculty = (status: string) => {
+  switch (status) {
+  case getTopicStatusText(2):
+    return 'warning'
+  case getTopicStatusText(3):
+    return 'success'
+  default:
+    return 'default'
+  }
+
+}
+export const getColorByStatusAnnounce = (status: string) => {
+  switch (status) {
+  case getTopicStatusText(3):
+    return 'warning'
+  case getTopicStatusText(4):
+    return 'error'
+  case getTopicStatusText(5):
+    return 'success'
+  default:
+    return 'default'
+  }
+}
+
+export const getColorByThesisType = (department: string) => {
+  switch (department) {
+  case 'Khóa luận':
+    return 'primary'
+  case 'Đồ án':
+    return 'secondary'
+  default:
+    return 'default'
+  }
+}
+
+export const getDataFilterByTabs = (data: ApproveTopicProps[], key: keyof ApproveTopicProps, value: string) => {
+  if (value === 'Tất cả') {
+    return data
+  }
+  return data.filter((item) => (item as any)[key] === value)
 }
