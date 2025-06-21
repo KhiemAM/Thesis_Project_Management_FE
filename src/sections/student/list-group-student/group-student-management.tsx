@@ -13,6 +13,7 @@ import { Iconify } from 'src/components/iconify'
 import GroupStudentForm from './group-student-form'
 import GroupStudentHeader from './group-student-header'
 import GroupStudentListAccept from './group-student-list-accept'
+import GroupStudentThesisInformation from './group-student-thesis-information'
 
 import type { Group } from './types'
 import type { ApproveTopicProps } from '../topic-student/announce-topic-table-row'
@@ -129,11 +130,7 @@ const GroupStudentManagement = ({
           </TabPanel>
 
           <TabPanel value={currentTab} index={2}>
-            <GroupStudentForm
-              group={group}
-              labelButton='Cập nhật'
-              refresh={refresh}
-            />
+            <GroupStudentThesisInformation data={thesis}/>
           </TabPanel>
 
           <TabPanel value={currentTab} index={3}>
