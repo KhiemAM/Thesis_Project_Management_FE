@@ -73,13 +73,13 @@ export function TopicStudentView() {
       setIsLoading(true)
       let res
       if (sortBy === 'Tất cả') {
-        res = await thesesApi.getAllTheses()
+        res = await thesesApi.getAllThesesByMajor()
       } else {
-        res = await thesesApi.getTheseByBatchId(sortBy)
+        res = await thesesApi.getTheseByBatchIdAndMajor(sortBy)
       }
       setTopic(
         res.data.filter(
-          (topic: ApproveTopicProps) => ![TopicStatusText[0], TopicStatusText[1], TopicStatusText[2]].includes(topic.status)
+          (topic: ApproveTopicProps) => [TopicStatusText[4], TopicStatusText[5]].includes(topic.status)
         )
       )
     } finally {

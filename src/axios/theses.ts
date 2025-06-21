@@ -46,6 +46,12 @@ const thesesApi = {
         'Content-Type': 'multipart/form-data'
       }
     })
+  },
+  getAllThesesByMajor(): Promise<any> {
+    return instance.get('/theses/get-all/by-my-major')
+  },
+  getTheseByBatchIdAndMajor(batchId: string): Promise<any> {
+    return instance.get(`/theses/batch/${batchId}/my-major`)
   }
 }
 

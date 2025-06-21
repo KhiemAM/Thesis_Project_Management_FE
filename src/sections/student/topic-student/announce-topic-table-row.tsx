@@ -2,6 +2,7 @@ import type { SubmitHandler } from 'react-hook-form'
 
 import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
+import { useParams } from 'react-router-dom'
 import { useState, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
@@ -26,6 +27,7 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
 
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
+import groupApi from 'src/axios/group'
 import thesesApi from 'src/axios/theses'
 import { TopicStatusCode } from 'src/constants/topic-status'
 
@@ -35,7 +37,7 @@ import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
-import { getColorByDepartment, getColorByThesisType, getColorByStatusFaculty, getColorByStatusAnnounce } from './utils'
+import { getColorByDepartment, getColorByThesisType, getColorByStatusAnnounce } from './utils'
 
 // ----------------------------------------------------------------------
 export type ApproveTopicProps = {
@@ -101,6 +103,7 @@ interface IFormInputApprovveTopicProposal {
 
 export function AnnounceTopicTableRow({ onRefresh, row, selected, onSelectRow }: UserTableRowProps) {
   const theme = useTheme()
+  const { id } = useParams()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openTopicDetail, setOpenTopicDetail] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
@@ -155,23 +158,23 @@ export function AnnounceTopicTableRow({ onRefresh, row, selected, onSelectRow }:
     setOpenDialogReason(false)
   }, [])
 
-  const handleApproveTopicProposal = useCallback(() => {
+  const handleRegisterThesis = useCallback(() => {
     AlertConfirmCallAPI({
       title: 'Bạn có muốn thực hiện thao tác này không?',
-      text: 'Bạn có muốn duyệt đề tài này không?',
+      text: 'Bạn có muốn chọn đề tài này không?',
       icon:'success',
       showCancelButton: true,
       confirmButtonColor:'#3085d6',
       cancelButtonColor:'#d33',
-      confirmButtonText:'Duyệt đề tài',
+      confirmButtonText:'Chọn đề tài',
       cancelButtonText:'Hủy',
       api: async() => {
-        await thesesApi.updateThese(row.id, { status: TopicStatusCode.APPROVED_BY_FACULTY })
+        await groupApi.registerThesis(id as string, row.id)
         onRefresh?.()
-        toast.success('Duyệt đề tài thành công!')
+        toast.success('Chọn đề tài thành công!')
       }
     })
-  }, [row.id, onRefresh])
+  }, [row.id, onRefresh, id])
 
   return (
     <>
@@ -266,6 +269,14 @@ export function AnnounceTopicTableRow({ onRefresh, row, selected, onSelectRow }:
             }
           }}
         >
+          <MenuItem
+            onClick={() => { handleClosePopover(); handleRegisterThesis() }}
+            sx={{ color: 'success.main' }}
+          >
+            <Iconify icon="mingcute:add-line" />
+            Chọn đề tài
+          </MenuItem>
+
           <MenuItem
             onClick={() => { handleClosePopover(); onOpenTopicDetail() }}
             sx={{ color: 'primary.main' }}

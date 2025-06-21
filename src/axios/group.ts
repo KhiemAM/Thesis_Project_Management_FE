@@ -25,6 +25,9 @@ const groupApi = {
   },
   transferLeader(groupId: string, studentId: string): Promise<any> {
     return instance.put(`/group/${groupId}/transfer-leader/${studentId}`)
+  },
+  registerThesis(groupId: string, thesisId: string): Promise<any> {
+    return instance.post(`/group/${groupId}/register-thesis/${thesisId}`)
   }
 }
 

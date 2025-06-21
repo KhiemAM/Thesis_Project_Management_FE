@@ -229,6 +229,8 @@ export function AnnounceTopicTableRow({ onRefresh, row, selected, onSelectRow }:
           <Label color={getColorByThesisType(row.name_thesis_type)}>{row.name_thesis_type}</Label>
         </TableCell>
 
+        <TableCell align='center'>{row.major}</TableCell>
+
         <TableCell
           align="center"
           sx={{

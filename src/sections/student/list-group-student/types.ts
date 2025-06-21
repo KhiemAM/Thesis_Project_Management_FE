@@ -31,4 +31,5 @@ export interface Group {
   description?: string;
   members: Student[];
   coverImage?: string;
+  thesis_id: string;
 }

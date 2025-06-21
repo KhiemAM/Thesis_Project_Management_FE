@@ -42,11 +42,6 @@ export const navData = [
     title: 'Quản lý nhóm',
     path: '/student/group-list',
     icon: icon('solar--users-group-rounded-linear')
-  },
-  {
-    title: 'Chọn đề tài',
-    path: '/student/topic',
-    icon: icon('solar--document-medicine-linear')
   }
 ]
 

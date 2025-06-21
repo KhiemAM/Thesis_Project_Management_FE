@@ -12,6 +12,7 @@ import { RouterLink } from 'src/routes/components'
 
 import groupApi from 'src/axios/group'
 import { useLoading } from 'src/context'
+import thesesApi from 'src/axios/theses'
 import { DashboardContent } from 'src/layouts/student'
 
 import { Iconify } from 'src/components/iconify'
@@ -25,6 +26,7 @@ import GroupStudentManagement from '../group-student-management'
 
 import type { Group } from '../types'
 import type { ProfileProps } from '../../search-student/user-table-row'
+import type { ApproveTopicProps } from '../../topic-student/announce-topic-table-row'
 // ----------------------------------------------------------------------
 const drawerWidth = 360
 
@@ -34,6 +36,7 @@ export function InformationGroupStudentView() {
   const [openInformation, setOpenInformation] = useState(false)
   const [group, setGroup] = useState<Group | null>(null)
   const [informationStudent, setInformationStudent] = useState<ProfileProps | null>(null)
+  const [thesis, setThesis] = useState<ApproveTopicProps | null>(null)
 
   const fetchGroupInformation = useCallback(async () => {
     try {
@@ -45,9 +48,25 @@ export function InformationGroupStudentView() {
     }
   }, [setIsLoading, id])
 
+  const fetchThesisInformation = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.getTheseById(group?.thesis_id as string)
+      setThesis(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, group?.thesis_id])
+
   useEffect(() => {
     fetchGroupInformation()
   }, [fetchGroupInformation])
+
+  useEffect(() => {
+    if (group?.thesis_id) {
+      fetchThesisInformation()
+    }
+  }, [fetchThesisInformation, group?.thesis_id])
 
   const onOpenInformation = useCallback(() => {
     setOpenInformation(true)
@@ -143,6 +162,7 @@ export function InformationGroupStudentView() {
                   refresh={fetchGroupInformation}
                   setInformationStudent={setInformationStudent}
                   handleTransferLeader={handleTransferLeader}
+                  thesis={thesis}
                 />
               )}
             </Box>

@@ -78,7 +78,7 @@ export function ApproveFacultyTopicProposalView() {
       }
       setTopic(
         res.data.filter(
-          (topic: ApproveTopicProps) => ![TopicStatusText[0], TopicStatusText[1]].includes(topic.status)
+          (topic: ApproveTopicProps) => ![TopicStatusText[0], TopicStatusText[1], TopicStatusText[4], TopicStatusText[5]].includes(topic.status)
         )
       )
     } finally {
@@ -285,6 +285,7 @@ export function ApproveFacultyTopicProposalView() {
                   { id: 'reviewers', label: 'Giáo viên phản biện', minWidth: 200 },
                   { id: 'department_name', label: 'Bộ môn', align: 'center', minWidth: 150 },
                   { id: 'name_thesis_type', label: 'Loại đề tài', align: 'center', minWidth: 150 },
+                  { id: 'major', label: 'Chuyên ngành', align: 'center', minWidth: 200 },
                   { id: '', label: 'Thao tác', alight: 'center', minWidth: 100 }
                 ]}
               />

@@ -102,7 +102,7 @@ const MainRoutes = () => [
       { path: 'group', element: <GroupStudentPage /> },
       { path: 'group-list', element: <ListGroupStudentPage /> },
       { path: 'information/:id', element: <InformationGroupStudentPage /> },
-      { path: 'topic', element: <TopicStudentPage /> }
+      { path: 'topic/:id', element: <TopicStudentPage /> }
     ]
   },
   {

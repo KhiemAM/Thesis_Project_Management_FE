@@ -9,13 +9,13 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
 import { Iconify } from 'src/components/iconify'
-import { AlertConfirmNavigate } from 'src/components/sweetalert2'
 
 import GroupStudentForm from './group-student-form'
 import GroupStudentHeader from './group-student-header'
 import GroupStudentListAccept from './group-student-list-accept'
 
 import type { Group } from './types'
+import type { ApproveTopicProps } from '../topic-student/announce-topic-table-row'
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -46,6 +46,7 @@ interface GroupStudentManagementProps {
   refresh?: () => void;
   setInformationStudent: (student: any) => void;
   handleTransferLeader: (studentId: string) => void;
+  thesis: ApproveTopicProps | null;
 }
 
 const GroupStudentManagement = ({
@@ -54,7 +55,8 @@ const GroupStudentManagement = ({
   onOpenInformation,
   refresh,
   setInformationStudent,
-  handleTransferLeader
+  handleTransferLeader,
+  thesis
 }: GroupStudentManagementProps) => {
   const theme = useTheme()
   const [currentTab, setCurrentTab] = useState(0)
@@ -87,17 +89,22 @@ const GroupStudentManagement = ({
         >
           <Tab
             icon={<Iconify icon="solar:home-angle-bold-duotone" />}
-            label="Overview"
+            label="Thông tin chung"
             iconPosition="start"
           />
           <Tab
             icon={<Iconify icon="solar:users-group-rounded-bold" />}
-            label="Members"
+            label="Thành viên"
+            iconPosition="start"
+          />
+          <Tab
+            icon={<Iconify icon="solar:document-medicine-bold" />}
+            label="Đề tài đăng ký"
             iconPosition="start"
           />
           <Tab
             icon={<Iconify icon="solar:settings-bold-duotone" />}
-            label="Settings"
+            label="Cài đặt nhóm"
             iconPosition="start"
           />
         </Tabs>
@@ -122,6 +129,14 @@ const GroupStudentManagement = ({
           </TabPanel>
 
           <TabPanel value={currentTab} index={2}>
+            <GroupStudentForm
+              group={group}
+              labelButton='Cập nhật'
+              refresh={refresh}
+            />
+          </TabPanel>
+
+          <TabPanel value={currentTab} index={3}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Box>
                 <Typography variant="h6">

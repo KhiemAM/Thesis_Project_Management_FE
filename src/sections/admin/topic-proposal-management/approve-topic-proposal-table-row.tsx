@@ -230,6 +230,8 @@ export function ApproveTopicProposalTableRow({ onRefresh, row, selected, onSelec
           <Label color={getColorByThesisType(row.name_thesis_type)}>{row.name_thesis_type}</Label>
         </TableCell>
 
+        <TableCell align='center'>{row.major}</TableCell>
+
         <TableCell
           align="right"
           sx={{

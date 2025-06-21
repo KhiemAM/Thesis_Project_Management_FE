@@ -86,6 +86,7 @@ export function PostItem({
       }}
     >
       {[
+        { title: 'Chọn đề tài', icon: 'solar:document-medicine-bold', href: `/student/topic/${post.id}` },
         { title: 'Xem thông tin nhóm', icon: 'solar:eye-bold', href: `/student/information/${post.id}` },
         { title: 'Xem tiến độ nhóm', icon: 'solar:checklist-minimalistic-bold-duotone', href: `/student/progress/${post.id}` }
       ].map((info, _index) => (
