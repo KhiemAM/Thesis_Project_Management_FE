@@ -82,21 +82,6 @@ export function ImportTopicProposalView() {
     }
   })
 
-  const fetchTheses = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      let res
-      if (sortBy === 'Tất cả') {
-        res = await thesesApi.getAllTheses()
-      } else {
-        res = await thesesApi.getTheseByBatchId(sortBy)
-      }
-      setTopic(res.data)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [setIsLoading, sortBy])
-
   const fetchUserLecturers = useCallback(async () => {
     try {
       setIsLoading(true)
@@ -119,9 +104,8 @@ export function ImportTopicProposalView() {
 
   useEffect(() => {
     fetchUserLecturers()
-    fetchTheses()
     fetchAcademy()
-  }, [fetchTheses, fetchUserLecturers, fetchAcademy])
+  }, [fetchUserLecturers, fetchAcademy])
 
   const dataFiltered: TopicProps[] = applyFilter({
     inputData: _topic,
@@ -278,7 +262,6 @@ export function ImportTopicProposalView() {
   }, [setIsLoading])
 
   const handleUploadFile = useCallback(async (file: File) => {
-    console.log('~ handleUploadFile ~ file:', file)
     try {
       setIsLoading(true)
 
@@ -293,6 +276,7 @@ export function ImportTopicProposalView() {
         toast.error('Có lỗi xảy ra: Không nhận được phản hồi từ server.')
         return
       }
+      setTopic(result.imported_theses)
       toast.success('Upload file thành công!')
     } finally {
       setIsLoading(false)
@@ -395,7 +379,6 @@ export function ImportTopicProposalView() {
                       row={row}
                       selected={table.selected.includes(row.id)}
                       onSelectRow={() => table.onSelectRow(row.id)}
-                      onRefresh={fetchTheses}
                     />
                   ))}
 

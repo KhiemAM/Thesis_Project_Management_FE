@@ -1,6 +1,7 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
 import { v4 as uuidv4 } from 'uuid'
+import { toast } from 'react-toastify'
 import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
@@ -15,7 +16,7 @@ import userApi from 'src/axios/user'
 import thesesApi from 'src/axios/theses'
 import { useLoading } from 'src/context'
 import { DashboardContent } from 'src/layouts/student'
-import { TopicStatusText } from 'src/constants/topic-status'
+import { TopicStatusCode, TopicStatusText } from 'src/constants/topic-status'
 
 import ChipsArrayFilter from 'src/components/chip'
 import { Scrollbar } from 'src/components/scrollbar'
@@ -229,6 +230,26 @@ export function AnnounceTopicView() {
   }
   , [id])
 
+  const handleSelectAnnounceTopic = useCallback(async() => {
+    try {
+      setIsLoading(true)
+      const data = {
+        theses: table.selected.map((item) => ({
+          id: item,
+          update_data: {
+            status: TopicStatusCode.NOT_REGISTERED
+          }
+        }))
+      }
+      await thesesApi.updateManyTheses(data)
+      toast.success('Công khai danh sách đề tài thành công!')
+      fetchTheses()
+      table.onSelectAllRows(false, [])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, fetchTheses, table])
+
   return (
     <DashboardContent>
       <Box
@@ -258,6 +279,7 @@ export function AnnounceTopicView() {
           sortBy={sortBy}
           onSort={setSortBy}
           option={batches}
+          onSelectAnnounceTopic={handleSelectAnnounceTopic}
         />
 
         <ChipsArrayFilter chipData={chipsFilter} handleDeleteChipData={handleDeleteChipData} handleClearFilter={handleClearFilter}/>

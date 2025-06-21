@@ -23,6 +23,9 @@ const thesesApi = {
   updateThese(id: string, payload: ThesesPayload): Promise<any> {
     return instance.put(`/theses/${id}`, payload)
   },
+  updateManyTheses(payload: ThesesPayload): Promise<any> {
+    return instance.put('/theses/batch-update', payload)
+  },
   deleteThese(id: string): Promise<any> {
     return instance.delete(`/theses/${id}`)
   },
@@ -38,7 +41,7 @@ const thesesApi = {
     })
   },
   uploadTemplate(payload: FormData): Promise<any> {
-    return instance.post('/theses/import--excel', payload, {
+    return instance.post('/theses/import-excel', payload, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

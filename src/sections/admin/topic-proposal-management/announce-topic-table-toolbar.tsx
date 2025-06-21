@@ -24,6 +24,7 @@ type AnnounceTopicTableToolbarProps = {
   sortBy: string;
   onSort: (newSort: string) => void;
   option: Batch[];
+  onSelectAnnounceTopic?: () => void;
 };
 
 const formatBatchOptions = (batches: Batch[]) => batches.map((batch) => {
@@ -45,7 +46,8 @@ export function AnnounceTopicTableToolbar({
   onFilterInstructor,
   sortBy,
   onSort,
-  option
+  option,
+  onSelectAnnounceTopic
 }: AnnounceTopicTableToolbarProps) {
   return (
     <Toolbar
@@ -64,7 +66,11 @@ export function AnnounceTopicTableToolbar({
           <Typography component="div" variant="subtitle1">
             Đã chọn {numSelected} đề tài
           </Typography>
-          <Button variant='contained' size='large'>
+          <Button
+            variant='contained'
+            size='large'
+            onClick={onSelectAnnounceTopic}
+          >
             <Iconify icon="solar:upload-square-bold"/>
             <Typography variant='subtitle1' sx={{ ml: 1 }}>
               Công khai danh sách đề tài
