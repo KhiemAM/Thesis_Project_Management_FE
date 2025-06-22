@@ -1,78 +1,105 @@
-import type { SelectChangeEvent } from '@mui/material/Select'
+import type { Dayjs } from 'dayjs'
 
+import dayjs from 'dayjs'
+import { toast } from 'react-toastify'
+import { useForm, Controller } from 'react-hook-form'
 import React, { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
+import Alert from '@mui/material/Alert'
 import Dialog from '@mui/material/Dialog'
 import Button from '@mui/material/Button'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import InputLabel from '@mui/material/InputLabel'
 import DialogTitle from '@mui/material/DialogTitle'
-import FormControl from '@mui/material/FormControl'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
-import FormControlLabel from '@mui/material/FormControlLabel'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
 import { fDate } from 'src/utils/format-time'
+import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
+
+import progressApi from 'src/axios/progress'
 
 import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
+import { SingleSelectTextField } from 'src/components/select/single-select-text-field'
 
 import { getColorByPriority } from './utils'
 import MessageSection from './progress-group-student-message-section'
 
 import type { Task } from './types'
 
+const _priority = [
+  { id: 1, name: 'Thấp' },
+  { id: 2, name: 'Trung bình' },
+  { id: 3, name: 'Cao' }
+]
+
 interface TodoDetailsProps {
   open: boolean;
   onClose: () => void;
   todo: Task | null;
+  onRefresh?: () => void;
 }
 
-const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose, todo }) => {
+interface IFormInputUpdateTodo {
+  title: string;
+  description: string;
+  due_date: Dayjs | string;
+  priority: string;
+}
+
+const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose, todo, onRefresh }) => {
+  const { register, handleSubmit, formState: { errors }, reset, control } = useForm<IFormInputUpdateTodo>()
   const [isEditing, setIsEditing] = useState(false)
-  const [editForm, setEditForm] = useState<Task | null>(null)
+  const [isLoadingButton, setIsLoadingButton] = useState(false)
 
   useEffect(() => {
     if (todo) {
-      setEditForm(todo)
+      reset({
+        title: todo.title,
+        description: todo.description || '',
+        due_date: dayjs(todo.due_date),
+        priority: todo.priority
+      })
     }
-  }, [todo])
+  }, [todo, reset])
 
   const handleEditToggle = useCallback(() => {
     setIsEditing(!isEditing)
   }, [isEditing])
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (!editForm) return
-
-    const { name, value } = e.target
-    setEditForm({ ...editForm, [name]: value })
+  const submitUpdateTodo = async (data: IFormInputUpdateTodo) => {
+    try {
+      const payload = {
+        title: data.title,
+        description: data.description,
+        due_date: dayjs(data.due_date).format('YYYY-MM-DDTHH:mm:ss'),
+        status: 1,
+        priority: data.priority
+      }
+      if (todo?.id) {
+        await progressApi.updateTaskProgress(todo.id, payload)
+        toast.success('Cập nhật công việc thành công!')
+        handleCloseDialog()
+        onRefresh?.()
+      }
+      setIsLoadingButton(true)
+    } finally {
+      setIsLoadingButton(false)
+    }
   }
-
-  const handlePriorityChange = (e: SelectChangeEvent<string>) => {
-    if (!editForm) return
-    setEditForm({ ...editForm, priority: e.target.value })
-  }
-
-  // const handleSave = () => {
-  //   if (editForm) {
-  //     updateTodo(editForm)
-  //     setIsEditing(false)
-  //   }
-  // }
 
   const handleCloseDialog = () => {
     setIsEditing(false)
     onClose()
   }
 
-  if (!todo || !editForm) {
+  if (!todo) {
     return null
   }
 
@@ -82,6 +109,15 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose, todo }) => {
       onClose={handleCloseDialog}
       fullWidth
       maxWidth="lg"
+      slotProps={{
+        paper: {
+          component: 'form',
+          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault()
+            handleSubmit(submitUpdateTodo)()
+          }
+        }
+      }}
     >
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {isEditing ? (
@@ -114,61 +150,89 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose, todo }) => {
 
       <DialogContent dividers>
         {isEditing ? (
-          <Box component="form" sx={{ pt: 1 }}>
+          <Box sx={{ pt: 1 }}>
             <TextField
-              margin="normal"
-              required
               fullWidth
-              id="title"
-              label="Task Title"
-              name="title"
-              value={editForm.title}
-              onChange={handleFormChange}
-              autoFocus
+              label="Tên đề tài *"
+              error={!!errors['title']}
+              sx={{ mt: 3 }}
+              {...register('title', {
+                required: FIELD_REQUIRED_MESSAGE
+              })}
             />
+            {errors['title'] && (
+              <Alert severity="error" sx={{ mt: 3 }}>{String(errors['title']?.message)}</Alert>
+            )}
 
             <TextField
-              margin="normal"
               fullWidth
-              id="description"
-              label="Description"
-              name="description"
-              multiline
-              rows={3}
-              value={editForm.description}
-              onChange={handleFormChange}
+              label="Mô tả chi tiết *"
+              error={!!errors['description']}
+              sx={{ mt: 3 }}
+              {...register('description', {
+                required: FIELD_REQUIRED_MESSAGE
+              })}
             />
+            {errors['description'] && (
+              <Alert severity="error" sx={{ mt: 3 }}>{String(errors['description']?.message)}</Alert>
+            )}
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
-              <FormControl fullWidth margin="normal">
-                <InputLabel id="priority-label">Priority</InputLabel>
-                <Select
-                  labelId="priority-label"
-                  id="priority"
-                  value={editForm.priority}
-                  label="Priority"
-                  onChange={handlePriorityChange}
-                >
-                  <MenuItem value="low">Low</MenuItem>
-                  <MenuItem value="medium">Medium</MenuItem>
-                  <MenuItem value="high">High</MenuItem>
-                </Select>
-              </FormControl>
-
-              {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
-                  label="Due Date (Optional)"
-                  value={editForm.dueDate ? new Date(editForm.dueDate) : null}
-                  onChange={handleDateChange}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      margin: 'normal'
-                    }
-                  }}
-                />
-              </LocalizationProvider> */}
+            <Box sx={{ mt: 3 }}>
+              <Controller
+                name="due_date"
+                control={control}
+                rules={{ required: FIELD_REQUIRED_MESSAGE }}
+                render={({ field }) => (
+                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='vi'>
+                    <DatePicker
+                      label="Ngày đến hạn *"
+                      dayOfWeekFormatter={(weekday) => `${(weekday as Dayjs).format('dd')}`}
+                      enableAccessibleFieldDOMStructure={false}
+                      value={field.value ? dayjs(field.value) : null}
+                      onChange={(newValue) => field.onChange(newValue)}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          variant: 'outlined',
+                          error: !!errors['due_date'],
+                          slotProps: {
+                            inputLabel: { shrink: true }
+                          }
+                        }
+                      }}
+                    />
+                  </LocalizationProvider>
+                )}
+              />
             </Box>
+            {errors['due_date'] && (
+              <Alert severity="error" sx={{ mt: 3 }}>{String(errors['due_date']?.message)}</Alert>
+            )}
+
+            <Box sx={{ mt: 3 }}>
+              <Controller
+                name="priority"
+                rules={{ required: FIELD_REQUIRED_MESSAGE }}
+                control={control}
+                render={({ field }) => (
+                  <SingleSelectTextField
+                    data={_priority}
+                    columns={[
+                      { key: 'name', label: 'Độ ưu tiên' }
+                    ]}
+                    valueKey='id'
+                    displayKey='name'
+                    inputLabel='Độ ưu tiên *'
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={!!errors['priority']}
+                  />
+                )}
+              />
+            </Box>
+            {errors['priority'] && (
+              <Alert severity="error" sx={{ mt: 3 }}>{String(errors['priority']?.message)}</Alert>
+            )}
           </Box>
         ) : (
           <>
@@ -224,10 +288,11 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose, todo }) => {
             Hủy
           </Button>
           <Button
+            loading={isLoadingButton}
+            loadingPosition='start'
             variant="contained"
             color="primary"
-            // onClick={handleSave}
-            startIcon={<Iconify icon='solar:trash-bin-trash-bold' />}
+            type='submit'
           >
             Lưu thay đổi
           </Button>

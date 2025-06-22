@@ -37,6 +37,7 @@ interface AddTodoProps {
   group: Group | null;
   open: boolean;
   onClose: () => void;
+  onRefresh?: () => void;
 }
 
 interface IFormInputCreateTodo {
@@ -47,8 +48,8 @@ interface IFormInputCreateTodo {
 }
 
 
-const AddTodo: React.FC<AddTodoProps> = ({ group, open, onClose }) => {
-  const { register, handleSubmit, formState: { errors }, reset, control } = useForm<IFormInputCreateTodo>()
+const AddTodo: React.FC<AddTodoProps> = ({ group, open, onClose, onRefresh }) => {
+  const { register, handleSubmit, formState: { errors }, control, reset } = useForm<IFormInputCreateTodo>()
   const [isLoadingButton, setIsLoadingButton] = useState(false)
 
   const submitCreateTodo = async (data: IFormInputCreateTodo) => {
@@ -64,6 +65,8 @@ const AddTodo: React.FC<AddTodoProps> = ({ group, open, onClose }) => {
       if (group?.thesis_id) {
         await progressApi.createTaskProgress(group.thesis_id, payload)
         toast.success('Tạo công việc thành công!')
+        handleCancel()
+        onRefresh?.()
         reset()
       } else {
         toast.error('Không tìm thấy đề tài liên kết với nhóm này!')

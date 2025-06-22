@@ -17,8 +17,8 @@ import progressApi from 'src/axios/progress'
 
 import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
+import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
-import { useTodo } from './todo-context'
 import { getColorByPriority } from './utils'
 
 import type { Task } from './types'
@@ -31,7 +31,6 @@ interface TodoItemProps {
 
 const TodoItem: React.FC<TodoItemProps> = ({ todo, onRefresh, onOpenDetail }) => {
   const theme = useTheme()
-  const { toggleTodo, deleteTodo, setSelectedTodo } = useTodo()
   const [loadingButton, setLoadingButton] = React.useState(false)
 
   const handleToggle = useCallback(async(e: React.MouseEvent<HTMLButtonElement>) => {
@@ -46,10 +45,29 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onRefresh, onOpenDetail }) =>
     }
   }, [todo.id, todo.status, onRefresh])
 
-  const handleDelete = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDelete = useCallback(async(e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
-    deleteTodo(todo.id)
-  }, [todo.id, deleteTodo])
+    AlertConfirmCallAPI({
+      title: 'Bạn có muốn thực hiện thao tác này không?',
+      text: 'Bạn có muốn xóa công việc này không?',
+      icon:'success',
+      showCancelButton: true,
+      confirmButtonColor:'#3085d6',
+      cancelButtonColor:'#d33',
+      confirmButtonText:'Xóa công việc',
+      cancelButtonText:'Hủy',
+      api: async() => {
+        try {
+          setLoadingButton(true)
+          await progressApi.deleteTaskProgress(todo.id)
+          toast.success('Xóa công việc thành công')
+          onRefresh?.()
+        } finally {
+          setLoadingButton(false)
+        }
+      }
+    })
+  }, [todo.id, onRefresh])
 
   const handleEdit = useCallback(() => {
     onOpenDetail?.(todo.id)

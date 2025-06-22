@@ -16,6 +16,12 @@ const progressApi = {
   },
   updateStatusTaskProgress(taskId: string, payload: ProgressPayload): Promise<any> {
     return instance.patch(`/progress/tasks/${taskId}/status`, payload)
+  },
+  updateTaskProgress(taskId: string, payload: ProgressPayload): Promise<any> {
+    return instance.put(`/progress/tasks/${taskId}`, payload)
+  },
+  deleteTaskProgress(taskId: string): Promise<any> {
+    return instance.delete(`/progress/tasks/${taskId}`)
   }
 }
 

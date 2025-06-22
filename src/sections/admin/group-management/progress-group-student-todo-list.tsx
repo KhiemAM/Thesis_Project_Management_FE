@@ -305,7 +305,7 @@ const TodoList = ({ group }: TodoListProps) => {
             variant="contained"
             color="primary"
             size='large'
-            startIcon={<Iconify icon='solar:trash-bin-trash-bold' />}
+            startIcon={<Iconify icon='mingcute:add-line' />}
             onClick={handleOpenAddDialog}
             sx={{
               display: 'flex'
@@ -344,8 +344,8 @@ const TodoList = ({ group }: TodoListProps) => {
         )}
       </Paper>
 
-      <AddTodo group={group} open={addDialogOpen} onClose={handleCloseAddDialog} />
-      <TodoDetails open={!!selectedTodoId} onClose={handleCloseDetails} todo={selectedTodo}/>
+      <AddTodo group={group} open={addDialogOpen} onClose={handleCloseAddDialog} onRefresh={fetchTasks}/>
+      <TodoDetails open={!!selectedTodoId} onClose={handleCloseDetails} todo={selectedTodo} onRefresh={fetchTasks}/>
     </>
   )
 }
