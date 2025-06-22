@@ -6,12 +6,12 @@ import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
 
 import { Iconify } from 'src/components/iconify'
 
-import type { IPostItem } from './list-group-student-item'
+import type { Group } from './types'
 
 // ----------------------------------------------------------------------
 
 type PostSearchProps = {
-  posts: IPostItem[];
+  posts: Group[];
   sx?: SxProps<Theme>;
 };
 
@@ -33,12 +33,12 @@ export function PostSearch({ posts, sx }: PostSearchProps) {
         }
       }}
       options={posts}
-      getOptionLabel={(post) => post.title}
+      getOptionLabel={(post) => post.name}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       renderInput={(params) => (
         <TextField
           {...params}
-          placeholder="Search post..."
+          placeholder="Tìm kiếm tên nhóm..."
           slotProps={{
             input: {
               ...params.InputProps,

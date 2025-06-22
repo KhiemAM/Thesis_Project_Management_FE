@@ -18,6 +18,7 @@ import userApi from 'src/axios/user'
 import { useLoading } from 'src/context'
 import thesesApi from 'src/axios/theses'
 import { DashboardContent } from 'src/layouts/student'
+import { TopicStatusText } from 'src/constants/topic-status'
 
 import { Iconify } from 'src/components/iconify'
 import ChipsArrayFilter from 'src/components/chip'
@@ -79,7 +80,9 @@ export function ListTopicProposalView() {
       } else {
         res = await thesesApi.getTheseByBatchId(sortBy)
       }
-      setTopic(res.data)
+      setTopic(res.data.filter(
+        (topic: TopicProps) => ![TopicStatusText[4], TopicStatusText[5]].includes(topic.status)
+      ))
     } finally {
       setIsLoading(false)
     }

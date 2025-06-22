@@ -28,6 +28,12 @@ const groupApi = {
   },
   registerThesis(groupId: string, thesisId: string): Promise<any> {
     return instance.post(`/group/${groupId}/register-thesis/${thesisId}`)
+  },
+  getGroupSupervisor(): Promise<any> {
+    return instance.get('/group/supervised-by-me')
+  },
+  getAllGroups(): Promise<any> {
+    return instance.get('/group/get-all-admin')
   }
 }
 

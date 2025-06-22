@@ -1,6 +1,8 @@
+import type { ProfileProps } from 'src/sections/student/search-student/user-table-row'
 
-
-import { useState, useCallback } from 'react'
+import { toast } from 'react-toastify'
+import { useParams } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -10,21 +12,63 @@ import Typography from '@mui/material/Typography'
 
 import { RouterLink } from 'src/routes/components'
 
+import groupApi from 'src/axios/group'
+import { useLoading } from 'src/context'
+import thesesApi from 'src/axios/theses'
 import { DashboardContent } from 'src/layouts/student'
 
 import { Iconify } from 'src/components/iconify'
 import { Main, Drawer } from 'src/components/drawer'
 import { Scrollbar } from 'src/components/scrollbar'
+import { AlertConfirmCallAPI } from 'src/components/sweetalert2'
 
 import ProfileStudentSidebarInfo from 'src/sections/student/profile-student/profile-student-sidebar-info'
 
-import { groupData } from '../data'
 import GroupStudentManagement from '../group-student-management'
+
+import type { Group } from '../types'
+import type { ApproveTopicProps } from '../group-student-thesis-information'
 // ----------------------------------------------------------------------
 const drawerWidth = 360
 
 export function InformationGroupStudentView() {
+  const { id } = useParams()
+  const { setIsLoading } = useLoading()
   const [openInformation, setOpenInformation] = useState(false)
+  const [group, setGroup] = useState<Group | null>(null)
+  const [informationStudent, setInformationStudent] = useState<ProfileProps | null>(null)
+  const [thesis, setThesis] = useState<ApproveTopicProps | null>(null)
+
+  const fetchGroupInformation = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await groupApi.getGroupById(id as string)
+      setGroup(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, id])
+
+  const fetchThesisInformation = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await thesesApi.getTheseById(group?.thesis_id as string)
+      setThesis(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, group?.thesis_id])
+
+  useEffect(() => {
+    fetchGroupInformation()
+  }, [fetchGroupInformation])
+
+  useEffect(() => {
+    if (group?.thesis_id) {
+      fetchThesisInformation()
+    }
+  }, [fetchThesisInformation, group?.thesis_id])
+
   const onOpenInformation = useCallback(() => {
     setOpenInformation(true)
   }, [])
@@ -32,6 +76,52 @@ export function InformationGroupStudentView() {
   const onCloseInformation = useCallback(() => {
     setOpenInformation(false)
   }, [])
+
+  const handleDeleteGroup = useCallback(() => {
+    AlertConfirmCallAPI({
+      title: 'Bạn có chắc chắn',
+      text: 'Bạn có muốn xóa nhóm không?',
+      icon:'warning',
+      showCancelButton: true,
+      confirmButtonColor:'#3085d6',
+      cancelButtonColor:'#d33',
+      confirmButtonText:'Oke, xóa nhóm',
+      cancelButtonText:'Không',
+      api: async() => {
+        try {
+          setIsLoading(true)
+          await groupApi.deleteGroup(id as string)
+          toast.success('Xóa nhóm thành công')
+          fetchGroupInformation()
+        } finally {
+          setIsLoading(false)
+        }
+      }
+    })
+  }, [fetchGroupInformation, id, setIsLoading])
+
+  const handleTransferLeader = useCallback(async (studentId: string) => {
+    AlertConfirmCallAPI({
+      title: 'Bạn có chắc chắn',
+      text: 'Bạn có muốn chuyển nhóm trưởng không?',
+      icon:'warning',
+      showCancelButton: true,
+      confirmButtonColor:'#3085d6',
+      cancelButtonColor:'#d33',
+      confirmButtonText:'Oke, chuyển nhóm trưởng',
+      cancelButtonText:'Không',
+      api: async() => {
+        try {
+          setIsLoading(true)
+          await groupApi.transferLeader(id as string, studentId)
+          toast.success('Chuyển nhóm trưởng thành công')
+          fetchGroupInformation()
+        } finally {
+          setIsLoading(false)
+        }
+      }
+    })
+  }, [setIsLoading, id, fetchGroupInformation])
 
   return (
     <DashboardContent>
@@ -65,10 +155,17 @@ export function InformationGroupStudentView() {
         <Card>
           <Scrollbar>
             <Box>
-              <GroupStudentManagement
-                group={groupData}
-                onOpenInformation={onOpenInformation}
-              />
+              {group && (
+                <GroupStudentManagement
+                  group={group}
+                  onOpenInformation={onOpenInformation}
+                  onDeleteGroup={handleDeleteGroup}
+                  refresh={fetchGroupInformation}
+                  setInformationStudent={setInformationStudent}
+                  handleTransferLeader={handleTransferLeader}
+                  thesis={thesis}
+                />
+              )}
             </Box>
           </Scrollbar>
         </Card>
@@ -106,29 +203,7 @@ export function InformationGroupStudentView() {
         <Divider />
         <ProfileStudentSidebarInfo
           isDrawer
-          initialValues={{
-            user_id: 'ed629b03-aa01-4c7e-ba5d-86b4de5735c8',
-            information: {
-              id: '0705aad0-5e65-4850-997a-687b0beceb39',
-              user_id: 'ed629b03-aa01-4c7e-ba5d-86b4de5735c8',
-              first_name: 'Khiêm',
-              last_name: 'Huỳnh Quang',
-              date_of_birth: '2000-04-15',
-              gender: '1',
-              address: 'Tân An, Long An',
-              tel_phone: '0356576557'
-            },
-            student_info: {
-              student_code: '2001210783',
-              class_name: '12DHTH05',
-              major_id: '4c5ccb13-e1da-48de-a067-a7fdd547040c',
-              major_name: 'Công nghệ thông tin',
-              id: '0e8fc47e-2e22-46c7-a36d-234567891234',
-              user_id: 'ed629b03-aa01-4c7e-ba5d-86b4de5735c8',
-              create_datetime: '2024-08-01T10:30:00',
-              update_datetime: '2025-06-06T15:45:00'
-            }
-          }}
+          initialValues={informationStudent}
         />
       </Drawer>
 

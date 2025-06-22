@@ -13,30 +13,22 @@ import { RouterLink } from 'src/routes/components'
 import { Iconify } from 'src/components/iconify'
 import { SvgColor } from 'src/components/svg-color'
 
+import type { Group } from './types'
+
 // ----------------------------------------------------------------------
-
-export type IPostItem = {
-  id: string;
-  title: string;
-  coverUrl: string;
-  description: string;
-  author: {
-    name: string;
-    avatarUrl: string;
-  };
-};
-
 export function PostItem({
   sx,
   post,
   ...other
 }: CardProps & {
-  post: IPostItem;
+  post: Group;
 }) {
+  const leader = post.members.find((member) => member.is_leader === true)
+
   const renderAvatar = (
     <Avatar
-      alt={post.author.name}
-      src={post.author.avatarUrl}
+      alt={leader?.full_name}
+      src={leader?.avatarUrl}
       sx={{
         left: 24,
         zIndex: 9,
@@ -51,34 +43,35 @@ export function PostItem({
       color="inherit"
       variant="subtitle1"
       underline="hover"
+      component={RouterLink}
+      href={`/group/information/${post.id}`}
       sx={{
         height: 44,
+        overflow: 'hidden',
+        WebkitLineClamp: 1,
+        display: '-webkit-box',
+        WebkitBoxOrient: 'vertical',
+        cursor: 'pointer'
+      }}
+    >
+      {post.name}
+    </Link>
+  )
+
+  const renderDescription = (
+    <Typography
+      variant="caption"
+      component="div"
+      sx={{
+        color: 'text.disabled',
         overflow: 'hidden',
         WebkitLineClamp: 1,
         display: '-webkit-box',
         WebkitBoxOrient: 'vertical'
       }}
     >
-      {post.title}
-    </Link>
-  )
-
-  const renderDescription = (
-    <Tooltip title={post.description} arrow>
-      <Typography
-        variant="caption"
-        component="div"
-        sx={{
-          color: 'text.disabled',
-          overflow: 'hidden',
-          WebkitLineClamp: 1,
-          display: '-webkit-box',
-          WebkitBoxOrient: 'vertical'
-        }}
-      >
-        {post.description}
-      </Typography>
-    </Tooltip>
+      {post.members.length} thành viên
+    </Typography>
   )
 
   const renderInfo = (
@@ -120,8 +113,8 @@ export function PostItem({
   const renderCover = (
     <Box
       component="img"
-      alt={post.title}
-      src={post.coverUrl}
+      alt={post.name}
+      src={post.coverImage}
       sx={{
         top: 0,
         width: 1,
