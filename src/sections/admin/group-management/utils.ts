@@ -1,8 +1,8 @@
 export const getColorByPriority = (priority: string) => {
   switch (priority) {
-  case 'Thấp':
+  case 'Thấp':
     return 'success'
-  case 'Trung bình':
+  case 'Trung bình':
     return 'warning'
   case 'Cao':
     return 'error'

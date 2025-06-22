@@ -18,30 +18,31 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import FormControlLabel from '@mui/material/FormControlLabel'
 
+import { fDate } from 'src/utils/format-time'
+
 import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
 
-import { useTodo } from './todo-context'
 import { getColorByPriority } from './utils'
 import MessageSection from './progress-group-student-message-section'
 
-import type { Todo } from './types'
+import type { Task } from './types'
 
 interface TodoDetailsProps {
   open: boolean;
   onClose: () => void;
+  todo: Task | null;
 }
 
-const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
-  const { selectedTodo, updateTodo } = useTodo()
+const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose, todo }) => {
   const [isEditing, setIsEditing] = useState(false)
-  const [editForm, setEditForm] = useState<Todo | null>(null)
+  const [editForm, setEditForm] = useState<Task | null>(null)
 
   useEffect(() => {
-    if (selectedTodo) {
-      setEditForm(selectedTodo)
+    if (todo) {
+      setEditForm(todo)
     }
-  }, [selectedTodo])
+  }, [todo])
 
   const handleEditToggle = useCallback(() => {
     setIsEditing(!isEditing)
@@ -59,36 +60,20 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
     setEditForm({ ...editForm, priority: e.target.value })
   }
 
-  const handleCompletedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!editForm) return
-    setEditForm({ ...editForm, completed: e.target.checked })
-  }
-
-  const handleSave = () => {
-    if (editForm) {
-      updateTodo(editForm)
-      setIsEditing(false)
-    }
-  }
+  // const handleSave = () => {
+  //   if (editForm) {
+  //     updateTodo(editForm)
+  //     setIsEditing(false)
+  //   }
+  // }
 
   const handleCloseDialog = () => {
     setIsEditing(false)
     onClose()
   }
 
-  if (!selectedTodo || !editForm) {
+  if (!todo || !editForm) {
     return null
-  }
-
-  // Format date to be more readable
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'No date set'
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    })
   }
 
   return (
@@ -184,28 +169,16 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
                 />
               </LocalizationProvider> */}
             </Box>
-
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={editForm.completed}
-                  onChange={handleCompletedChange}
-                  color="primary"
-                />
-              }
-              label="Mark as completed"
-              sx={{ mt: 1 }}
-            />
           </Box>
         ) : (
           <>
             <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid #e5e7eb' }}>
               <Typography variant="h5" gutterBottom>
-                {selectedTodo.title}
+                {todo.title}
               </Typography>
 
               <Typography variant="body1" gutterBottom whiteSpace="pre-wrap">
-                {selectedTodo.description || 'Không có mô tả'}
+                {todo.description || 'Không có mô tả'}
               </Typography>
 
               <Box sx={{ display: 'flex', gap: 3, mt: 3 }}>
@@ -213,15 +186,15 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
                   <Typography variant="body2" color="text.secondary">
                     Độ ưu tiên:
                   </Typography>
-                  <Label color={getColorByPriority(selectedTodo.priority)}>{selectedTodo.priority}</Label>
+                  <Label color={getColorByPriority(todo.priority_text)}>{todo.priority_text}</Label>
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Typography variant="body2" color="text.secondary">
                     Trạng thái:
                   </Typography>
-                  <Label color={selectedTodo.completed ? 'success' : 'error'}>
-                    {selectedTodo.completed ? 'Hoàn thành' : 'Chưa hoàn thành'}
+                  <Label color={todo.status == '2' ? 'success' : 'error'}>
+                    {todo.status == '2' ? 'Hoàn thành' : 'Chưa hoàn thành'}
                   </Label>
                 </Box>
 
@@ -230,15 +203,15 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
                   <Typography variant="body2" color="text.secondary">
                     Ngày hết hạn:
                   </Typography>
-                  <Label color='default'>{selectedTodo.dueDate}</Label>
+                  <Label color='default'>{fDate(todo.due_date)}</Label>
                 </Box>
               </Box>
             </Box>
 
             <Box>
               <MessageSection
-                todoId={selectedTodo.id}
-                messages={selectedTodo.message}
+                todoId={todo.id}
+                messages={todo.comments}
               />
             </Box>
           </>
@@ -248,15 +221,15 @@ const TodoDetails: React.FC<TodoDetailsProps> = ({ open, onClose }) => {
       {isEditing && (
         <DialogActions sx={{ px: 3, py: 2 }}>
           <Button onClick={() => setIsEditing(false)} color="inherit">
-            Cancel
+            Hủy
           </Button>
           <Button
             variant="contained"
             color="primary"
-            onClick={handleSave}
+            // onClick={handleSave}
             startIcon={<Iconify icon='solar:trash-bin-trash-bold' />}
           >
-            Save Changes
+            Lưu thay đổi
           </Button>
         </DialogActions>
       )}

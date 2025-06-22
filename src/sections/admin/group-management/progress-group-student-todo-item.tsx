@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { toast } from 'react-toastify'
 import React, { useCallback } from 'react'
 
 import Box from '@mui/material/Box'
@@ -10,26 +11,40 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import CardContent from '@mui/material/CardContent'
 
+import { fDate } from 'src/utils/format-time'
+
+import progressApi from 'src/axios/progress'
+
 import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
 
 import { useTodo } from './todo-context'
 import { getColorByPriority } from './utils'
 
-import type { Todo } from './types'
+import type { Task } from './types'
 
 interface TodoItemProps {
-  todo: Todo;
+  todo: Task;
+  onRefresh?: () => void;
+  onOpenDetail?: (todoId: string) => void;
 }
 
-const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
+const TodoItem: React.FC<TodoItemProps> = ({ todo, onRefresh, onOpenDetail }) => {
   const theme = useTheme()
   const { toggleTodo, deleteTodo, setSelectedTodo } = useTodo()
+  const [loadingButton, setLoadingButton] = React.useState(false)
 
-  const handleToggle = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleToggle = useCallback(async(e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
-    toggleTodo(todo.id)
-  }, [todo.id, toggleTodo])
+    try {
+      setLoadingButton(true)
+      await progressApi.updateStatusTaskProgress(todo.id, { status: todo.status == '1' ? '2' : '1' })
+      toast.success('Đã đánh dấu hoàn thành công việc')
+      onRefresh?.()
+    } finally {
+      setLoadingButton(false)
+    }
+  }, [todo.id, todo.status, onRefresh])
 
   const handleDelete = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
@@ -37,8 +52,8 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
   }, [todo.id, deleteTodo])
 
   const handleEdit = useCallback(() => {
-    setSelectedTodo(todo)
-  }, [todo, setSelectedTodo])
+    onOpenDetail?.(todo.id)
+  }, [todo.id, onOpenDetail])
 
   return (
     <motion.div
@@ -53,8 +68,8 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
           position: 'relative',
           cursor: 'pointer',
           transition: 'all 0.2s ease-in-out',
-          opacity: todo.completed ? 0.8 : 1,
-          ...todo.completed && {
+          opacity: todo.status == '2' ? 0.8 : 1,
+          ...todo.status == '2' && {
             backgroundColor: theme.vars.palette.action.disabledBackground
           },
           border: `1px solid ${theme.vars.palette.grey[500]}`
@@ -64,9 +79,10 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
         <CardContent sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', maxWidth: '80%' }}>
-              <Tooltip title={todo.completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}>
+              <Tooltip title={todo.status == '2' ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}>
                 <Checkbox
-                  checked={todo.completed}
+                  disabled={loadingButton}
+                  checked={todo.status == '2'}
                   onClick={handleToggle}
                   icon={<Box sx={{
                     width: 20,
@@ -82,8 +98,8 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
                 <Typography
                   variant="h5"
                   sx={{
-                    textDecoration: todo.completed ? 'line-through' : 'none',
-                    color: todo.completed ? 'text.secondary' : 'text.primary',
+                    textDecoration: todo.status == '2' ? 'line-through' : 'none',
+                    color: todo.status == '2' ? 'text.secondary' : 'text.primary',
                     display: '-webkit-box',
                     WebkitLineClamp: 1,
                     WebkitBoxOrient: 'vertical',
@@ -96,7 +112,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
                   variant="subtitle2"
                   color="text.secondary"
                   sx={{
-                    textDecoration: todo.completed ? 'line-through' : 'none',
+                    textDecoration: todo.status == '2' ? 'line-through' : 'none',
                     display: '-webkit-box',
                     WebkitLineClamp: 1,
                     WebkitBoxOrient: 'vertical',
@@ -118,17 +134,17 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
           </Box>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Label color={getColorByPriority(todo.priority)}>{todo.priority}</Label>
+            <Label color={getColorByPriority(todo.priority_text)}>{todo.priority_text}</Label>
 
-            {todo.message.length > 0 && (
+            {todo.comments.length > 0 && (
               <Label startIcon={<Iconify icon='solar:chat-round-line-bold' />}>
-                {todo.message.length}
+                {todo.comments.length}
               </Label>
             )}
 
-            {todo.dueDate && (
+            {todo.due_date && (
               <Label startIcon={<Iconify icon='solar:calendar-bold' />}>
-                {todo.dueDate}
+                {fDate(todo.due_date)}
               </Label>
             )}
           </Box>

@@ -1,8 +1,9 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
 import { v4 as uuidv4 } from 'uuid'
+import { toast } from 'react-toastify'
 import { AnimatePresence } from 'framer-motion'
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Fade from '@mui/material/Fade'
@@ -12,6 +13,9 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import InputAdornment from '@mui/material/InputAdornment'
+
+import { useLoading } from 'src/context'
+import progressApi from 'src/axios/progress'
 
 import { Iconify } from 'src/components/iconify'
 import ChipsArrayFilter from 'src/components/chip'
@@ -24,13 +28,15 @@ import TodoItem from './progress-group-student-todo-item'
 import TodoDetails from './progress-group-student-todo-detail'
 import ProgressBar from './progress-group-student-progress-bar'
 
-const TodoList = () => {
+import type { Task, Group } from './types'
+
+interface TodoListProps {
+  group: Group | null
+}
+
+const TodoList = ({ group }: TodoListProps) => {
   const id = uuidv4()
-  const {
-    todos,
-    selectedTodo,
-    setSelectedTodo
-  } = useTodo()
+  const { setIsLoading } = useLoading()
 
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
@@ -57,19 +63,38 @@ const TodoList = () => {
       data: []
     }
   })
+  const [todos, setTodos] = useState<Task[]>([])
+  const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null)
+  const [selectedTodo, setSelectedTodo] = useState<Task | null>(null)
+
+  const fetchTasks = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      if (group?.thesis_id) {
+        const res = await progressApi.getAllTasksByThesis(group.thesis_id)
+        setTodos(res.data)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, group?.thesis_id])
+
+  useEffect(() => {
+    fetchTasks()
+  }, [fetchTasks])
 
   const filteredTodos = useMemo(() => todos
     .filter((todo) => {
       // Filter by completion status
       if (filterOnlyCompletedTask) {
-        return todo.completed
+        return todo.status == '2'
       }
       return true
     })
     .filter((todo) => {
       // Filter by priority
       if (filterPriority.length > 0) {
-        return filterPriority.includes(todo.priority)
+        return filterPriority.includes(todo.priority_text)
       }
       return true
     })
@@ -92,9 +117,20 @@ const TodoList = () => {
     setAddDialogOpen(false)
   }, [])
 
+  const handleOpenDetails = useCallback(async(todoId: string) => {
+    try {
+      setIsLoading(true)
+      const res = await progressApi.getTaskProgressById(todoId)
+      setSelectedTodo(res.data)
+      setSelectedTodoId(todoId)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setSelectedTodoId, setSelectedTodo, setIsLoading])
+
   const handleCloseDetails = useCallback(() => {
-    setSelectedTodo(null)
-  }, [setSelectedTodo])
+    setSelectedTodoId(null)
+  }, [setSelectedTodoId])
 
   const handleClearFilter = useCallback(() => {
     setChipsFilter({
@@ -199,10 +235,10 @@ const TodoList = () => {
               color: 'primary.main'
             }}
           >
-            Nhóm 01
+            {group?.name}
           </Typography>
 
-          <ProgressBar />
+          <ProgressBar todos={todos}/>
 
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3, gap: 1 }}>
             <OutlinedInput
@@ -253,7 +289,7 @@ const TodoList = () => {
                 borderRadius: 2
               }}
             >
-              <MultipleSelectFilter inputLabel='Độ ưu tiên' valueMultipleSelect={['Thấp', 'Trung bình', 'Cao']} filterValue={filterPriority} onFilter={handleFilterPriority}/>
+              <MultipleSelectFilter inputLabel='Độ ưu tiên' valueMultipleSelect={['Thấp', 'Trung bình', 'Cao']} filterValue={filterPriority} onFilter={handleFilterPriority}/>
 
               <IOSSwitches
                 label="Chỉ hiển thị công việc hoàn thành"
@@ -283,7 +319,7 @@ const TodoList = () => {
           <Box>
             <AnimatePresence mode="popLayout">
               {filteredTodos.map((todo) => (
-                <TodoItem key={todo.id} todo={todo} />
+                <TodoItem key={todo.id} todo={todo} onRefresh={fetchTasks} onOpenDetail={handleOpenDetails}/>
               ))}
             </AnimatePresence>
           </Box>
@@ -308,8 +344,8 @@ const TodoList = () => {
         )}
       </Paper>
 
-      <AddTodo open={addDialogOpen} onClose={handleCloseAddDialog} />
-      <TodoDetails open={!!selectedTodo} onClose={handleCloseDetails} />
+      <AddTodo group={group} open={addDialogOpen} onClose={handleCloseAddDialog} />
+      <TodoDetails open={!!selectedTodoId} onClose={handleCloseDetails} todo={selectedTodo}/>
     </>
   )
 }

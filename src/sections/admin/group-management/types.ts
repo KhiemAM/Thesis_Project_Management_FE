@@ -33,3 +33,15 @@ export interface Group {
   coverImage?: string;
   thesis_id: string;
 }
+
+export interface Task {
+  title: string;
+  description: string;
+  due_date: string; // hoặc `Date` nếu bạn sẽ xử lý nó dưới dạng đối tượng Date trong code
+  status: string; // bạn có thể dùng enum nếu muốn rõ nghĩa hơn
+  priority: string; // tương tự, có thể dùng enum
+  id: string;
+  mission_id: string;
+  comments: Message[]; // có thể thay `any` bằng kiểu rõ ràng nếu biết cấu trúc comment
+  priority_text: string;
+}

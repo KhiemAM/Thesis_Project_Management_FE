@@ -7,13 +7,18 @@ import LinearProgress from '@mui/material/LinearProgress'
 
 import { useTodo } from './todo-context'
 
-const ProgressBar = () => {
-  const { todos } = useTodo()
+import type { Task } from './types'
+
+interface ProgressBarProps {
+  todos: Task[]
+}
+
+const ProgressBar = ({ todos }: ProgressBarProps) => {
   const theme = useTheme()
 
   const progress = useMemo(() => {
     if (todos.length === 0) return 0
-    const completedTasks = todos.filter(todo => todo.completed).length
+    const completedTasks = todos.filter(todo => todo.status == '2').length
     return (completedTasks / todos.length) * 100
   }, [todos])
 

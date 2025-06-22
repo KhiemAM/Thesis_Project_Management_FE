@@ -31,6 +31,7 @@ const MessageSection: React.FC<ResultSectionProps> = ({ todoId, messages }) => {
   const [input, setInput] = useState('')
   const [isImageMode, setIsImageMode] = useState(false)
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  console.log('🚀 ~ previewUrls:', previewUrls)
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null)
   const textFieldRef = useRef<HTMLInputElement | null>(null)
 

@@ -1,9 +1,15 @@
 
+import { toast } from 'react-toastify'
+import { useParams } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
+
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 
 import { RouterLink } from 'src/routes/components'
 
+import groupApi from 'src/axios/group'
+import { useLoading } from 'src/context'
 import { DashboardContent } from 'src/layouts/dashboard'
 
 import { Iconify } from 'src/components/iconify'
@@ -11,10 +17,29 @@ import { Iconify } from 'src/components/iconify'
 import { TodoProvider } from '../todo-context'
 import TodoList from '../progress-group-student-todo-list'
 
+import type { Group } from '../types'
+
 
 // ----------------------------------------------------------------------
 
 export function ProgressGroupStudentView() {
+  const { id } = useParams()
+  const { setIsLoading } = useLoading()
+  const [group, setGroup] = useState<Group | null>(null)
+
+  const fetchGroupInformation = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await groupApi.getGroupById(id as string)
+      setGroup(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, id])
+
+  useEffect(() => {
+    fetchGroupInformation()
+  }, [fetchGroupInformation])
 
   return (
     <DashboardContent>
@@ -37,7 +62,9 @@ export function ProgressGroupStudentView() {
       </Box>
 
       <TodoProvider>
-        <TodoList />
+        <TodoList
+          group={group}
+        />
       </TodoProvider>
 
     </DashboardContent>
