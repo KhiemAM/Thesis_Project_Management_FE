@@ -1,7 +1,7 @@
 import type { ChipsFilter } from 'src/components/chip/types'
 
 import { v4 as uuidv4 } from 'uuid'
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -11,6 +11,8 @@ import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 
+import { useLoading } from 'src/context'
+import councilApi from 'src/axios/council'
 import { _committee, _instructor } from 'src/_mock'
 import { DashboardContent } from 'src/layouts/student'
 
@@ -25,7 +27,7 @@ import { CommitteeTableRow } from '../committee-table-row'
 import { emptyRows, applyFilter, getComparator } from '../utils'
 import { CommitteeTabsStatusFilter } from '../committee-tabs-status-filter'
 
-import type { CommitteeProps } from '../committee-table-row'
+import type { Council } from '../types'
 
 // ----------------------------------------------------------------------
 const getUniqueInstructors = (): string[] => {
@@ -39,6 +41,7 @@ const getUniqueInstructors = (): string[] => {
 export function ListCommitteeView() {
   const table = useTable()
   const id = uuidv4()
+  const { setIsLoading } = useLoading()
   const [filterName, setFilterName] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('Tất cả')
   const [filterStatus, setFilterStatus] = useState('Tất cả')
@@ -63,9 +66,25 @@ export function ListCommitteeView() {
       data: []
     }
   })
+  const [council, setCouncil] = useState<Council[]>([])
 
-  const dataFiltered: CommitteeProps[] = applyFilter({
-    inputData: _committee,
+  const fetchCommittee = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const res = await councilApi.getCouncils()
+      setCouncil(res.data)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  , [setIsLoading])
+
+  useEffect(() => {
+    fetchCommittee()
+  }, [fetchCommittee])
+
+  const dataFiltered: Council[] = applyFilter({
+    inputData: council,
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
   })
@@ -196,7 +215,7 @@ export function ListCommitteeView() {
       </Box>
 
       <Card>
-        <CommitteeTabsStatusFilter data={_committee} value={filterStatus} setValue={handleFilterStatus}/>
+        <CommitteeTabsStatusFilter data={council} value={filterStatus} setValue={handleFilterStatus}/>
 
         <UserTableToolbar
           numSelected={table.selected.length}
@@ -226,10 +245,11 @@ export function ListCommitteeView() {
                 }
                 headLabel={[
                   { id: 'name', label: 'Tên hội đồng', minWidth: 300 },
-                  { id: 'major', label: 'Chuyên ngành', minWidth: 200 },
+                  { id: 'meeting_time', label: 'Thời gian', minWidth: 200, align: 'center' },
+                  { id: 'location', label: 'Địa điểm', minWidth: 200, align: 'center' },
                   { id: 'quantityTopic', label: 'Số lượng đề tài', align: 'center', minWidth: 150 },
-                  { id: 'quantityTeacher', label: 'Số lượng giảng viên', align: 'center', minWidth: 150 },
-                  { id: 'status', label: 'Trạng thái', align: 'center', minWidth: 150 },
+                  { id: 'quantityTeacher', label: 'Số lượng giảng viên', align: 'center', minWidth: 250 },
+                  { id: 'major', label: 'Chuyên ngành', align: 'center', minWidth: 200 },
                   { id: '' }
                 ]}
               />

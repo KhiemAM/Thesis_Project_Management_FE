@@ -7,38 +7,37 @@ import Checkbox from '@mui/material/Checkbox'
 import MenuList from '@mui/material/MenuList'
 import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
-import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import IconButton from '@mui/material/IconButton'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
+import TableContainer from '@mui/material/TableContainer'
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
+
+import { fDateTime } from 'src/utils/format-time'
 
 import { Label } from 'src/components/label'
 import { Iconify } from 'src/components/iconify'
+import { Scrollbar } from 'src/components/scrollbar'
 
+import { useTable } from './view'
 import { getColorByStatus } from './utils'
+import { AnnounceTopicTableRow } from './announce-topic-table-row'
+import { TopicProposalTableHead } from './topic-proposal-table-head'
 
-import type { TopicProps } from '../topic-proposal-management/topic-proposal-table-row'
+import type { Council } from './types'
+
 
 // ----------------------------------------------------------------------
 
-export type CommitteeProps = {
-  id: string;
-  name: string;
-  major: string;
-  quantityTopic: TopicProps[];
-  quantityTeacher: number;
-  status: string;
-};
-
 type CommitteeTableRowProps = {
-  row: CommitteeProps;
+  row: Council;
   selected: boolean;
   onSelectRow: () => void;
 };
 
 export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTableRowProps) {
+  const table = useTable()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
 
@@ -124,11 +123,13 @@ export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTable
 
         <TableCell>{row.name}</TableCell>
 
-        <TableCell>{row.major}</TableCell>
+        <TableCell align='center'>{fDateTime(row.meeting_time)}</TableCell>
+
+        <TableCell align='center'>{row.location}</TableCell>
 
         <TableCell align='center'>
-          <Label color='primary'>{row.quantityTopic.length}</Label>
-          {row.quantityTopic.length > 0 && (
+          <Label color='primary'>{row.theses.length}</Label>
+          {row.theses.length > 0 && (
             <IconButton color='primary' onClick={handleOpenDialog}>
               <Iconify icon="solar:eye-bold" />
             </IconButton>
@@ -136,11 +137,11 @@ export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTable
         </TableCell>
 
         <TableCell align='center'>
-          <Label color='primary'>{row.quantityTeacher}</Label>
+          <Label color='primary'>{row.members.length}</Label>
         </TableCell>
 
         <TableCell align='center'>
-          <Label color={getColorByStatus(row.status)}>{row.status}</Label>
+          <Label color={getColorByStatus(row.major.name)}>{row.major.name}</Label>
         </TableCell>
 
         <TableCell align="right">
@@ -191,7 +192,7 @@ export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTable
         open={openDialog}
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-          Modal title
+          Danh sách đề tài
         </DialogTitle>
         <IconButton
           aria-label="close"
@@ -206,31 +207,42 @@ export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTable
           <Iconify icon='mingcute:close-line' />
         </IconButton>
         <DialogContent dividers>
-          {groups.map((group, groupIndex) => (
-            <div key={groupIndex} style={{ marginBottom: '2rem' }}>
-              <h3>🔹 Đề tài: {group.thesis}</h3>
-              <p><strong>Giảng viên hướng dẫn:</strong> {group.advisor}</p>
-
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>STT</TableCell>
-                    <TableCell>Mã sinh viên</TableCell>
-                    <TableCell>Họ và tên</TableCell>
-                  </TableRow>
-                </TableHead>
+          <Scrollbar>
+            <TableContainer sx={{ overflow: 'unset' }}>
+              <Table sx={{ minWidth: 800 }}>
+                <TopicProposalTableHead
+                  order={table.order}
+                  orderBy={table.orderBy}
+                  rowCount={row.theses.length}
+                  numSelected={table.selected.length}
+                  onSort={table.onSort}
+                  onSelectAllRows={(checked) =>
+                    table.onSelectAllRows(
+                      checked,
+                      row.theses.map((topic) => topic.id)
+                    )
+                  }
+                  headLabel={[
+                    { id: 'name', label: 'Tên hội đồng', minWidth: 300 },
+                    { id: 'meeting_time', label: 'Thời gian', minWidth: 200, align: 'center' },
+                    { id: 'location', label: 'Địa điểm', minWidth: 200, align: 'center' },
+                    { id: 'quantityTopic', label: 'Số lượng đề tài', align: 'center', minWidth: 150 },
+                    { id: 'quantityTeacher', label: 'Số lượng giảng viên', align: 'center', minWidth: 250 },
+                    { id: 'major', label: 'Chuyên ngành', align: 'center', minWidth: 200 },
+                    { id: '' }
+                  ]}
+                />
                 <TableBody>
-                  {group.members.map((member) => (
-                    <TableRow key={member.id}>
-                      <TableCell>{member.stt}</TableCell>
-                      <TableCell>{member.id}</TableCell>
-                      <TableCell>{member.name}</TableCell>
-                    </TableRow>
-                  ))}
+                  {/* <AnnounceTopicTableRow
+                    key={row.id}
+                    row={row.theses}
+                    selected={table.selected.includes(row.id)}
+                    onSelectRow={() => table.onSelectRow(row.id)}
+                  /> */}
                 </TableBody>
               </Table>
-            </div>
-          ))}
+            </TableContainer>
+          </Scrollbar>
         </DialogContent>
       </Dialog>
     </>

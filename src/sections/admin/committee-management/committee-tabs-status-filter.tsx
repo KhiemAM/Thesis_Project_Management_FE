@@ -6,10 +6,10 @@ import { Label } from 'src/components/label'
 
 import { getDataFilterByTabs } from './utils'
 
-import type { CommitteeProps } from './committee-table-row'
+import type { Council } from './types'
 
 interface TopicTabsFilterProps {
-  data: CommitteeProps[]
+  data: Council[]
   value: string
   setValue: (newValue: string) => void
 }
@@ -28,9 +28,9 @@ export function CommitteeTabsStatusFilter({ data, value, setValue }: TopicTabsFi
         indicatorColor="primary"
         aria-label="topic department tabs"
       >
-        <Tab value="Tất cả" label="Tất cả" icon={<Label color='default'>{data.length}</Label>} iconPosition='end'/>
+        {/* <Tab value="Tất cả" label="Tất cả" icon={<Label color='default'>{data.length}</Label>} iconPosition='end'/>
         <Tab value="Hoạt động" label="Hoạt động" icon={<Label color='success'>{getDataFilterByTabs(data, 'status', 'Hoạt động').length}</Label>} iconPosition='end'/>
-        <Tab value="Ngừng hoạt động" label="Ngừng hoạt động" icon={<Label color='error'>{getDataFilterByTabs(data, 'status', 'Ngừng hoạt động').length}</Label>} iconPosition='end'/>
+        <Tab value="Ngừng hoạt động" label="Ngừng hoạt động" icon={<Label color='error'>{getDataFilterByTabs(data, 'status', 'Ngừng hoạt động').length}</Label>} iconPosition='end'/> */}
       </Tabs>
     </Box>
   )

@@ -100,7 +100,7 @@ const AddTodo: React.FC<AddTodoProps> = ({ group, open, onClose, onRefresh }) =>
       <DialogContent>
         <TextField
           fullWidth
-          label="Tên đề tài *"
+          label="Tiêu đề *"
           error={!!errors['title']}
           sx={{ mt: 3 }}
           {...register('title', {

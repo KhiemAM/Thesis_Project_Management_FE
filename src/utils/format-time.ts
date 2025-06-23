@@ -66,7 +66,7 @@ export function fDateTime(date: DatePickerFormat, template?: string): string {
     return 'Invalid date'
   }
 
-  return dayjs(date).format(template ?? formatPatterns.dateTime)
+  return dayjs(date).format(template ?? formatPatterns.split.dateTime)
 }
 
 // ----------------------------------------------------------------------

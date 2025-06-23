@@ -217,7 +217,6 @@ export function AnnounceTopicView() {
     })
     setFilterStatus(newValue)
   }, [id])
-
   const handleFilterInstructor = useCallback((newValue: string[]) => {
     setChipsFilter((pvev) => ({
       ...pvev,
@@ -227,12 +226,21 @@ export function AnnounceTopicView() {
       }
     }))
     setFilterInstructor(newValue)
-  }
-  , [id])
+  }, [id])
 
   const handleSelectAnnounceTopic = useCallback(async() => {
     try {
       setIsLoading(true)
+
+      // Kiểm tra trạng thái của các đề tài được chọn
+      const selectedTopics = _topic.filter(topic => table.selected.includes(topic.id))
+      const notApprovedByFaculty = selectedTopics.filter(topic => topic.status === TopicStatusText[4]) // Chưa duyệt cấp khoa
+
+      if (notApprovedByFaculty.length > 0) {
+        toast.error('Chỉ có thể công khai các đề tài đã được duyệt cấp khoa!')
+        return
+      }
+
       const data = {
         theses: table.selected.map((item) => ({
           id: item,
@@ -248,7 +256,7 @@ export function AnnounceTopicView() {
     } finally {
       setIsLoading(false)
     }
-  }, [setIsLoading, fetchTheses, table])
+  }, [setIsLoading, fetchTheses, table, _topic])
 
   return (
     <DashboardContent>

@@ -3,6 +3,7 @@ import type { ChipsFilter } from 'src/components/chip/types'
 
 import dayjs from 'dayjs'
 import { v4 as uuidv4 } from 'uuid'
+import { toast } from 'react-toastify'
 import { useForm, Controller } from 'react-hook-form'
 import { useState, useEffect, useCallback } from 'react'
 
@@ -15,13 +16,14 @@ import Typography from '@mui/material/Typography'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { Table, Dialog, useTheme, TableBody, IconButton, DialogTitle, DialogContent, TableContainer } from '@mui/material'
+import { Table, Dialog, TableBody, IconButton, DialogTitle, DialogContent, TableContainer } from '@mui/material'
 
 import { FIELD_REQUIRED_MESSAGE } from 'src/utils/validator'
 
 import userApi from 'src/axios/user'
 import thesesApi from 'src/axios/theses'
 import { useLoading } from 'src/context'
+import councilApi from 'src/axios/council'
 import { DashboardContent } from 'src/layouts/dashboard'
 import { TopicStatusText } from 'src/constants/topic-status'
 
@@ -41,12 +43,34 @@ import type { Batch } from '../types'
 import type { AnnounceTopicProps } from '../announce-topic-table-row'
 
 // ----------------------------------------------------------------------
+const _roles = [
+  {
+    id: 1,
+    name: 'Chủ tịch Hội đồng'
+  },
+  {
+    id: 2,
+    name: 'Uỷ viên - Thư ký'
+  },
+  {
+    id: 3,
+    name: 'Uỷ viên'
+  }
+]
+// ----------------------------------------------------------------------
 
 interface IFormInputCreateFunction {
   name: string;
-  date: string;
+  meeting_time: string;
   location: string;
-  major: string;
+  major_id: string;
+  thesis_ids: string[];
+}
+
+interface Member {
+  id: string;
+  member_id: string;
+  role: string;
 }
 
 export function CreateCommitteeView() {
@@ -63,6 +87,12 @@ export function CreateCommitteeView() {
   const [instructor, setInstructor] = useState<string[]>([])
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
   const [batches, setBatches] = useState<Batch[]>([])
+  const [members, setMembers] = useState<Member[]>([
+    { id: uuidv4(), member_id: '', role: '' },
+    { id: uuidv4(), member_id: '', role: '' },
+    { id: uuidv4(), member_id: '', role: '' }
+  ])
+  const [userLecturers, setUserLecturers] = useState([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
       display: 'Tìm kiếm',
@@ -106,7 +136,7 @@ export function CreateCommitteeView() {
       }
       setTopicDialog(
         res.data.filter(
-          (topic: AnnounceTopicProps) => ![TopicStatusText[0], TopicStatusText[1], TopicStatusText[2]].includes(topic.status)
+          (topic: AnnounceTopicProps) => [TopicStatusText[5]].includes(topic.status) && !topic.committee_id
         )
       )
     } finally {
@@ -119,6 +149,10 @@ export function CreateCommitteeView() {
       setIsLoading(true)
       const res = await userApi.getUserLectures()
       setInstructor(res.data.map((item: any) => `${item.last_name} ${item.first_name}`))
+      setUserLecturers(res.data.map((item: { first_name: string, last_name: string, title: string }) => ({
+        ...item,
+        full_name: `${item.title}. ${item.last_name} ${item.first_name}`
+      })))
     } finally {
       setIsLoading(false)
     }
@@ -170,7 +204,6 @@ export function CreateCommitteeView() {
     setFilterInstructor(newValue)
   }
   , [id])
-
   const handleSelectTopic = useCallback(() => {
     const selectedTopics = _topicDialog.filter((topic) => table.selected.includes(topic.id))
     setTopic((prev) => [...prev, ...selectedTopics])
@@ -179,10 +212,58 @@ export function CreateCommitteeView() {
     setOpenDialog(false)
   }, [_topicDialog, setTopic, setOpenDialog, table])
 
+  const handleAddMember = useCallback(() => {
+    setMembers((prev) => [...prev, { id: uuidv4(), member_id: '', role: '' }])
+  }, [])
+  const handleRemoveMember = useCallback((memberId: string) => {
+    if (members.length <= 3) {
+      toast.warning('Hội đồng phải có ít nhất 3 thành viên!')
+      return
+    }
+    setMembers((prev) => prev.filter((member) => member.id !== memberId))
+  }, [members.length])
+
+  const handleMemberChange = useCallback((memberId: string, field: 'member_id' | 'role', value: string) => {
+    setMembers((prev) =>
+      prev.map((member) =>
+        member.id === memberId ? { ...member, [field]: value } : member
+      )
+    )
+  }, [])
+  const handleCreateCommittee = useCallback(async (data: IFormInputCreateFunction) => {
+    try {
+      setIsLoading(true)
+      const membersData = members
+        .filter((member) => member.member_id && member.role)
+        .map((member) => ({
+          member_id: member.member_id,
+          role: parseInt(member.role)
+        }))
+
+      // Kiểm tra số lượng thành viên
+      if (membersData.length < 3) {
+        toast.error('Hội đồng phải có ít nhất 3 thành viên!')
+        return
+      }
+
+      const payload = {
+        name: data.name,
+        meeting_time: dayjs(data.meeting_time).format('YYYY-MM-DD HH:mm:ss'),
+        location: data.location,
+        major_id: data.major_id,
+        thesis_ids: _topic.map((topic) => topic.id),
+        members: membersData,
+        note: ''
+      }
+      await councilApi.createCouncil(payload)
+      toast.success('Lập hội đồng thành công!')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, _topic, members])
+
   return (
-    <form onSubmit={handleSubmit((data) => {
-      console.log(data)
-    })}>
+    <form onSubmit={handleSubmit(handleCreateCommittee)}>
       <DashboardContent>
         <Box
           sx={{
@@ -219,7 +300,7 @@ export function CreateCommitteeView() {
               )}
 
               <Controller
-                name="date"
+                name="meeting_time"
                 control={control}
                 rules={{ required: FIELD_REQUIRED_MESSAGE }}
                 render={({ field }) => (
@@ -234,7 +315,7 @@ export function CreateCommitteeView() {
                         textField: {
                           fullWidth: true,
                           variant: 'outlined',
-                          error: !!errors['date'],
+                          error: !!errors['meeting_time'],
                           slotProps: {
                             inputLabel: { shrink: true }
                           }
@@ -245,8 +326,8 @@ export function CreateCommitteeView() {
                   </LocalizationProvider>
                 )}
               />
-              {errors['date'] && (
-                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['date']?.message)}</Alert>
+              {errors['meeting_time'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['meeting_time']?.message)}</Alert>
               )}
 
               <TextField
@@ -263,7 +344,7 @@ export function CreateCommitteeView() {
               )}
 
               <Controller
-                name="major"
+                name="major_id"
                 rules={{ required: FIELD_REQUIRED_MESSAGE }}
                 control={control}
                 render={({ field }) => (
@@ -277,12 +358,12 @@ export function CreateCommitteeView() {
                     inputLabel='Chuyên ngành *'
                     value={field.value}
                     onChange={field.onChange}
-                    error={!!errors['major']}
+                    error={!!errors['major_id']}
                   />
                 )}
               />
-              {errors['major'] && (
-                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['major']?.message)}</Alert>
+              {errors['major_id'] && (
+                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['major_id']?.message)}</Alert>
               )}
             </Box>
           </Card>
@@ -358,7 +439,7 @@ export function CreateCommitteeView() {
             </Box>
           </Card>
 
-          <Card sx={{ width: { sm: '100%', md: '60%' }, mx: { sm: 'none', md: 'auto' }, mt: 3 }}>
+          <Card sx={{ width: { sm: '100%', md: '100%' }, mx: { sm: 'none', md: 'auto' }, mt: 3 }}>
             <Box
               sx={{
                 display: 'flex',
@@ -366,28 +447,73 @@ export function CreateCommitteeView() {
                 p: 3
               }}
             >
-              <Controller
-                name="major"
-                rules={{ required: FIELD_REQUIRED_MESSAGE }}
-                control={control}
-                render={({ field }) => (
-                  <SingleSelectTextField
-                    data={major}
-                    columns={[
-                      { key: 'name', label: 'Chuyên ngành' }
-                    ]}
-                    valueKey='id'
-                    displayKey='name'
-                    inputLabel='Chuyên ngành *'
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={!!errors['major']}
-                  />
-                )}
-              />
-              {errors['major'] && (
-                <Alert severity="error" sx={{ mb: 3 }}>{String(errors['major']?.message)}</Alert>
-              )}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Box>
+                  <Typography variant="h6">
+                    Thành viên hội đồng
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Số lượng thành viên: {members.filter(m => m.member_id && m.role).length} / {members.length} (Tối thiểu: 3)
+                  </Typography>
+                </Box>
+                <Button
+                  size="large"
+                  variant="outlined"
+                  onClick={handleAddMember}
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                >
+                  Thêm thành viên
+                </Button>
+              </Box>
+
+              {members.map((member, index) => (
+                <Box key={member.id} sx={{ mb: 3, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="subtitle2">
+                      Thành viên {index + 1}
+                    </Typography>
+                    {members.length > 3 && (
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleRemoveMember(member.id)}
+                      >
+                        <Iconify icon="solar:trash-bin-trash-bold" />
+                      </IconButton>
+                    )}
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                    <Box sx={{ flex: 1 }}>
+                      <SingleSelectTextField
+                        data={userLecturers}
+                        columns={[
+                          { key: 'user_name', label: 'Tên tài khoản' },
+                          { key: 'full_name', label: 'Tên giảng viên' }
+                        ]}
+                        valueKey='id'
+                        displayKey='full_name'
+                        inputLabel='Giảng viên *'
+                        value={member.member_id}
+                        onChange={(value) => handleMemberChange(member.id, 'member_id', value)}
+                      />
+                    </Box>
+
+                    <Box sx={{ flex: 1 }}>
+                      <SingleSelectTextField
+                        data={_roles}
+                        columns={[
+                          { key: 'name', label: 'Vai trò' }
+                        ]}
+                        valueKey='id'
+                        displayKey='name'
+                        inputLabel='Vai trò *'
+                        value={member.role}
+                        onChange={(value) => handleMemberChange(member.id, 'role', value)}
+                      />
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
 
               <Button
                 fullWidth
@@ -401,7 +527,7 @@ export function CreateCommitteeView() {
                   mt: 3
                 }}
               >
-                Lập đề xuất
+                Lập hội đồng
               </Button>
             </Box>
           </Card>

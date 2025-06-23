@@ -40,6 +40,7 @@ import { getColorByDepartment, getColorByThesisType, getColorByStatusAnnounce } 
 // ----------------------------------------------------------------------
 export type AnnounceTopicProps = {
   id: string;
+  committee_id: string;
   thesis_type: number;
   name_thesis_type: string;
   status: string;
