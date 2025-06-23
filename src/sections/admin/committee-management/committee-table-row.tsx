@@ -21,8 +21,7 @@ import { Iconify } from 'src/components/iconify'
 import { Scrollbar } from 'src/components/scrollbar'
 
 import { useTable } from './view'
-import { getColorByStatus } from './utils'
-import { AnnounceTopicTableRow } from './announce-topic-table-row'
+import { getColorByMajor } from './utils'
 import { TopicProposalTableHead } from './topic-proposal-table-head'
 
 import type { Council } from './types'
@@ -141,7 +140,7 @@ export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTable
         </TableCell>
 
         <TableCell align='center'>
-          <Label color={getColorByStatus(row.major.name)}>{row.major.name}</Label>
+          <Label color={getColorByMajor(row.major.name)}>{row.major.name}</Label>
         </TableCell>
 
         <TableCell align="right">

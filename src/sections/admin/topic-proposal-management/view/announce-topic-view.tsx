@@ -234,7 +234,7 @@ export function AnnounceTopicView() {
 
       // Kiểm tra trạng thái của các đề tài được chọn
       const selectedTopics = _topic.filter(topic => table.selected.includes(topic.id))
-      const notApprovedByFaculty = selectedTopics.filter(topic => topic.status === TopicStatusText[4]) // Chưa duyệt cấp khoa
+      const notApprovedByFaculty = selectedTopics.filter(topic => topic.status === TopicStatusText[4] || topic.status === TopicStatusText[5])
 
       if (notApprovedByFaculty.length > 0) {
         toast.error('Chỉ có thể công khai các đề tài đã được duyệt cấp khoa!')

@@ -1,5 +1,6 @@
 import { toast } from 'react-toastify'
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import Box from '@mui/material/Box'
 import Popover from '@mui/material/Popover'
@@ -35,9 +36,11 @@ export type TopicProps = {
   start_date: string;
   end_date: string;
   major: string;
+  major_id: string;
   reason?: string;
   notes?: string;
   instructors: {
+    id: string;
     name: string;
     email: string;
     lecturer_code: string;
@@ -45,6 +48,7 @@ export type TopicProps = {
     department_name: string;
   }[];
   reviewers: {
+    id: string;
     name: string;
     email: string;
     lecturer_code: string;
@@ -83,6 +87,7 @@ type UserTableRowProps = {
 };
 
 export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }: UserTableRowProps) {
+  const navigate = useNavigate()
   const theme = useTheme()
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openTopicDetail, setOpenTopicDetail] = useState(false)
@@ -130,6 +135,9 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
     })
   }, [row.id, onRefresh])
 
+  const handleUpdateThesis = useCallback(() => {
+    navigate(`/topic-proposal/update/${row.id}`)
+  }, [navigate, row.id])
 
   return (
     <>
@@ -230,8 +238,16 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
             onClick={() => { handleClosePopover(); onOpenTopicDetail() }}
             sx={{ color: 'primary.main' }}
           >
+            <Iconify icon="solar:eye-bold" />
+              Xem chi tiết
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => { handleClosePopover(); handleUpdateThesis() }}
+            sx={{ color: 'primary.main' }}
+          >
             <Iconify icon="solar:pen-bold" />
-            Xem chi tiết
+              Cập nhật
           </MenuItem>
 
           <MenuItem onClick={() => { handleClosePopover(); handleDeleteTopic() }} sx={{ color: 'error.main' }}>

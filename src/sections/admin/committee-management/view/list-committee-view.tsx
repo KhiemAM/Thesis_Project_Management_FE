@@ -43,8 +43,7 @@ export function ListCommitteeView() {
   const id = uuidv4()
   const { setIsLoading } = useLoading()
   const [filterName, setFilterName] = useState('')
-  const [filterDepartment, setFilterDepartment] = useState('Tất cả')
-  const [filterStatus, setFilterStatus] = useState('Tất cả')
+  const [filterMajor, setFilterMajor] = useState('Tất cả')
   const [filterInstructor, setFilterInstructor] = useState<string[]>([])
   const [chipsFilter, setChipsFilter] = useState<ChipsFilter>({
     filterSearch: {
@@ -53,11 +52,7 @@ export function ListCommitteeView() {
     },
     filterTab: [
       {
-        display: 'Bộ môn',
-        data: []
-      },
-      {
-        display: 'Trạng thái',
+        display: 'Chuyên ngành',
         data: []
       }
     ],
@@ -99,11 +94,7 @@ export function ListCommitteeView() {
       },
       filterTab: [
         {
-          display: 'Bộ môn',
-          data: []
-        },
-        {
-          display: 'Trạng thái',
+          display: 'Chuyên ngành',
           data: []
         }
       ],
@@ -113,8 +104,7 @@ export function ListCommitteeView() {
       }
     })
     setFilterName('')
-    setFilterDepartment('Tất cả')
-    setFilterStatus('Tất cả')
+    setFilterMajor('Tất cả')
     setFilterInstructor([])
   }, [])
 
@@ -132,11 +122,8 @@ export function ListCommitteeView() {
       if (key === 'filterTab' && Array.isArray(section)) {
         section.forEach((item) => {
           if (Array.isArray(item.data) && item.data.length === 0) {
-            if (item.display === 'Bộ môn') {
-              setFilterDepartment('Tất cả')
-            }
-            if (item.display === 'Trạng thái') {
-              setFilterStatus('Tất cả')
+            if (item.display === 'Chuyên ngành') {
+              setFilterMajor('Tất cả')
             }
           }
         })
@@ -162,30 +149,17 @@ export function ListCommitteeView() {
     table.onResetPage()
   }, [id, table])
 
-  const handleFilterDepartment = useCallback((newValue: string) => {
+  const handleFilterMajor = useCallback((newValue: string) => {
     setChipsFilter((prev) => {
       const updatedFilterTab = prev.filterTab.map((item) =>
-        item.display === 'Bộ môn'
+        item.display === 'Chuyên ngành'
           ? { ...item, data: newValue ? [{ key: id, label: newValue }] : [] }
           : item
       )
 
       return { ...prev, filterTab: updatedFilterTab }
     })
-    setFilterDepartment(newValue)
-  }, [id])
-
-  const handleFilterStatus = useCallback((newValue: string) => {
-    setChipsFilter((prev) => {
-      const updatedFilterTab = prev.filterTab.map((item) =>
-        item.display === 'Trạng thái'
-          ? { ...item, data: newValue ? [{ key: id, label: newValue }] : [] }
-          : item
-      )
-
-      return { ...prev, filterTab: updatedFilterTab }
-    })
-    setFilterStatus(newValue)
+    setFilterMajor(newValue)
   }, [id])
 
   const handleFilterInstructor = useCallback((newValue: string[]) => {
@@ -215,7 +189,7 @@ export function ListCommitteeView() {
       </Box>
 
       <Card>
-        <CommitteeTabsStatusFilter data={council} value={filterStatus} setValue={handleFilterStatus}/>
+        <CommitteeTabsStatusFilter data={council} value={filterMajor} setValue={handleFilterMajor}/>
 
         <UserTableToolbar
           numSelected={table.selected.length}

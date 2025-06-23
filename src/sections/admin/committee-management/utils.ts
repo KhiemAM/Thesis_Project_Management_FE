@@ -80,23 +80,23 @@ export function applyFilter({ inputData, comparator, filter }: ApplyFilterProps)
     )
   }
 
-  // if (Array.isArray(filter.filterTab) && filter.filterTab.length > 0) {
-  //   // Hàm lấy các label hợp lệ từ filterTab
-  //   const getLabels = (type: string) =>
-  //     filter.filterTab
-  //       .filter((item) => item.display === type)
-  //       .flatMap((item) => item.data)
-  //       .map((chip) => chip.label)
-  //       .filter((label) => label !== 'Tất cả')
+  if (Array.isArray(filter.filterTab) && filter.filterTab.length > 0) {
+    // Hàm lấy các label hợp lệ từ filterTab
+    const getLabels = (type: string) =>
+      filter.filterTab
+        .filter((item) => item.display === type)
+        .flatMap((item) => item.data)
+        .map((chip) => chip.label)
+        .filter((label) => label !== 'Tất cả')
 
-  //   // Lấy danh sách labels cho department và status
-  //   const statusLabels = getLabels('Trạng thái')
+    // Lấy danh sách labels cho department và status
+    const statusLabels = getLabels('Chuyên ngành')
 
-  //   // Lọc inputData theo cả department và status
-  //   inputData = inputData.filter((item) =>
-  //     (!statusLabels.length || statusLabels.includes(item.status))
-  //   )
-  // }
+    // Lọc inputData theo cả department và status
+    inputData = inputData.filter((item) =>
+      (!statusLabels.length || statusLabels.includes(item.major.name))
+    )
+  }
 
   // if (filter.filterSelect.data.length > 0) {
   //   const instructorLabels = filter.filterSelect.data.map((item) => item.label)
@@ -190,7 +190,14 @@ export const getDataFilterByTabs = (data: Council[], key: keyof Council, value: 
   if (value === 'Tất cả') {
     return data
   }
-  return data.filter((item) => (item as any)[key] === value)
+  return data.filter((item) => {
+    const fieldValue = (item as any)[key]
+    // Handle nested object properties like major.name
+    if (typeof fieldValue === 'object' && fieldValue !== null && 'name' in fieldValue) {
+      return fieldValue.name === value
+    }
+    return fieldValue === value
+  })
 }
 
 export const getColorByThesisType = (department: string) => {
@@ -212,6 +219,17 @@ export const getColorByStatusAnnounce = (status: string) => {
     return 'error'
   case getTopicStatusText(5):
     return 'success'
+  default:
+    return 'default'
+  }
+}
+
+export const getColorByMajor= (status: string) => {
+  switch (status) {
+  case 'Công nghệ thông tin':
+    return 'primary'
+  case 'An toàn thông tin':
+    return 'secondary'
   default:
     return 'default'
   }

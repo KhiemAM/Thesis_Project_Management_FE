@@ -28,9 +28,9 @@ export function CommitteeTabsStatusFilter({ data, value, setValue }: TopicTabsFi
         indicatorColor="primary"
         aria-label="topic department tabs"
       >
-        {/* <Tab value="Tất cả" label="Tất cả" icon={<Label color='default'>{data.length}</Label>} iconPosition='end'/>
-        <Tab value="Hoạt động" label="Hoạt động" icon={<Label color='success'>{getDataFilterByTabs(data, 'status', 'Hoạt động').length}</Label>} iconPosition='end'/>
-        <Tab value="Ngừng hoạt động" label="Ngừng hoạt động" icon={<Label color='error'>{getDataFilterByTabs(data, 'status', 'Ngừng hoạt động').length}</Label>} iconPosition='end'/> */}
+        <Tab value="Tất cả" label="Tất cả" icon={<Label color='default'>{data.length}</Label>} iconPosition='end'/>
+        <Tab value="Công nghệ thông tin" label="Công nghệ thông tin" icon={<Label color='primary'>{getDataFilterByTabs(data, 'major', 'Công nghệ thông tin').length}</Label>} iconPosition='end'/>
+        <Tab value="An toàn thông tin" label="An toàn thông tin" icon={<Label color='secondary'>{getDataFilterByTabs(data, 'major', 'An toàn thông tin').length}</Label>} iconPosition='end'/>
       </Tabs>
     </Box>
   )

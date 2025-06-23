@@ -5,6 +5,7 @@ const DEFAULT_GROUP_ID = 'e99f09a7-dd88-49d5-b1c8-1daf80c2d7b0'
 const DEFAULT_FUNCTION_ID = 'b1c8e99f-09a7-dd88-49d5-1daf80c2d7b0'
 const DEFAULT_ROLE_ID = 'b1c8e99f-09a7-dd88-49d5-1daf80c2dfds70'
 const DEFAULT_INFO_ID = 'b1c8e99f-09a7-dd88-49d5-1daf80c2d7b0'
+const DEFAULT_TOPIC_ID = 'b1c8e99f-09a7-dd88-49d5-1daf80c2d7b0'
 const icon = (name: string) => <SvgColor src={`/assets/icons/navbar/admin/${name}.svg`} />
 
 type NavItemChildren = {
@@ -99,6 +100,10 @@ export const navData = [
       {
         title: 'Import đề xuất đề tài',
         path: '/topic-proposal/import'
+      },
+      {
+        title: 'Cập nhật đề xuất đề tài',
+        path: `/topic-proposal/update/${DEFAULT_TOPIC_ID}`
       },
       {
         title: 'Duyệt đề tài cấp bộ môn',

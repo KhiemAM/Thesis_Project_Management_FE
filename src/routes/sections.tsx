@@ -44,6 +44,7 @@ export const ApproveTopicProposalPage = lazy(() => import('src/pages/admin/topic
 export const ApproveFacultyTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/approve-faculty-topic-proposal'))
 export const ImportTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/import-topic-proposal'))
 export const AnnounceTopicPage = lazy(() => import('src/pages/admin/topicProposalManagement/announce-topic'))
+export const UpdateTopicProposalPage = lazy(() => import('src/pages/admin/topicProposalManagement/update-topic-proposal'))
 //----------------------- Group Management--------------------------------------
 export const ListGroupStudentManagementPage = lazy(() => import('src/pages/admin/groupManagement/list-group-student'))
 export const ProgressGroupStudentManagementPage = lazy(() => import('src/pages/admin/groupManagement/progress-group-student'))
@@ -60,6 +61,7 @@ export const ProfileStudentPage = lazy(() => import('src/pages/student/profile-s
 export const GroupStudentPage = lazy(() => import('src/pages/student/group-student'))
 export const ListGroupStudentPage = lazy(() => import('src/pages/student/list-group-student'))
 export const InformationGroupStudentPage = lazy(() => import('src/pages/student/information-group-student'))
+export const ProgressGroupStudentPage = lazy(() => import('src/pages/student/progress-group-student'))
 export const TopicStudentPage = lazy(() => import('src/pages/student/topic-student'))
 
 const renderFallback = () => (
@@ -102,6 +104,7 @@ const MainRoutes = () => [
       { path: 'group', element: <GroupStudentPage /> },
       { path: 'group-list', element: <ListGroupStudentPage /> },
       { path: 'information/:id', element: <InformationGroupStudentPage /> },
+      { path: 'progress/:id', element: <ProgressGroupStudentPage /> },
       { path: 'topic/:id', element: <TopicStudentPage /> }
     ]
   },
@@ -155,7 +158,8 @@ const MainRoutes = () => [
           { path: 'approve', element: <ApproveTopicProposalPage /> },
           { path: 'approve-faculty', element: <ApproveFacultyTopicProposalPage /> },
           { path: 'import', element: <ImportTopicProposalPage /> },
-          { path: 'announce', element: <AnnounceTopicPage /> }
+          { path: 'announce', element: <AnnounceTopicPage /> },
+          { path: 'update/:id', element: <UpdateTopicProposalPage /> }
         ]
       },
       {

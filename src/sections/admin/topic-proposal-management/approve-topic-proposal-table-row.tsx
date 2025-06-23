@@ -49,9 +49,11 @@ export type ApproveTopicProps = {
   start_date: string;
   end_date: string;
   major: string;
+  major_id: string;
   reason?: string;
   notes?: string;
   instructors: {
+    id: string;
     name: string;
     email: string;
     lecturer_code: string;
@@ -59,6 +61,7 @@ export type ApproveTopicProps = {
     department_name: string;
   }[];
   reviewers: {
+    id: string;
     name: string;
     email: string;
     lecturer_code: string;
