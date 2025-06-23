@@ -1,6 +1,8 @@
+import { toast } from 'react-toastify'
 import { useState, useEffect, useCallback } from 'react'
 
 import Table from '@mui/material/Table'
+import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import Popover from '@mui/material/Popover'
 import Checkbox from '@mui/material/Checkbox'
@@ -13,6 +15,7 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
 import TableContainer from '@mui/material/TableContainer'
 import CircularProgress from '@mui/material/CircularProgress'
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem'
@@ -36,6 +39,7 @@ interface GroupInfoCellProps {
   thesisId: string;
   groupData: any;
   isLoading: boolean;
+
   onFetchGroup: (thesisId: string) => void;
 }
 
@@ -135,14 +139,18 @@ type CommitteeTableRowProps = {
   row: Council;
   selected: boolean;
   onSelectRow: () => void;
+
+  onDeleteCouncil?: (councilId: string) => Promise<void>;
 };
 
-export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTableRowProps) {
+export function CommitteeTableRow({ row, selected, onSelectRow, onDeleteCouncil }: CommitteeTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
   const [openMembersDialog, setOpenMembersDialog] = useState(false)
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [groupsData, setGroupsData] = useState<Record<string, any>>({})
   const [loadingGroups, setLoadingGroups] = useState<Record<string, boolean>>({})
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     setOpenPopover(event.currentTarget)
@@ -166,6 +174,15 @@ export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTable
     setOpenMembersDialog(false)
   }, [])
 
+  const handleOpenDeleteDialog = useCallback(() => {
+    setOpenDeleteDialog(true)
+    handleClosePopover()
+  }, [handleClosePopover])
+
+  const handleCloseDeleteDialog = useCallback(() => {
+    setOpenDeleteDialog(false)
+  }, [])
+
   const fetchGroupInfo = useCallback(async (thesisId: string) => {
     if (groupsData[thesisId] || loadingGroups[thesisId]) return
 
@@ -180,6 +197,19 @@ export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTable
       setLoadingGroups(prev => ({ ...prev, [thesisId]: false }))
     }
   }, [groupsData, loadingGroups])
+  const handleConfirmDelete = useCallback(async () => {
+    if (!onDeleteCouncil) return
+
+    setIsDeleting(true)
+    try {
+      await onDeleteCouncil(row.id)
+      handleCloseDeleteDialog()
+      // Show success message
+      toast.success('Hội đồng đã được xóa thành công!')
+    } finally {
+      setIsDeleting(false)
+    }
+  }, [row.id, onDeleteCouncil, handleCloseDeleteDialog])
 
   return (
     <>
@@ -265,6 +295,16 @@ export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTable
             <Iconify icon="solar:pen-bold" />
             Xem chi tiết
           </MenuItem>
+
+          {onDeleteCouncil && (
+            <MenuItem
+              onClick={handleOpenDeleteDialog}
+              sx={{ color: 'error.main' }}
+            >
+              <Iconify icon="solar:trash-bin-trash-bold" />
+              Xóa hội đồng
+            </MenuItem>
+          )}
         </MenuList>
       </Popover>      <Dialog
         fullWidth
@@ -555,6 +595,41 @@ export function CommitteeTableRow({ row, selected, onSelectRow }: CommitteeTable
             </TableContainer>
           </Scrollbar>
         </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Xác nhận xóa hội đồng
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            Bạn có chắc chắn muốn xóa hội đồng &quot;{row.name}&quot;? Hành động này không thể hoàn tác.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button
+            onClick={handleCloseDeleteDialog}
+            variant="outlined"
+            disabled={isDeleting}
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            variant="contained"
+            color="error"
+            disabled={isDeleting}
+            startIcon={isDeleting ? <CircularProgress size={16} /> : <Iconify icon="solar:trash-bin-trash-bold" />}
+          >
+            {isDeleting ? 'Đang xóa...' : 'Xóa hội đồng'}
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   )

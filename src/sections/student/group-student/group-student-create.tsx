@@ -27,9 +27,10 @@ interface GroupStudentCreateProps {
   group: Group | null;
   onCreateGroup: (data: { new_name: string }) => void;
   onRefresh?: () => void; // Optional prop for refreshing the table
+  members: Student[]; // Optional prop for initial members
 }
 
-const GroupStudentCreate = ({ group, onCreateGroup, onRefresh } : GroupStudentCreateProps) => {
+const GroupStudentCreate = ({ group, onCreateGroup, onRefresh, members } : GroupStudentCreateProps) => {
   const { setIsLoading } = useLoading()
   const theme = useTheme()
   const [openInformation, setOpenInformation] = useState(false)
@@ -124,7 +125,7 @@ const GroupStudentCreate = ({ group, onCreateGroup, onRefresh } : GroupStudentCr
           )}
 
           <GroupStudentListAccept
-            students={group?.members}
+            students={students.length > 0 ? students : members}
             maxMembers={3}
             onRemoveStudent={handleRemoveStudent}
             onOpenInformation={onOpenInformation}

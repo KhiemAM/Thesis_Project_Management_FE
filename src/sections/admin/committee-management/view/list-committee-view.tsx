@@ -62,7 +62,6 @@ export function ListCommitteeView() {
     }
   })
   const [council, setCouncil] = useState<Council[]>([])
-
   const fetchCommittee = useCallback(async () => {
     try {
       setIsLoading(true)
@@ -70,9 +69,19 @@ export function ListCommitteeView() {
       setCouncil(res.data)
     } finally {
       setIsLoading(false)
-    }
-  }
+    }  }
   , [setIsLoading])
+
+  const handleDeleteCouncil = useCallback(async (councilId: string) => {
+    setIsLoading(true)
+    try {
+      await councilApi.deleteCouncil(councilId)
+      // Refresh data after deletion
+      await fetchCommittee()
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setIsLoading, fetchCommittee])
 
   useEffect(() => {
     fetchCommittee()
@@ -226,8 +235,7 @@ export function ListCommitteeView() {
                   { id: 'major', label: 'Chuyên ngành', align: 'center', minWidth: 200 },
                   { id: '' }
                 ]}
-              />
-              <TableBody>
+              />              <TableBody>
                 {dataFiltered
                   .slice(
                     table.page * table.rowsPerPage,
@@ -239,6 +247,7 @@ export function ListCommitteeView() {
                       row={row}
                       selected={table.selected.includes(row.id)}
                       onSelectRow={() => table.onSelectRow(row.id)}
+                      onDeleteCouncil={handleDeleteCouncil}
                     />
                   ))}
 

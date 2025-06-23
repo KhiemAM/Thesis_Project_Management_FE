@@ -143,7 +143,7 @@ export function ApproveTopicProposalView() {
       ? _topic // sinh viên => không lọc, lấy toàn bộ
       : _topic.filter(
         (topic) =>
-          topic.instructors[0]?.department_name === userFullInformation?.lecturer_info?.department_name
+          topic.department.name === userFullInformation?.lecturer_info?.department_name
       ),
     comparator: getComparator(table.order, table.orderBy),
     filter: chipsFilter
