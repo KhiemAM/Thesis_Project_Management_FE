@@ -188,7 +188,7 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
         </TableCell>
 
         <TableCell align='center'>
-          <Label color={getColorByDepartment(row.department.name)}>{row.department.name}</Label>
+          <Label color={getColorByDepartment(row.department?.name || '')}>{row.department?.name || 'N/A'}</Label>
         </TableCell>
 
         <TableCell align='center'>
@@ -535,7 +535,7 @@ export function TopicProposalTableRow({ onRefresh, row, selected, onSelectRow }:
                 Bộ môn
               </Typography>
               <Typography variant='h6' sx={{ color: theme.vars.palette.primary.dark, fontWeight: 600 }}>
-                {row.department.name}
+                {row?.department?.name}
               </Typography>
             </Box>            {/* Notes Section */}
             {row.notes && (

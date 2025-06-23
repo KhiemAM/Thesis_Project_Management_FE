@@ -30,10 +30,12 @@ const groupApi = {
     return instance.post(`/group/${groupId}/register-thesis/${thesisId}`)
   },
   getGroupSupervisor(): Promise<any> {
-    return instance.get('/group/supervised-by-me')
-  },
+    return instance.get('/group/supervised-by-me')  },
   getAllGroups(): Promise<any> {
     return instance.get('/group/get-all-admin')
+  },
+  getGroupByThesis(thesisId: string): Promise<any> {
+    return instance.get(`/group/by-thesis/${thesisId}`)
   }
 }
 

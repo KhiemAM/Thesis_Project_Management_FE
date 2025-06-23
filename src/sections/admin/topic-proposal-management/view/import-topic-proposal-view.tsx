@@ -364,6 +364,7 @@ export function ImportTopicProposalView() {
                   { id: 'reviewers', label: 'Giáo viên phản biện', minWidth: 200 },
                   { id: 'department_name', label: 'Bộ môn', align: 'center', minWidth: 150 },
                   { id: 'name_thesis_type', label: 'Loại đề tài', align: 'center', minWidth: 150 },
+                  { id: 'major', label: 'Chuyên ngành', align: 'center', minWidth: 250 },
                   { id: '', label: 'Thao tác', alight: 'center', minWidth: 100 }
                 ]}
               />

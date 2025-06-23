@@ -509,7 +509,7 @@ export function CreateTopicProposalView() {
                         ]}
                         valueKey='id'
                         displayKey='full_name'
-                        inputLabel='Giáo viên hướng dẫn'
+                        inputLabel='Giáo viên phản biện'
                         value={field.value}
                         onChange={field.onChange}
                         error={!!errors['reviewer_ids']}
